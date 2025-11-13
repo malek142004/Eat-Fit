@@ -1,0 +1,124 @@
+/* === Global === */
+body {
+    background-color: #f9f9fa;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+}
+
+.padding {
+    padding: 3rem !important;
+}
+
+/* === Card === */
+.user-card-full {
+    overflow: hidden;
+    border-radius: 8px;
+    -webkit-box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+    background-color: #fff;
+}
+
+.card {
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    background-color: #fff;
+}
+
+/* === User Profile Section (LEFT SIDE) === */
+.user-card-full .user-profile {
+    /* Le dégradé fait office de couleur de fond */
+    background: linear-gradient(to right, #ee5a6f, #f29263);
+    border-radius: 8px 0 0 8px;
+    padding: 25px 0;
+    text-align: center;
+    color: #fff;
+    /* Utilise Flexbox pour centrer le contenu verticalement dans la colonne */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100%; /* Assure que la colonne prend toute la hauteur de la carte */
+}
+
+.user-card-full .user-profile .img-radius {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.user-card-full .user-profile h4 { /* Nom complet */
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.user-card-full .user-profile p { /* Rôle */
+    font-size: 16px;
+    margin-bottom: 0; /* Pas de marge en bas du rôle */
+}
+
+/* === Card Content (RIGHT SIDE) === */
+.card-block {
+    padding: 1.5rem;
+}
+
+/* Style des titres de section (Informations, Projets récents) */
+.card-block h5 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Styles pour les étiquettes (Email, Téléphone, etc.) */
+.card-info-label {
+    font-size: 14px;
+    font-weight: 600; /* Gras pour l'étiquette */
+    margin-bottom: 2px;
+    color: #555;
+}
+
+/* Styles pour les données (l'email, le numéro, etc.) */
+.card-info-data {
+    line-height: 1.4;
+    font-size: 15px;
+    margin-bottom: 15px; /* Espace sous la donnée */
+    color: #919aa3 !important; /* Couleur grisée (text-muted) */
+}
+
+/* Assure une bonne marge entre les groupes d'informations */
+.card-block .row {
+    margin-bottom: 20px;
+}
+
+/* === Social Links === */
+.user-card-full .social-link {
+    margin-top: 30px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 20px;
+}
+.user-card-full .social-link li {
+    display: inline-block;
+    margin-right: 15px;
+}
+.user-card-full .social-link li a {
+    font-size: 24px;
+    color: #555;
+    transition: all 0.3s ease-in-out;
+}
+.user-card-full .social-link li a:hover {
+    color: #ee5a6f;
+    transform: translateY(-2px);
+}
+
+/* === Media Queries === */
+@media (max-width: 991px) {
+    /* Sur les petits écrans, le profil est en haut et occupe toute la largeur */
+    .user-card-full .user-profile {
+        border-radius: 8px 8px 0 0;
+    }
+}

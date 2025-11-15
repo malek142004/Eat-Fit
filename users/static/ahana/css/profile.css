@@ -1,124 +1,289 @@
-/* === Global === */
+/* ============================
+   GLOBAL
+============================ */
 body {
-    background-color: #f9f9fa;
-    font-family: 'Roboto', sans-serif;
+    background-color: #f5f6fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Utiliser 100% de la hauteur du viewport pour centrer le contenu */
+    min-height: 100vh;
+    padding: 30px; /* Augmenter légèrement le padding global */
     color: #333;
+    margin: 0;
 }
 
-.padding {
-    padding: 3rem !important;
-}
 
-/* === Card === */
+
+/* ============================
+   CARD PRINCIPALE (Agrandissement)
+============================ */
 .user-card-full {
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); /* Ombre plus prononcée */
     overflow: hidden;
-    border-radius: 8px;
-    -webkit-box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
-    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
-    margin-bottom: 30px;
     background-color: #fff;
+    margin: 2rem 0;
+    width: 100%;
+    /* Augmentation significative de la largeur maximale */
+    max-width: 1200px; 
+    /* Permettre une plus grande hauteur en retirant le min-height si nécessaire, mais géré par le contenu */
+    min-height: 600px; /* Ajout d'une hauteur minimale pour qu'il soit grand même avec peu de contenu */
 }
+
 
 .card {
     border: none;
-    border-radius: 8px;
-    margin-bottom: 30px;
     background-color: #fff;
+    margin-bottom: 0; /* Éviter le margin-bottom pour la carte interne */
+    border-radius: 15px; /* Harmonisation avec le conteneur principal */
 }
 
-/* === User Profile Section (LEFT SIDE) === */
-.user-card-full .user-profile {
-    /* Le dégradé fait office de couleur de fond */
-    background: linear-gradient(to right, #ee5a6f, #f29263);
-    border-radius: 8px 0 0 8px;
-    padding: 25px 0;
-    text-align: center;
+.card-block {
+    padding: 2.5rem; /* Augmenter le padding pour plus d'espace */
+}
+
+/* ============================
+   PROFIL (COLONNE GAUCHE)
+============================ */
+/* Augmenter la taille de la colonne de profil pour un look plus grand/professionnel */
+.col-md-3.user-profile,
+.col-lg-4.user-profile { /* Cibler les colonnes pour la nouvelle structure */
+    background: linear-gradient(to top right, #f29263, #ee5a6f);
     color: #fff;
-    /* Utilise Flexbox pour centrer le contenu verticalement dans la colonne */
+    padding: 15rem 1.5rem; /* Augmenter le padding */
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    min-height: 100%; /* Assure que la colonne prend toute la hauteur de la carte */
+    justify-content: center;
+    text-align: center;
+    /* Mise à jour des border-radius pour correspondre au conteneur principal */
+    border-radius: 15px 15px;
+    height: 90%; /* Important pour que le fond de la colonne s'étende */
 }
 
-.user-card-full .user-profile .img-radius {
+.img-radius {
     border-radius: 50%;
-    width: 100px;
-    height: 100px;
+    width: 150px; /* Augmenter la taille de la photo */
+    height: 150px;
     object-fit: cover;
-    margin-bottom: 15px;
+    border: 6px solid #fff; /* Border plus épaisse */
+    cursor: pointer;
 }
 
-.user-card-full .user-profile h4 { /* Nom complet */
-    font-weight: 600;
-    margin-bottom: 5px;
+.user-profile h4 {
+    margin-top: 20px;
+    font-size: 1.8rem; /* Titre plus grand */
+    font-weight: 700;
 }
 
-.user-card-full .user-profile p { /* Rôle */
-    font-size: 16px;
-    margin-bottom: 0; /* Pas de marge en bas du rôle */
+.user-profile p {
+    font-size: 1.1rem; /* Texte plus grand */
+    margin-bottom: 0;
 }
 
-/* === Card Content (RIGHT SIDE) === */
-.card-block {
-    padding: 1.5rem;
+/* ============================
+   ONGLET NAVIGATION
+============================ */
+.nav-pills {
+    display: flex !important;
+    flex-direction: row !important;
+    border-bottom: 2px solid #eee; /* Ligne de séparation plus visible */
+    margin-bottom: 2rem;
+    padding: 0 5px;
 }
 
-/* Style des titres de section (Informations, Projets récents) */
-.card-block h5 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 15px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-/* Styles pour les étiquettes (Email, Téléphone, etc.) */
-.card-info-label {
-    font-size: 14px;
-    font-weight: 600; /* Gras pour l'étiquette */
-    margin-bottom: 2px;
-    color: #555;
-}
-
-/* Styles pour les données (l'email, le numéro, etc.) */
-.card-info-data {
-    line-height: 1.4;
-    font-size: 15px;
-    margin-bottom: 15px; /* Espace sous la donnée */
-    color: #919aa3 !important; /* Couleur grisée (text-muted) */
-}
-
-/* Assure une bonne marge entre les groupes d'informations */
-.card-block .row {
-    margin-bottom: 20px;
-}
-
-/* === Social Links === */
-.user-card-full .social-link {
-    margin-top: 30px;
-    border-top: 1px solid #e0e0e0;
-    padding-top: 20px;
-}
-.user-card-full .social-link li {
-    display: inline-block;
+.nav-pills .nav-item {
     margin-right: 15px;
 }
-.user-card-full .social-link li a {
-    font-size: 24px;
+
+.nav-pills .nav-link {
     color: #555;
-    transition: all 0.3s ease-in-out;
-}
-.user-card-full .social-link li a:hover {
-    color: #ee5a6f;
-    transform: translateY(-2px);
+    font-weight: 600;
+    border-radius: 10px 10px 0 0; /* Rayons plus doux */
+    margin-right: 10px;
+    padding: 12px 20px; /* Padding plus grand pour les boutons */
+    transition: all 0.3s ease;
+    margin-bottom: -2px; /* Pour masquer la bordure inférieure */
+    border: 2px solid transparent;
 }
 
-/* === Media Queries === */
-@media (max-width: 991px) {
-    /* Sur les petits écrans, le profil est en haut et occupe toute la largeur */
-    .user-card-full .user-profile {
-        border-radius: 8px 8px 0 0;
+.nav-pills .nav-link.active,
+.nav-pills .nav-link:hover {
+    color: #fff;
+    background: linear-gradient(to right, #ee5a6f, #f29263);
+    border-color: #ee5a6f;
+}
+
+/* ============================
+   FORMULAIRE
+============================ */
+.form-group {
+    margin-bottom: 1.5rem; /* Plus d'espace entre les champs */
+}
+
+.form-group label {
+    font-weight: 700; /* Label plus visible */
+    color: #444;
+    margin-bottom: 8px;
+    display: block;
+    font-size: 1rem;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px; /* Rayons plus doux */
+    border: 1px solid #ddd;
+    padding: 12px 18px; /* Padding plus grand pour les inputs */
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #ee5a6f; /* Changer la couleur de focus */
+    box-shadow: 0 0 8px rgba(238,90,111,0.4);
+    outline: none;
+}
+
+/* Le champ rôle devient non modifiable */
+.role-field .form-select {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ============================
+   BOUTONS
+============================ */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 12px 30px; /* Boutons plus grands */
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: linear-gradient(to right, #ee5a6f, #f29263);
+    border: none;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to left, #ee5a6f, #f29263);
+    box-shadow: 0 4px 10px rgba(238,90,111,0.5); /* Ombre au survol */
+}
+
+.btn-secondary {
+    background-color: #1e88e5; /* Un bleu plus moderne */
+    border: none;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background-color: #0b73c2;
+}
+
+.btn-danger {
+    background-color: #e53935; /* Un rouge plus moderne */
+    border: none;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background-color: #c62828;
+}
+
+.d-flex.justify-content-between {
+    margin-top: 2rem;
+}
+
+/* ============================
+   RESPONSIVITÉ (Ajustement des colonnes)
+============================ */
+@media (min-width: 992px) {
+    /* Sur les grands écrans (lg), on donne plus d'espace au formulaire */
+    .user-card-full .row > .user-profile {
+        flex: 0 0 auto;
+        width: 33.3333%; /* Lg-4 pour 33% */
     }
+    .user-card-full .row > .col-lg-8 {
+        flex: 0 0 auto;
+        width: 66.6667%; /* Lg-8 pour 66% */
+    }
+}
+
+@media (max-width: 991px) {
+    .user-profile {
+        /* Correction des coins arrondis sur mobile/tablette */
+        border-radius: 15px 15px 0 0 !important;
+    }
+    .user-card-full .row > .col-md-9 {
+        /* Assurez-vous que l'arrondi du formulaire est correct */
+        border-radius: 0 0 15px 15px; 
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 0;
+    }
+    .user-card-full {
+        margin: 0;
+        border-radius: 0;
+        min-height: auto;
+    }
+
+    .user-profile {
+        order: -1;
+    }
+
+    .card-block {
+        padding: 1.5rem;
+    }
+}
+
+/* ============================
+   AJUSTEMENT MOT DE PASSE (Option alternative)
+============================ */
+/* Applique les styles form-control aux inputs de type password dans l'onglet */
+#pills-password input[type="password"] {
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 12px 18px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    width: 100%; /* S'assurer qu'il prend toute la largeur */
+    box-sizing: border-box; /* Inclure padding et border dans la largeur */
+}
+
+/* Appliquer les styles de focus */
+#pills-password input[type="password"]:focus {
+    border-color: #ee5a6f;
+    box-shadow: 0 0 8px rgba(238,90,111,0.4);
+    outline: none;
+}
+.delete-modal {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+}
+
+.delete-modal .modal-header {
+    background: #ffe5e5;
+    border-bottom: none;
+}
+
+.delete-modal .modal-body {
+    padding: 18px 25px;
+    color: #444;
+}
+
+.delete-modal .modal-footer {
+    border-top: none;
 }

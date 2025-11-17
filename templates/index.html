@@ -1,0 +1,865 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zxx">
+<head>
+    <title>Ahana | Yoga HTML Template</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="Ahana Yoga HTML Template">
+    <meta name="keywords" content="yoga, html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/nice-select.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/magnific-popup.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/slicknav.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/animate.css' %}"/>
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}"/>
+
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <!-- Page Preloder -->
+    <div id="preloder"><div class="loader"></div></div>
+{% load static %}
+
+<!-- Header Section -->
+<header class="header-section">
+    <div class="header-top">
+        <div class="row m-0">
+            <div class="col-md-6 d-none d-md-block p-0">
+                <div class="header-info">
+                    <i class="material-icons">map</i>
+                    <p>184 Main Collins Street</p>
+                </div>
+                <div class="header-info">
+                    <i class="material-icons">phone</i>
+                    <p>(965) 436 3274</p>
+                </div>
+            </div>
+            <div class="col-md-6 text-left text-md-right p-0">
+                <div class="header-info d-none d-md-inline-flex">
+                    <i class="material-icons">alarm_on</i>
+                    <p>Mon - Fri: 6:30am - 07:45pm</p>
+                </div>
+                <div class="header-info">
+                    <i class="material-icons">language</i>
+                    <select id="language" class="language-select">
+                        <option data-display="Language">EN</option>
+                        <option value="1">ES</option>
+                        <option value="2">JA</option>
+                        <option value="3">AR</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-bottom">
+        <a href="{% url 'index' %}" class="site-logo">
+            <img src="{% static 'img/logo.png' %}" alt="">
+        </a>
+
+        <div class="hb-right">
+            <div class="hb-switch" id="search-switch">
+                <img src="{% static 'img/icons/search.png' %}" alt="">
+            </div>
+            <div class="hb-switch" id="infor-switch">
+                <img src="{% static 'img/icons/bars.png' %}" alt="">
+            </div>
+        </div>
+
+        <div class="container">
+            <ul class="main-menu">
+
+                <li><a href="{% url 'index' %}" class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">Home</a></li>
+
+                <li><a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a></li>
+
+                <li><a href="{% url 'classes' %}"
+                       class="{% if request.resolver_match.url_name == 'classes' or request.resolver_match.url_name == 'classes-details' %}active{% endif %}">
+                       Classes
+                </a></li>
+
+                <li><a href="{% url 'trainer' %}"
+                       class="{% if request.resolver_match.url_name == 'trainer' or request.resolver_match.url_name == 'trainer-details' %}active{% endif %}">
+                       Trainers
+                </a></li>
+
+                <li><a href="{% url 'product_list' %}"
+                       class="{% if request.resolver_match.url_name == 'product_list' or request.resolver_match.url_name == 'product_detail' %}active{% endif %}">
+                       Shop
+                </a></li>
+
+                <li><a href="{% url 'blog' %}"
+                       class="{% if request.resolver_match.url_name == 'blog' or request.resolver_match.url_name == 'single-blog' %}active{% endif %}">
+                       Blog
+                </a></li>
+
+                <li><a href="{% url 'contact' %}"
+                       class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}">
+                       Contact
+                </a></li>
+
+                <!-- Authentication buttons -->
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'users:profile' %}">Profile</a></li>
+                    <li><a href="{% url 'users:logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'users:auth' %}">Login / Signup</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</header>
+<!-- Header Section end -->
+
+<!-- Infor Model -->
+	<div class="infor-model-warp">
+		<div class="infor-model d-flex align-items-center">
+			<div class="infor-close">
+				<i class="material-icons">close</i>
+			</div>
+			<div class="infor-middle">
+				<a href="#" class="infor-logo">
+					<img src="{% static 'img/logo-2.png' %}" alt="">
+				</a>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>
+				<div class="insta-imgs">
+					<div class="insta-item">
+						<div class="insta-img">
+							<img src="{% static 'img/infor/1.jpg' %}" alt="">
+							<div class="insta-hover">
+								<i class="fa fa-instagram"></i>
+								<p>ahana.yoga</p>
+							</div>
+						</div>
+					</div>
+					<div class="insta-item">
+						<div class="insta-img">
+							<img src="{% static 'img/infor/2.jpg' %}" alt="">
+							<div class="insta-hover">
+								<i class="fa fa-instagram"></i>
+								<p>ahana.yoga</p>
+							</div>
+						</div>
+					</div>
+					<div class="insta-item">
+						<div class="insta-img">
+							<img src="{% static 'img/infor/3.jpg' %}" alt="">
+							<div class="insta-hover">
+								<i class="fa fa-instagram"></i>
+								<p>ahana.yoga</p>
+							</div>
+						</div>
+					</div>
+					<div class="insta-item">
+						<div class="insta-img">
+							<img src="{% static 'img/infor/4.jpg' %}" alt="">
+							<div class="insta-hover">
+								<i class="fa fa-instagram"></i>
+								<p>ahana.yoga</p>
+							</div>
+						</div>
+					</div>
+					<div class="insta-item">
+						<div class="insta-img">
+							<img src="{% static 'img/infor/5.jpg' %}" alt="">
+							<div class="insta-hover">
+								<i class="fa fa-instagram"></i>
+								<p>ahana.yoga</p>
+							</div>
+						</div>
+					</div>
+					<div class="insta-item">
+						<div class="insta-img">
+							<img src="{% static 'img/infor/6.jpg' %}" alt="">
+							<div class="insta-hover">
+								<i class="fa fa-instagram"></i>
+								<p>ahana.yoga</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<form class="infor-form">
+					<input type="text" placeholder="Your Email">
+					<button><img src="{% static 'img/icons/send.png' %}" alt=""></button>
+				</form>
+				<div class="insta-social">
+					<a href="#"><i class="fa fa-linkedin"></i></a>
+					<a href="#"><i class="fa fa-twitter"></i></a>
+					<a href="#"><i class="fa fa-instagram"></i></a>
+					<a href="#"><i class="fa fa-facebook"></i></a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Infor Model end -->	                                                                              
+	<!-- Hero Section -->
+	<section class="hero-section">
+		<div class="hero-social-warp">
+			<div class="hero-social">
+				<a href="#"><i class="fa fa-facebook"></i></a>
+				<a href="#"><i class="fa fa-instagram"></i></a>
+				<a href="#"><i class="fa fa-twitter"></i></a>
+				<a href="#"><i class="fa fa-linkedin"></i></a>
+			</div>
+		</div>
+		<div class="arrow-buttom">
+			<img src="{% static 'img/icons/arrows-buttom.png' %}" alt="">
+		</div>
+		<div class="hero-slider owl-carousel">
+			<div class="hs-item">
+				<div class="hs-style-1 text-center">
+					<img src="{% static 'img/hero-slider/1.png' %}" alt="">
+				</div>
+			</div>
+			<div class="hs-item">
+				<div class="hs-style-2">
+					<div class="container-fluid h-100">
+						<div class="row h-100">
+							<div class="col-lg-6 h-100 d-none d-lg-flex align-items-xl-end align-items-lg-center">
+								<div class="hs-img">
+									<img src="{% static 'img/hero-slider/2.png' %}" alt="">
+								</div>
+							</div>
+							<div class="col-lg-6 d-flex align-items-center">
+								<div class="hs-text-warp">
+									<div class="hs-text">
+										<h2>Get slim and toned with healthy habits</h2>
+									    <p>Follow personalized nutrition and fitness plans to achieve your ideal body and boost your energy every day.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="hs-item">
+				<div class="hs-style-3 text-center">
+					<div class="container">
+						<div class="hs-text">
+							<h2>Reduce your stress</h2>
+							<p>Find balance in your daily life with mindful exercises and wellness tips!</p>
+						</div>
+					</div>
+					<div class="hs-img">
+						<img src="{% static 'img/hero-slider/3.png' %}" alt="">
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- Hero Section end -->
+
+	<!-- About Section -->
+	<section class="about-section spad">
+		<div class="container">
+			<div class="section-title text-center">
+				<img src="{% static 'img/icons/logo-icon.png' %}" alt="">
+				<h2>Welcome to Eat&Fit</h2>
+				<p>Eat healthy, stay fit, and transform your lifestyle with personalized nutrition and fitness plans!</p>
+			</div>
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="about-img">
+						<img src="{% static 'img/about.png' %}" alt="">
+					</div>
+				</div>
+				<div class="col-lg-6">
+					<div class="about-item">
+						<div class="ai-icon">
+							<img src="{% static 'img/icons/about-1.png' %}" alt="">
+						</div>
+						<div class="ai-text">
+							<h4>Healthy Nutrition</h4>
+            				<p>Discover balanced meal plans and tips to nourish your body and feel energized every day.</p>
+						</div>
+					</div>
+					<div class="about-item">
+						<div class="ai-icon">
+							<img src="{% static 'img/icons/about-2.png' %}" alt="">
+						</div>
+						<div class="ai-text">
+							<h4>Fitness Made Easy</h4>
+            				<p>Follow easy-to-do workouts designed to help you stay active, slim, and strong.</p>
+						</div>
+					</div>
+					<div class="about-item">
+						<div class="ai-icon">
+							<img src="{% static 'img/icons/about-3.png' %}" alt="">
+						</div>
+						<div class="ai-text">
+							<h4>Wellness & Energy</h4>
+            				<p>Boost your overall wellness with daily tips, routines, and habits for a healthier lifestyle.</p>
+						</div>
+					</div>
+					<a href="" class="site-btn sb-gradient mt-5">explore more</a>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- About Section end -->
+
+	<!-- Classes Section -->
+	<section class="classes-section spad">
+		<div class="container">
+			<div class="section-title text-center">
+				<img src="{% static 'img/icons/logo-icon.png' %}" alt="">
+				<h2>Popular Classes</h2>
+				<p>Practice Yoga to perfect physical beauty, take care of your soul and enjoy life more fully!</p>
+			</div>
+			<div class="classes-slider owl-carousel">
+				<div class="classes-item">
+					<div class="ci-img">
+						<img src="{% static 'img/classes/1.jpg' %}" alt="">
+					</div>
+					<div class="ci-text">
+						<h4><a href="classes-details.html">Artistic Yoga</a></h4>
+						<div class="ci-metas">
+							<div class="ci-meta"><i class="material-icons">event_available</i>Mon, Wed, Fri</div>
+							<div class="ci-meta"><i class="material-icons">alarm_on</i>06:30pm - 07:45pm</div>
+						</div>
+						<p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis</p>
+					</div>
+					<div class="ci-bottom">
+						<div class="ci-author">
+							<img src="{% static 'img/classes/author/1.jpg' %}" alt="">
+							<div class="author-text">
+								<h6>Victoria Webb</h6>
+								<p>Yoga Trainer</p>
+							</div>
+						</div>
+						<a href="" class="site-btn sb-gradient">book now</a>
+					</div>
+				</div>
+				<div class="classes-item">
+					<div class="ci-img">
+						<img src="{% static 'img/classes/2.jpg' %}" alt="">
+					</div>
+					<div class="ci-text">
+						<h4>Traditional Hatha</h4>
+						<div class="ci-metas">
+							<div class="ci-meta"><i class="material-icons">event_available</i>Mon, Wed, Fri</div>
+							<div class="ci-meta"><i class="material-icons">alarm_on</i>06:30pm - 07:45pm</div>
+						</div>
+						<p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis</p>
+					</div>
+					<div class="ci-bottom">
+						<div class="ci-author">
+							<img src="{% static 'img/classes/author/2.jpg' %}" alt="">
+							<div class="author-text">
+								<h6>Victoria Webb</h6>
+								<p>Yoga Trainer</p>
+							</div>
+						</div>
+						<a href="" class="site-btn sb-gradient">book now</a>
+					</div>
+				</div>
+				<div class="classes-item">
+					<div class="ci-img">
+						<img src="{% static 'img/classes/3.jpg' %}" alt="">
+					</div>
+					<div class="ci-text">
+						<h4>Yoga Therapy</h4>
+						<div class="ci-metas">
+							<div class="ci-meta"><i class="material-icons">event_available</i>Mon, Wed, Fri</div>
+							<div class="ci-meta"><i class="material-icons">alarm_on</i>06:30pm - 07:45pm</div>
+						</div>
+						<p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis</p>
+					</div>
+					<div class="ci-bottom">
+						<div class="ci-author">
+							<img src="{% static 'img/classes/author/3.jpg' %}" alt="">
+							<div class="author-text">
+								<h6>Victoria Webb</h6>
+								<p>Yoga Trainer</p>
+							</div>
+						</div>
+						<a href="" class="site-btn sb-gradient">book now</a>
+					</div>
+				</div>
+				<div class="classes-item">
+					<div class="ci-img">
+						<img src="{% static 'img/classes/2.jpg' %}" alt="">					</div>
+					<div class="ci-text">
+						<h4>Traditional Hatha</h4>
+						<div class="ci-metas">
+							<div class="ci-meta"><i class="material-icons">event_available</i>Mon, Wed, Fri</div>
+							<div class="ci-meta"><i class="material-icons">alarm_on</i>06:30pm - 07:45pm</div>
+						</div>
+						<p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis</p>
+					</div>
+					<div class="ci-bottom">
+						<div class="ci-author">
+							<img src="{% static 'img/classes/author/2.jpg' %}" alt="">
+							<div class="author-text">
+								<h6>Victoria Webb</h6>
+								<p>Yoga Trainer</p>
+							</div>
+						</div>
+						<a href="" class="site-btn sb-gradient">book now</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- Classes Section end -->
+
+	<!-- Trainer Section -->
+	<section class="trainer-section overflow-hidden spad">
+		<div class="container">
+			<div class="section-title text-center">
+				<img src="{% static 'img/icons/logo-icon.png' %}" alt="">
+				<h2>Our Trainer Yoga</h2>
+				<p>Practice Yoga to perfect physical beauty, take care of your soul and enjoy life more fully!</p>
+			</div>
+			<div class="trainer-slider owl-carousel">
+				<div class="ts-item">
+					<div class="trainer-item">
+						<div class="ti-img">
+							<img src="{% static 'img/trainer/1.png' %}" alt="">
+						</div>
+						<div class="ti-text">
+							<h4>Lori Kennedy</h4>
+							<h6>Yoga Trainer</h6>
+							<p>Yoga & Therapy Certificate of Uttarakhand University Sanskrit</p>
+							<div class="ti-social">
+								<a href="#"><i class="fa fa-facebook"></i></a>
+								<a href="#"><i class="fa fa-instagram"></i></a>
+								<a href="#"><i class="fa fa-twitter"></i></a>
+								<a href="#"><i class="fa fa-linkedin"></i></a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="ts-item">
+					<div class="trainer-item">
+						<div class="ti-img">
+							<img src="{% static 'img/trainer/2.png' %}" alt="">
+						</div>
+						<div class="ti-text">
+							<h4>Lori Kennedy</h4>
+							<h6>Yoga Trainer</h6>
+							<p>Yoga & Therapy Certificate of Uttarakhand University Sanskrit</p>
+							<div class="ti-social">
+								<a href="#"><i class="fa fa-facebook"></i></a>
+								<a href="#"><i class="fa fa-instagram"></i></a>
+								<a href="#"><i class="fa fa-twitter"></i></a>
+								<a href="#"><i class="fa fa-linkedin"></i></a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="ts-item">
+					<div class="trainer-item">
+						<div class="ti-img">
+							<img src="{% static 'img/trainer/3.png' %}" alt="">
+						</div>
+						<div class="ti-text">
+							<h4>Rebecca James</h4>
+							<h6>Yoga Trainer</h6>
+							<p>Yoga & Therapy Certificate of Uttarakhand University Sanskrit</p>
+							<div class="ti-social">
+								<a href="#"><i class="fa fa-facebook"></i></a>
+								<a href="#"><i class="fa fa-instagram"></i></a>
+								<a href="#"><i class="fa fa-twitter"></i></a>
+								<a href="#"><i class="fa fa-linkedin"></i></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- Trainer Section end -->
+
+	<!-- Review Section -->
+	<section class="review-section spad set-bg" data-setbg="img/review-bg.jpg">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8 m-auto">
+					<div class="review-slider owl-carousel">
+						<div class="review-item">
+							<div class="ri-img">
+								<img src="{% static 'img/classes/author/1.jpg' %}" alt="">
+							</div>
+							<div class="ri-text text-white">
+								<p>On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness.</p>
+								<h4>Denise Thomas</h4>
+								<h6>Designer</h6>
+							</div>
+						</div>
+						<div class="review-item">
+							<div class="ri-img">
+								<img src="{% static 'img/classes/author/2.jpg' %}" alt="">
+							</div>
+							<div class="ri-text text-white">
+								<p>On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness.</p>
+								<h4>Denise Thomas</h4>
+								<h6>Designer</h6>
+							</div>
+						</div>
+						<div class="review-item">
+							<div class="ri-img">
+								<img src="{% static 'img/classes/author/3.jpg' %}" alt="">
+							</div>
+							<div class="ri-text text-white">
+								<p>On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness.</p>
+								<h4>Denise Thomas</h4>
+								<h6>Designer</h6>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- Review Section end -->
+
+	<!-- Event Section -->
+	<section class="event-section spad">
+		<div class="container">
+			<div class="section-title text-center">
+				<img src="{% static 'img/icons/logo-icon.png' %}" alt="">
+				<h2>Upcoming Events</h2>
+				<p>Practice Yoga to perfect physical beauty, take care of your soul and enjoy life more fully!</p>
+			</div>
+			<div class="row">
+				<div class="col-xl-6">
+					<div class="event-video">
+						<img src="{% static 'img/video.jpg' %}" alt="">
+						<a href="https://www.youtube.com/watch?v=vgv-hzTl5FA" class="video-popup">
+							<img src="{% static 'img/icons/play.png' %}" alt="">
+						</a>
+					</div>
+				</div>
+				<div class="col-xl-6">
+					<div class="event-item">
+						<div class="ei-img">
+							<img src="{% static 'img/event/1.jpg' %}" alt="">
+						</div>
+						<div class="ei-text">
+							<h4><a href="#">Lole White Yoga Tour</a></h4>
+							<ul>
+								<li><i class="material-icons">person</i>Kelly Alexander</li>
+								<li><i class="material-icons">event_available</i>15 January, 2019</li>
+								<li><i class="material-icons">map</i>184 Main Collins Street</li>
+							</ul>
+						</div>
+					</div>
+					<div class="event-item">
+						<div class="ei-img">
+							<img src="{% static 'img/event/2.jpg' %}" alt="">
+						</div>
+						<div class="ei-text">
+							<h4>Free Yoga Madrid</h4>
+							<ul>
+								<li><i class="material-icons">person</i>Kelly Alexander</li>
+								<li><i class="material-icons">event_available</i>15 January, 2019</li>
+								<li><i class="material-icons">map</i>184 Main Collins Street</li>
+							</ul>
+						</div>
+					</div>
+					<div class="event-item">
+						<div class="ei-img">
+							<img src="img/event/3.jpg" alt="">
+						</div>
+						<div class="ei-text">
+							<h4>One Love Dallas</h4>
+							<ul>
+								<li><i class="material-icons">person</i>Kelly Alexander</li>
+								<li><i class="material-icons">event_available</i>15 January, 2019</li>
+								<li><i class="material-icons">map</i>184 Main Collins Street</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- Event Section end -->
+
+
+	<!-- Pricing Section -->
+	<section class="pricing-section spad">
+		<div class="container">
+			<div class="section-title text-center">
+				<img src="img/icons/logo-icon.png" alt="">
+				<h2>Pricing plans</h2>
+				<p>Practice Yoga to perfect physical beauty, take care of your soul and enjoy life more fully!</p>
+			</div>
+			<div class="row">
+				<div class="col-lg-3 col-sm-6">
+					<div class="pricing-item begginer">
+						<div class="pi-top">
+							<h4>Begginer</h4>
+						</div>
+						<div class="pi-price">
+							<h3>$59</h3>
+							<p>Per month</p>
+						</div>
+						<ul>
+							<li>Take Up To 7 Classes</li>
+							<li>Available To Anyone</li>
+							<li>Towels Included</li>
+							<li>Never Expires</li>
+						</ul>
+						<a href="#" class="site-btn sb-line-gradient">Get started</a>
+					</div>
+				</div>
+				<div class="col-lg-3 col-sm-6">
+					<div class="pricing-item entermediate">
+						<div class="pi-top">
+							<h4>Entermediate</h4>
+						</div>
+						<div class="pi-price">
+							<h3>$99</h3>
+							<p>Per month</p>
+						</div>
+						<ul>
+							<li>Take Up To 7 Classes</li>
+							<li>Available To Anyone</li>
+							<li>Towels Included</li>
+							<li>Never Expires</li>
+						</ul>
+						<a href="#" class="site-btn sb-line-gradient">Get started</a>
+					</div>
+				</div>
+				<div class="col-lg-3 col-sm-6">
+					<div class="pricing-item advanced">
+						<div class="pi-top">
+							<h4>Advanced</h4>
+						</div>
+						<div class="pi-price">
+							<h3>$159</h3>
+							<p>Per month</p>
+						</div>
+						<ul>
+							<li>Take Up To 7 Classes</li>
+							<li>Available To Anyone</li>
+							<li>Towels Included</li>
+							<li>Never Expires</li>
+						</ul>
+						<a href="#" class="site-btn sb-line-gradient">Get started</a>
+					</div>
+				</div>
+				<div class="col-lg-3 col-sm-6">
+					<div class="pricing-item professional">
+						<div class="pi-top">
+							<h4>Professional</h4>
+						</div>
+						<div class="pi-price">
+							<h3>$199</h3>
+							<p>Per month</p>
+						</div>
+						<ul>
+							<li>Take Up To 7 Classes</li>
+							<li>Available To Anyone</li>
+							<li>Towels Included</li>
+							<li>Never Expires</li>
+						</ul>
+						<a href="#" class="site-btn sb-line-gradient">Get started</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- Pricing Section end -->
+
+	<!-- Sign up Section -->
+	<section class="signup-section spad">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="signup-map"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d33245.297803635964!2d-73.76987401620775!3d40.704774398815005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2sbd!4v1575866843291!5m2!1sen!2sbd" style="border:0;" allowfullscreen=""></iframe></div>
+				</div>
+				<div class="col-lg-6">
+					<div class="singup-text">
+						<h3>Sign Up for Our Classes</h3>
+						<p>To be invited to the nearest Cali center and get free physical advice to learn more about the program.</p>
+					</div>
+					<form class="singup-form">
+						<div class="row">
+							<div class="col-md-6">
+								<input type="text" placeholder="First Name">
+							</div>
+							<div class="col-md-6">
+								<input type="text" placeholder="Last Name">
+							</div>
+							<div class="col-md-6">
+								<input type="text" placeholder="Your Email">
+							</div>
+							<div class="col-md-6">
+								<input type="text" placeholder="Phone Number">
+							</div>
+							<div class="col-md-12">
+								<textarea placeholder="Message"></textarea>
+								<a href="#" class="site-btn sb-gradient">Get started</a>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- Sign up Section end -->
+
+	<!-- Gallery Section -->
+	<div class="gallery-section">
+		<div class="gallery-slider owl-carousel">
+			<div class="gs-item">
+				<img src="{% static 'img/gallery/1.jpg' %}" alt="">
+				<div class="gs-hover">
+					<i class="fa fa-instagram"></i>
+					<p>ahana.yoga</p>
+				</div>
+			</div>
+			<div class="gs-item">
+				<img src="{% static 'img/gallery/2.jpg' %}" alt="">
+				<div class="gs-hover">
+					<i class="fa fa-instagram"></i>
+					<p>ahana.yoga</p>
+				</div>
+			</div>
+			<div class="gs-item">
+				<img src="{% static 'img/gallery/3.jpg' %}" alt="">
+				<div class="gs-hover">
+					<i class="fa fa-instagram"></i>
+					<p>ahana.yoga</p>
+				</div>
+			</div>
+			<div class="gs-item">
+				<img src="{% static 'img/gallery/4.jpg' %}" alt="">
+				<div class="gs-hover">
+					<i class="fa fa-instagram"></i>
+					<p>ahana.yoga</p>
+				</div>
+			</div>
+			<div class="gs-item">
+				<img src="{% static 'img/gallery/5.jpg' %}" alt="">
+				<div class="gs-hover">
+					<i class="fa fa-instagram"></i>
+					<p>ahana.yoga</p>
+				</div>
+			</div>
+			<div class="gs-item">
+				<img src="{% static 'img/gallery/6.jpg' %}" alt="">
+				<div class="gs-hover">
+					<i class="fa fa-instagram"></i>
+					<p>ahana.yoga</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Gallery Section end -->
+
+	<!-- Footer Section -->
+	<footer class="footer-section">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-3 col-sm-6">
+					<div class="footer-widget">
+						<div class="about-widget">
+							<img src="{% static 'img/logo-3.png' %}" alt="">
+							<p>Lorem ipsum dolor sit amet, consec-tetur adipiscing elit sed.</p>
+							<ul>
+								<li><i class="material-icons">phone</i>(965) 436 3274</li>
+								<li><i class="material-icons">email</i>ahana.yoga@gmail.com</li>
+								<li><i class="material-icons">map</i>184 Main Collins Street</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-3 col-sm-6">
+					<div class="footer-widget pl-0 pl-lg-5">
+						<h2 class="fw-title">Company</h2>
+						<ul>
+							<li><a href="#">Online Education</a></li>
+							<li><a href="#">Gallery</a></li>
+							<li><a href="#">Special Issues</a></li>
+							<li><a href="#">Privacy Policy</a></li>
+							<li><a href="#">Contact Us</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-lg-2 col-sm-6">
+					<div class="footer-widget">
+						<h2 class="fw-title">About Us</h2>
+						<ul>
+							<li><a href="#">Our Vision</a></li>
+							<li><a href="#">Our Mission</a></li>
+							<li><a href="#">Meet The Team</a></li>
+							<li><a href="#">Introduce</a></li>
+							<li><a href="#">Customer Service</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-lg-4 col-sm-6">
+					<div class="footer-widget pl-0 pl-lg-5">
+						<h2 class="fw-title">Open time</h2>
+						<ul>
+							<li><i class="material-icons">alarm_on</i>Mon - Fri:  6:30am - 07:45pm</li>
+							<li><i class="material-icons">alarm_on</i>Sat - Sun:  8:30am - 05:45pm</li>
+						</ul>
+						<form class="infor-form">
+							<input type="text" placeholder="Your Email">
+							<button><img src="{% static 'img/icons/send.png' %}" alt=""></button>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="footer-bottom">
+				<div class="row">
+					<div class="col-md-4">
+						<div class="footer-social">
+							<a href="#"><i class="fa fa-facebook"></i></a>
+							<a href="#"><i class="fa fa-instagram"></i></a>
+							<a href="#"><i class="fa fa-twitter"></i></a>
+							<a href="#"><i class="fa fa-linkedin"></i></a>
+						</div>
+					</div>
+					<div class="col-md-8 text-md-right">
+						<div class="copyright"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+	<!-- Footer Section end -->
+
+	<div class="back-to-top"><img src="{% static 'img/icons/up-arrow.png' %}" alt=""></div>
+
+	<!-- Search model -->
+	<div class="search-model set-bg" data-setbg="{% static 'img/search-bg.jpg' %}">
+		<div class="h-100 d-flex align-items-center justify-content-center">
+			<div class="search-close-switch"><i class="material-icons">close</i></div>
+			<form class="search-moderl-form">
+				<input type="text" id="search-input" placeholder="Search">
+				<button><img src="{% static 'img/icons/search-2.png' %}" alt=""></button>
+			</form>
+		</div>
+	</div>
+	<!-- Search model end -->
+     
+    <!--====== Javascripts & Jquery ======-->
+    <script src="{% static 'js/vendor/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/jquery.slicknav.min.js' %}"></script>
+    <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'js/jquery.nice-select.min.js' %}"></script>
+    <script src="{% static 'js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

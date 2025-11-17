@@ -1,0 +1,79 @@
+{% load static %}
+
+    <!-- Header Section -->
+	<header class="header-section">
+		<div class="header-top">
+			<div class="row m-0">
+				<div class="col-md-6 d-none d-md-block p-0">
+					<div class="header-info">
+						<i class="material-icons">map</i>
+						<p>184 Main Collins Street</p>
+					</div>
+					<div class="header-info">
+						<i class="material-icons">phone</i>
+						<p>(965) 436 3274</p>
+					</div>
+				</div>
+				<div class="col-md-6 text-left text-md-right p-0">
+					<div class="header-info d-none d-md-inline-flex">
+						<i class="material-icons">alarm_on</i>
+						<p>Mon - Fri:  6:30am - 07:45pm</p>
+					</div>
+					<div class="header-info">
+						<i class="material-icons">language</i>
+						<select id="language" class="language-select">
+							<option data-display="Language">EN</option>
+							<option data-display="Language" value="1">ES</option>
+							<option data-display="Language" value="2">JA</option>
+							<option data-display="Language" value="2">AR</option>
+						</select>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="header-bottom">
+			<a href="{% url 'index' %}" class="site-logo">
+				<img src="{% static 'img/logo.png' %}" alt="">
+			</a>
+			<div class="hb-right">
+				<div class="hb-switch" id="search-switch">
+					<img src="{% static 'img/icons/search.png' %}" alt="">
+				</div>
+				<div class="hb-switch" id="infor-switch">
+					<img src="{% static 'img/icons/bars.png' %}" alt="">
+				</div>
+			</div>
+			<div class="container">
+			<ul class="main-menu">
+
+				<li><a href="{% url 'index' %}" class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}">Home</a></li>
+
+				<li><a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a></li>
+
+				<li><a href="{% url 'classes' %}" class="{% if request.resolver_match.url_name == 'classes' or request.resolver_match.url_name == 'classes-details' %}active{% endif %}">Classes</a></li>
+
+				{% if user.is_authenticated and user.role == 'business_owner' %}
+					<li><a href="{% url 'create_business' %}">My Business</a></li>
+				{% endif %}
+
+				<li><a href="{% url 'product_list' %}" class="{% if request.resolver_match.url_name == 'product_list' or request.resolver_match.url_name == 'product_detail' %}active{% endif %}">Shop</a></li>
+
+				<li><a href="{% url 'blog' %}" class="{% if request.resolver_match.url_name == 'blog' or request.resolver_match.url_name == 'single-blog' %}active{% endif %}">Blog</a></li>
+
+				<li><a href="{% url 'contact' %}" class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a></li>
+
+				<!-- Auth button -->
+				{% if user.is_authenticated %}
+					<li><a href="{% url 'users:profile' %}">Profile</a></li>
+					<li><a href="{% url 'users:logout' %}">Logout</a></li>
+				{% else %}
+					<li><a href="{% url 'users:auth' %}">Login / Signup</a></li>
+				{% endif %}
+
+			</ul>
+
+
+			</div>
+		</div>
+	</header>
+	<!-- Header Section end -->

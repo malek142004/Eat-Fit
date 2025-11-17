@@ -1,0 +1,38 @@
+{% extends 'backoffice/base_backoffice.html' %}
+
+{% block content %}
+<h1 class="h3 mb-4 text-gray-800">Product Details</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <h4>{{ product.product_name }}</h4>
+
+        <p><strong>Category:</strong> {{ product.category }}</p>
+        <p><strong>Price:</strong> {{ product.price }} DT</p>
+        <p><strong>Discount:</strong> {{ product.discount }}%</p>
+
+        <p><strong>Owner:</strong> {{ product.business_owner.user.nom_complet }}</p>
+
+        <p><strong>Description:</strong> {{ product.description }}</p>
+        <p><strong>Ingredients:</strong> {{ product.ingredients }}</p>
+        <p><strong>Calories:</strong> {{ product.calories }}</p>
+
+        <p><strong>Average Rating:</strong> {{ product.average_rating }}/5 ⭐</p>
+
+        <hr>
+
+        <h5>User Ratings</h5>
+        {% for r in ratings %}
+            <div class="border p-2 mb-2">
+                <strong>{{ r.user.email }}</strong> — {{ r.rating }} ⭐<br>
+                <i>{{ r.comment }}</i>
+            </div>
+        {% empty %}
+            <p>No ratings yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<a href="{% url 'backoffice_manage_products' %}" class="btn btn-secondary">Back</a>
+
+{% endblock %}

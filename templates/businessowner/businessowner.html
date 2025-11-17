@@ -1,0 +1,214 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Business</title>
+
+    <!-- CSS du template -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<style>
+/* Global wrapper */
+.business-wrapper {
+    padding-top: 110px;
+    padding-bottom: 105px;
+    background-color: #f9f2f0;
+    min-height: 100vh;
+}
+
+/* Section title/logo */
+.section-title {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 40px;
+}
+.section-title img {
+    width: 43px;
+    margin-bottom: 10px;
+}
+.section-title h2 {
+    font-weight: 400;
+    font-size: 38px;
+    font-family: "Playfair Display", serif;
+    text-transform: uppercase;
+    color: #333;
+    line-height: 1.2;
+    margin: 0;
+}
+.section-title p {
+    color: #666;
+    font-size: 16px;
+}
+
+/* Card */
+.business-box {
+    background: #fff;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+}
+
+/* Header */
+.header-section {
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.header-section .main-menu li a {
+    color: #333 !important;
+}
+.header-section .main-menu li a[href*="businessowner"] {
+    color: #ff7b6d !important;
+}
+
+/* Form title */
+.business-box h3 {
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 26px;
+}
+
+/* Form styling */
+.business-form label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #444;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.business-form label i {
+    font-size: 20px;
+    color: #ff7b6d;
+}
+.business-form input,
+.business-form select,
+.business-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    font-size: 15px;
+    color: #333;
+    transition: 0.2s ease-in-out;
+}
+.business-form input:focus,
+.business-form select:focus,
+.business-form textarea:focus {
+    border-color: #ff7b6d;
+    box-shadow: 0px 0px 6px rgba(255,123,109,0.3);
+    outline: none;
+}
+.business-form form {
+    background: #ffffffcc;
+    backdrop-filter: blur(4px);
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.06);
+    border: 1px solid #f1dcd8;
+}
+
+/* Buttons */
+.btn-template {
+    background: linear-gradient(90deg, #ff7b6d, #ff9675);
+    color: #fff !important;
+    border-radius: 50px;
+    font-weight: 600;
+    border: none;
+    transition: 0.3s;
+    padding: 12px 26px;
+    font-size: 16px;
+}
+.btn-template:hover {
+    background: #ff9675;
+    transform: translateY(-2px);
+}
+.btn-template.add-product {
+    width: 160px;
+    height: 45px;
+    font-size: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Flex container for buttons */
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+</style>
+
+</head>
+<body>
+
+{% include 'partials/header.html' %}
+
+<section class="business-wrapper">
+    <div class="container">
+
+        <!-- Title block -->
+        <div class="section-title text-center">
+            <img src="{% static 'img/icons/logo-icon.png' %}" alt="">
+            <h2>My Business</h2>
+            <p>Manage your business information and your products.</p>
+        </div>
+
+        <div class="business-box">
+
+            <!-- Form block -->
+            <section class="business-form mt-4">
+                <h3>Business Information</h3>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <label><i class="material-icons">business</i> Business Name</label>
+                    {{ form.business_name }}
+
+                    <label><i class="material-icons">description</i> Description</label>
+                    {{ form.business_description }}
+
+                    <label><i class="material-icons">location_on</i> Address</label>
+                    {{ form.address }}
+
+                    <label><i class="material-icons">email</i> Professional Email</label>
+                    {{ form.professional_email }}
+
+                    <label><i class="material-icons">call</i> Professional Phone</label>
+                    {{ form.professional_phone }}
+
+                    <label><i class="material-icons">public</i> Social Media Account</label>
+                    {{ form.social_media_account }}
+
+                    <label><i class="material-icons">image</i> Business Logo</label>
+                    {{ form.business_logo }}
+
+                    <!-- Flex container for Save and My Store -->
+                    <div class="form-buttons">
+                        <button type="submit" class="btn-template">Save</button>
+                        <a href="{% url 'product_list' %}" class="btn-template add-product">My Store</a>
+                    </div>
+                </form>
+            </section>
+
+        </div>
+    </div>
+</section>
+
+{% include 'partials/footer.html' %}
+
+</body>
+</html>

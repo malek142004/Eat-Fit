@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Authentication</title>
+    <link rel="stylesheet" href="{% static 'users/user.css' %}">
+</head>
+<body>
+
+<div class="container" id="container">
+
+    <!-- Sign Up -->
+    <div class="form-container sign-up-container">
+        <form method="POST" enctype="multipart/form-data" action="">
+            {% csrf_token %}
+            <h1>Create Account</h1>
+
+            {% if signup_form.errors %}
+                <div class="errors">
+                    {{ signup_form.errors }}
+                </div>
+            {% endif %}
+
+            <label for="role">Role</label>
+            {{ signup_form.role }}
+
+            <label for="nom_complet">Full Name</label>
+            {{ signup_form.nom_complet }}
+
+            <label for="email">Email</label>
+            {{ signup_form.email }}
+
+            <label for="password1">Password</label>
+            {{ signup_form.password1 }}
+
+            <label for="password2">Confirm Password</label>
+            {{ signup_form.password2 }}
+
+            <label for="num_tel">Phone Number</label>
+            {{ signup_form.num_tel }}
+
+            <label for="ville">City</label>
+            {{ signup_form.ville }}
+
+            <label for="pdp">Profile Picture</label>
+            {{ signup_form.pdp }}
+
+            <button type="submit" name="signup">Sign Up</button>
+        </form>
+    </div>
+
+    <!-- Sign In -->
+    <div class="form-container sign-in-container">
+        <form method="POST" action="">
+            {% csrf_token %}
+            <h1>Sign In</h1>
+
+            {% if login_form.errors %}
+                <div class="errors">
+                    {{ login_form.errors }}
+                </div>
+            {% endif %}
+
+            <label for="id_username">Email</label>
+            {{ login_form.username }}
+
+            <label for="id_password">Password</label>
+            {{ login_form.password }}
+
+            <a href="#">Forgot your password?</a>
+            <button type="submit" name="signin">Sign In</button>
+        </form>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay-container">
+        <div class="overlay">
+            <div class="overlay-panel overlay-left">
+                <h1>Welcome Back!</h1>
+                <p>To keep connected with us please login with your personal info</p>
+                <button class="ghost" id="signIn">Sign In</button>
+            </div>
+            <div class="overlay-panel overlay-right">
+                <h1>Hello, Friend!</h1>
+                <p>Enter your personal details and start your journey with us</p>
+                <button class="ghost" id="signUp">Sign Up</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'users/user.js' %}"></script>
+</body>
+</html>

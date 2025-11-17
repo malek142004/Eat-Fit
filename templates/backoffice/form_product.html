@@ -1,0 +1,18 @@
+{% extends 'backoffice/base_backoffice.html' %}
+
+{% block content %}
+<h1 class="h3 mb-4 text-gray-800">{{ title }}</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            <button type="submit" class="btn btn-success">Save</button>
+            <a href="{% url 'backoffice_manage_products' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

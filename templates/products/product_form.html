@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Product | Shop</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<style>
+/* Adjust header for non-home pages */
+.header-section {
+  background-color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.header-section .main-menu li a {
+  color: #333 !important;
+}
+.header-section .main-menu li a.active,
+.header-section .main-menu li a:hover {
+  color: #ff7b6d !important;
+}
+.site-btn {
+  border-radius: 50px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: .5px;
+}
+.classes-item {
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  transition: 0.3s ease;
+}
+.classes-item:hover {
+  transform: translateY(-5px);
+}
+.contact-form input, .contact-form textarea, .contact-form select {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #555;
+}
+.contact-form input:focus, .contact-form textarea:focus, .contact-form select:focus {
+  outline: none;
+  border-color: #ff7b6d;
+  box-shadow: 0 0 5px rgba(255, 123, 109, 0.3);
+}
+</style>
+
+<body>
+    {% include 'partials/header.html' %}
+
+    <section class="contact-section spad">
+        <div class="container">
+            <div class="section-title text-center">
+                <img src="{% static 'img/icons/logo-icon.png' %}" alt="">
+                <h2>{% if form.instance.pk %}Edit Product{% else %}Add New Product{% endif %}</h2>
+                <p>Fill in all product details carefully. You can upload or link an image URL.</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+<form method="POST" enctype="multipart/form-data" class="contact-form" novalidate>
+  {% csrf_token %}
+  <div class="row">
+    {% for field in form %}
+      <div class="col-md-6 mb-4">
+        <label for="{{ field.id_for_label }}" class="font-weight-bold text-uppercase small text-muted">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <small class="text-danger">{{ field.errors|striptags }}</small>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  <div class="text-center">
+    <button type="submit" class="site-btn sb-gradient mt-3">Save Product</button>
+    <a href="{% url 'product_list' %}" class="site-btn sb-line-gradient mt-3">Cancel</a>
+  </div>
+</form>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% include 'partials/footer.html' %}
+</body>
+</html>

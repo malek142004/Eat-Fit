@@ -1,0 +1,191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ product.product_name }} | Healthy Shop</title>
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<style>
+/* Header fix for this page */
+.header-section {
+  background-color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.header-section .main-menu li a {
+  color: #333 !important;
+}
+.header-section .main-menu li a.active,
+.header-section .main-menu li a:hover {
+  color: #ff7b6d !important;
+}
+.site-btn {
+  border-radius: 50px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: .5px;
+}
+
+/* Product detail styles */
+.product-detail {
+  background: #fff;
+  padding: 50px;
+  border-radius: 20px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+.product-detail img {
+  border-radius: 15px;
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+}
+.product-meta {
+  font-size: 16px;
+  color: #777;
+  margin-bottom: 15px;
+}
+.price {
+  font-size: 22px;
+  color: #ff7b6d;
+  font-weight: bold;
+}
+.similar-products .product-card {
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: 0.3s ease;
+  background: #fff;
+}
+.similar-products .product-card:hover {
+  transform: translateY(-5px);
+}
+.similar-products .product-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+.star-rating {
+  direction: rtl; /* pour que l'étoile 5 soit à gauche et 1 à droite */
+  font-size: 2rem;
+  unicode-bidi: bidi-override;
+}
+
+.star-rating input[type="radio"] {
+  display: none; /* cache les boutons radio */
+}
+
+.star-rating label {
+  color: #ccc; /* couleur des étoiles non sélectionnées */
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.star-rating input[type="radio"]:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: gold; /* étoiles sélectionnées / survolées en doré */
+}
+textarea.form-control {
+  border-radius: 10px;
+  resize: none;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+</style>
+
+</head>
+<body>
+  {% include 'partials/header.html' %}
+
+  <section class="spad">
+    <div class="container">
+      <div class="product-detail">
+        <div class="row">
+          <div class="col-lg-6">
+            {% if product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.product_name }}">
+            {% else %}
+              <img src="{% static 'img/default-product.jpg' %}" alt="No image">
+            {% endif %}
+          </div>
+          <div class="col-lg-6">
+            <h2>{{ product.product_name }}</h2>
+            <p class="product-meta">
+              <strong>Category:</strong> {{ product.category }} <br>
+              <strong>Rating:</strong> {{ product.average_rating }} ★
+            </p>
+
+            <p>{{ product.description }}</p>
+            <p class="price">{{ product.price|floatformat:2 }} DT
+              {% if product.discount %}
+                <span class="text-danger">-{{ product.discount }}%</span>
+              {% endif %}
+            </p>
+            <p><strong>Ingredients:</strong> {{ product.ingredients|default:"Not specified" }}</p>
+            <p><strong>Calories:</strong> {{ product.calories|default:"N/A" }} kcal</p>
+
+            <button class="site-btn sb-gradient mt-3">Add to Cart</button>
+
+            <div class="mt-4">
+                <h5>Rate this product:</h5>
+                {% if user.is_authenticated %}
+                  <form method="post">
+  {% csrf_token %}
+  <div class="star-rating mb-2">
+    {% for i in "54321" %}
+      <input type="radio" id="star{{i}}" name="rating" value="{{i}}" 
+        {% if form and form.instance.rating|default:0 == i|add:"0" %}checked{% endif %}>
+      <label for="star{{i}}">★</label>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3">
+    <textarea name="comment" class="form-control" rows="3" 
+      placeholder="Leave an optional comment">{{ form.comment.value }}</textarea>
+  </div>
+
+  <button type="submit" class="site-btn sb-line-gradient mt-2">Submit Rating</button>
+</form>
+
+                {% else %}
+                  <p><a href="{% url 'users:auth' %}">Login</a> to rate this product.</p>
+                {% endif %}
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Similar Products Section -->
+      <div class="similar-products mt-5">
+        <h3 class="text-center mb-4">Similar Products</h3>
+        <div class="row">
+          {% for sp in similar_products %}
+          <div class="col-md-4">
+            <div class="product-card mb-4">
+              <a href="{% url 'product_detail' sp.pk %}">
+                <img src="{{ sp.image_url }}" alt="{{ sp.product_name }}">
+                <div class="p-3 text-center">
+                  <h5>{{ sp.product_name }}</h5>
+                  <p class="text-muted mb-2">{{ sp.category }}</p>
+                  <p class="text-danger">{{ sp.price|floatformat:2 }} DT</p>
+                </div>
+              </a>
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-center text-muted">No similar products found.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% include 'partials/footer.html' %}
+</body>
+</html>

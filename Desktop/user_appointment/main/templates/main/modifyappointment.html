@@ -1,0 +1,112 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Modify Appointment{% endblock %}
+
+{% block page_title %}Modify Appointment{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .form-field-container {
+            margin-bottom: 15px;
+        }
+        .form-field-container label {
+            display: block;
+            margin-bottom: 5px;
+            color: #fff;
+            font-weight: bold;
+        }
+        .form-control-custom {
+            width: 100%;
+            height: 50px;
+            padding: 0 25px;
+            font-size: 16px;
+            color: #333; /* Darker text for readability */
+            background-color: #fff;
+            border: 2px solid #e5e5e5;
+            border-radius: 50px;
+            transition: all 0.4s;
+        }
+        .form-control-custom:focus {
+            border-color: #e12d2d;
+            outline: none;
+        }
+        select.form-control-custom {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            padding-right: 2.5rem;
+        }
+        .validation-message {
+            font-size: 14px;
+            margin-top: 5px;
+            padding-left: 25px; /* Align with input padding */
+            font-weight: bold;
+            height: 18px; /* Reserve space to prevent layout shifts */
+        }
+        .valid-message {
+            color: #28a745; /* Green */
+        }
+        .invalid-message {
+            color: #dc3545; /* Red */
+        }
+        .valid-field {
+            border-color: #28a745 !important;
+        }
+        .invalid-field {
+            border-color: #dc3545 !important;
+        }
+        #submit-button:disabled {
+            background-color: #aaa;
+            border-color: #aaa;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<section class="contact-section spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <div class="contact-form">
+                    <h4>Modify Appointment</h4>
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <h5>Client Information</h5>
+                        {% for field in client_form %}
+                            <div class="form-field-container">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                <div class="validation-message" id="validation-{{ field.auto_id }}"></div>
+                            </div>
+                        {% endfor %}
+
+                        <h5>Appointment Details</h5>
+                        {% for field in appointment_form %}
+                            <div class="form-field-container">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                <div class="validation-message" id="validation-{{ field.auto_id }}"></div>
+                            </div>
+                        {% endfor %}
+
+                        <button type="submit" id="submit-button" class="site-btn">Save Changes</button>
+                        <a href="{% url 'appointment_list' %}" class="site-btn sb-line-gradient" style="margin-top: 15px; display: block; text-align: center;">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'main/js/appointment_validation.js' %}"></script>
+{% endblock %}

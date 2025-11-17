@@ -1,0 +1,71 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Heading -->
+<h1 class="h3 mb-4 text-gray-800">{{ action }} Appointment</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">{{ action }} Appointment</h6>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if action == 'Add' %}
+                <h5>Client Information</h5>
+                {% for field in form %}
+                    {% if field.name == 'nom_complet' or field.name == 'email' or field.name == 'num_tel' or field.name == 'ville' %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}" class="font-weight-bold text-gray-800">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <h5>Appointment Details</h5>
+                {% for field in form %}
+                    {% if field.name != 'nom_complet' and field.name != 'email' and field.name != 'num_tel' and field.name != 'ville' %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}" class="font-weight-bold text-gray-800">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %} {# action == 'Modify' #}
+                <h5>Client Information</h5>
+                {% for field in client_form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}" class="font-weight-bold text-gray-800">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <h5>Appointment Details</h5>
+                {% for field in appointment_form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}" class="font-weight-bold text-gray-800">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{% url 'main:backoffice_appointments_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

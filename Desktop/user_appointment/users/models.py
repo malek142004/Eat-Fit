@@ -1,0 +1,107 @@
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.db import models
+from django.core.validators import (
+    RegexValidator, MinLengthValidator, EmailValidator
+)
+from django.core.exceptions import ValidationError
+
+
+
+def validate_nom(value):
+    if not all(c.isalpha() or c.isspace() for c in value):
+        raise ValidationError("Le nom complet ne doit contenir que des lettres et des espaces.")
+
+
+
+def validate_ville(value):
+    if not all(c.isalpha() or c.isspace() for c in value):
+        raise ValidationError("Le nom de la ville ne doit contenir que des lettres et des espaces.")
+
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, nom_complet, password=None, **extra_fields):
+        """Créer un utilisateur normal"""
+        if not email:
+            raise ValueError("L'utilisateur doit avoir une adresse email.")
+        email = self.normalize_email(email)
+        user = self.model(email=email, nom_complet=nom_complet, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, nom_complet, password=None, **extra_fields):
+        """Créer un superutilisateur"""
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('role', 'admin')
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError("Le superutilisateur doit avoir is_staff=True.")
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError("Le superutilisateur doit avoir is_superuser=True.")
+
+        return self.create_user(email, nom_complet, password, **extra_fields)
+
+
+
+class CustomUser(AbstractUser):
+    username = None
+    email = models.EmailField(
+        unique=True,
+        validators=[EmailValidator(message="Veuillez entrer une adresse e-mail valide.")]
+    )
+
+    nom_complet = models.CharField(
+        max_length=150,
+        validators=[
+            validate_nom,
+            MinLengthValidator(3, message="Le nom complet doit comporter au moins 3 caractères.")
+        ]
+    )
+
+    ROLE_CHOICES = (
+        ('client', 'Client'),
+        ('business_owner', 'Business Owner'),
+        ('nutritionist', 'Nutritionniste'),
+        ('coach', 'Coach'),
+        ('admin', 'Admin'),
+    )
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default='client'
+    )
+
+    num_tel = models.CharField(
+        max_length=15,
+        blank=True,
+        null=True,
+        validators=[
+            RegexValidator(
+                regex=r'^[0-9]{8,15}$',
+                message="Le numéro de téléphone doit contenir uniquement des chiffres (8 à 15 caractères)."
+            )
+        ]
+    )
+
+    ville = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        validators=[validate_ville]
+    )
+
+    pdp = models.ImageField(
+        upload_to='profile_pics/',
+        blank=True,
+        null=True
+    )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['nom_complet']
+
+    objects = CustomUserManager()
+
+    def __str__(self):
+        return f"{self.nom_complet} ({self.email})"

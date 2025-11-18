@@ -1,0 +1,48 @@
+{% extends 'backoffice/base_backoffice.html' %}
+
+{% block content %}
+<h1 class="h3 mb-2 text-gray-800">Blogs Management</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Liste des blogs</h6>
+        <a href="{% url 'dashboard:backoffice_create' %}" class="btn btn-success">Créer un nouveau blog</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Theme</th>
+                        <th>Preview</th>
+                        <th>Author</th>
+                        <th>Created at</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for blog in blogs %}
+                    <tr>
+                        <td>{{ blog.title }}</td>
+                        <td>{{ blog.get_theme_display }}</td>
+                        <td>{{ blog.preview }}</td>
+                        <td>{{ blog.author.username }}</td>
+                        <td>{{ blog.created_at|date:"d M Y" }}</td>
+                        <td>
+                            <a href="{% url 'dashboard:backoffice_edit' blog.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                            <a href="{% url 'dashboard:backoffice_delete' blog.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                            <a href="{% url 'dashboard:backoffice_detail' blog.pk %}" class="btn btn-sm btn-info">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">Aucun blog disponible</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

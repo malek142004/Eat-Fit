@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ blog.title }} - EatFit Blog{% endblock %}
+
+{% block content %}
+
+<!-- Hero de l'article -->
+<section class="page-top-section set-bg" data-setbg="{% static 'img/page-top-bg.jpg' %}">
+    <div class="container text-white text-center py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold">{{ blog.title }}</h1>
+                <p class="lead mt-3">
+                    {{ blog.get_theme_display }} • 
+                    {{ blog.created_at|date:"d F Y" }} • 
+                    par <strong>{{ blog.author.get_full_name|default:blog.author.username }}</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="events-page-section spad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <!-- Boutons modifier/supprimer pour l’auteur -->
+                {% if user == blog.author %}
+                <div class="text-center mb-5">
+                    <a href="{% url 'blogapp:blog_update' blog.pk %}" class="site-btn sb-line-gradient me-3">Modifier</a>
+                    <a href="{% url 'blogapp:blog_delete' blog.pk %}" class="site-btn sb-white">Supprimer</a>
+                </div>
+                {% endif %}
+
+                <!-- Ligne LIKE + PREVIEW -->
+                {% if blog.preview %}
+                <div class="d-flex align-items-center mb-5" style="gap: 10px;">
+                    <!-- Bouton Like avec marge -->
+                    <div class="me-4">
+                        <form method="post" action="{% url 'blogapp:toggle_like' blog.pk %}">
+                            {% csrf_token %}
+                            {% if user.is_authenticated %}
+                                <button type="submit"
+                                        class="btn btn-outline-danger rounded-pill px-4 py-3 shadow-sm border-2
+                                               {% if liked %}btn-danger text-white{% endif %}">
+                                    <i class="fa {% if liked %}fa-heart{% else %}fa-heart-o{% endif %}"></i>
+                                    <span class="ms-2 fw-bold">{{ blog.total_likes }}</span>
+                                </button>
+                            {% else %}
+                                <a href="{% url 'login' %}?next={{ request.path }}"
+                                   class="btn btn-outline-danger rounded-pill px-4 py-3 shadow-sm border-2">
+                                    <i class="fa fa-heart-o"></i>
+                                    <span class="ms-2 fw-bold">{{ blog.total_likes }}</span>
+                                </a>
+                            {% endif %}
+                        </form>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="alert alert-light border-start border-5 border-danger p-4 flex-grow-1" style="background:#fff9f6;">
+                        <p class="lead mb-0"><em>« {{ blog.preview }} »</em></p>
+                    </div>
+                </div>
+                {% else %}
+
+                <!-- Si pas de preview — Like centré -->
+                <div class="text-center mb-5">
+                    <form method="post" action="{% url 'blogapp:toggle_like' blog.pk %}">
+                        {% csrf_token %}
+                        {% if user.is_authenticated %}
+                            <button type="submit"
+                                    class="btn btn-outline-danger rounded-pill px-4 py-3 shadow-sm border-2
+                                           {% if liked %}btn-danger text-white{% endif %}">
+                                <i class="fa {% if liked %}fa-heart{% else %}fa-heart-o{% endif %}"></i>
+                                <span class="ms-2 fw-bold">{{ blog.total_likes }}</span>
+                            </button>
+                        {% else %}
+                            <a href="{% url 'login' %}?next={{ request.path }}"
+                               class="btn btn-outline-danger rounded-pill px-4 py-3 shadow-sm border-2">
+                                <i class="fa fa-heart-o"></i>
+                                <span class="ms-2 fw-bold">{{ blog.total_likes }}</span>
+                            </a>
+                        {% endif %}
+                    </form>
+                </div>
+                {% endif %}
+
+                <!-- Contenu complet -->
+                <article class="blog-content fs-5 lh-lg text-dark">
+                    {{ blog.content|linebreaks }}
+                </article>
+
+                <hr class="my-5">
+
+                <!-- Commentaires -->
+                <div class="comments-section mt-5">
+                    <h3 class="mb-4">{{ blog.comments.count }} Commentaire{{ blog.comments.count|pluralize }}</h3>
+
+                    {% for comment in blog.comments.all %}
+                    <div class="d-flex mb-4 p-4 rounded" style="background:#fff9f6;">
+                        <img src="{% static 'img/avatar-placeholder.png' %}" width="50" class="rounded-circle flex-shrink-0">
+                        <div class="ms-3 flex-grow-1">
+                            <strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
+                            <small class="text-muted ms-2">{{ comment.created_at|date:"d M Y à H:i" }}</small>
+                            <p class="mt-2 mb-0">{{ comment.content|linebreaks }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">Soyez le premier à commenter !</p>
+                    {% endfor %}
+
+                    <!-- Ajouter commentaire -->
+                    {% if user.is_authenticated %}
+                    <div class="mt-5 p-4 rounded" style="background:#fff9f6; border:2px dashed #f65d5d;">
+                        <h5>Ajouter un commentaire</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <textarea name="content" class="form-control mb-3" rows="4" placeholder="Votre commentaire..." required></textarea>
+                            <button type="submit" class="site-btn sb-gradient">Publier</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="site-btn sb-gradient mt-4">Se connecter pour commenter</a>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

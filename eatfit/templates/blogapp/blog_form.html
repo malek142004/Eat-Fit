@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<section class="page-top-section set-bg" data-setbg="{% static 'img/page-top-bg.jpg' %}">
+    <div class="container text-white text-center py-5">
+        <h1 class="display-4">{{ title }}</h1>
+        <p class="lead">Partage tes conseils nutrition, fitness ou bien-être</p>
+    </div>
+</section>
+
+<section class="events-page-section spad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-9">
+
+                <div class="p-5 rounded-lg shadow" style="background:#fff9f6; border:2px solid #fde8e0;">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Titre -->
+                        <div class="mb-4">
+                            {{ form.title }}
+                            {% if form.title.errors %}<small class="text-danger d-block">{{ form.title.errors }}</small>{% endif %}
+                        </div>
+
+                        <!-- Thème -->
+                        <div class="mb-4">
+                            {{ form.theme }}
+                            {% if form.theme.errors %}<small class="text-danger d-block">{{ form.theme.errors }}</small>{% endif %}
+                        </div>
+
+                        <!-- Extrait (preview) -->
+                        <div class="mb-4">
+                            {{ form.preview }}
+                            <small class="text-muted">Cet extrait apparaîtra sur la page d’accueil (max 200 caractères)</small>
+                            {% if form.preview.errors %}<small class="text-danger d-block">{{ form.preview.errors }}</small>{% endif %}
+                        </div>
+
+                        <!-- Contenu complet -->
+                        <div class="mb-5">
+                            {{ form.content }}
+                            {% if form.content.errors %}<small class="text-danger d-block">{{ form.content.errors }}</small>{% endif %}
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="site-btn sb-gradient px-5 py-3 mr-3">
+                                Publier l’article
+                            </button>
+                            <a href="{% url 'blogapp:blog_list' %}" class="site-btn sb-white px-5 py-3">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

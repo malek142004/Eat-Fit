@@ -1,0 +1,24 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Delete Appointment{% endblock %}
+
+{% block content %}
+<section class="contact-section spad" style="padding-top: 100px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <div class="contact-form">
+                    <h4>Delete Appointment</h4>
+                    <p>Are you sure you want to delete the appointment for <strong>{{ appointment.client }}</strong> on <strong>{{ appointment.appointment_date }}</strong>?</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="site-btn sb-white">Confirm Delete</button>
+                        <a href="{% url 'appointment_list' %}" class="site-btn sb-line-gradient" style="margin-top: 15px;">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

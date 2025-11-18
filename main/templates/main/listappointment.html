@@ -1,0 +1,80 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Appointment List{% endblock %}
+
+{% block page_title %}Appointments{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .table-custom {
+            width: 100%;
+            margin-top: 40px;
+            border-collapse: collapse;
+        }
+        .table-custom th, .table-custom td {
+            border: 1px solid #e5e5e5;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        .table-custom th {
+            background-color: #f2f4f5;
+            font-weight: 600;
+        }
+        .table-custom tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .action-btn {
+            padding: 5px 10px;
+            font-size: 14px;
+            min-width: auto;
+            margin-right: 5px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<section class="spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="contact-form">
+                    
+                    <a href="{% url 'add_appointment' %}" class="site-btn sb-line-gradient" style="margin-bottom: 30px;">Add New Appointment</a>
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Date</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Mode</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in appointments %}
+                            <tr>
+                                <td>{{ app.client }}</td>
+                                <td>{{ app.appointment_date }}</td>
+                                <td>{{ app.start_time }}</td>
+                                <td>{{ app.end_time }}</td>
+                                <td>{{ app.mode }}</td>
+                                <td>
+                                    <a href="{% url 'appointment_update' app.pk %}" class="site-btn action-btn">Modify</a>
+                                    <a href="{% url 'appointment_delete' app.pk %}" class="site-btn sb-white action-btn">Delete</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6">No appointments found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

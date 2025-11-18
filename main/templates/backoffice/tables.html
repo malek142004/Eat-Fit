@@ -1,0 +1,69 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800">Appointments Management</h1>
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Appointments List</h6>
+    </div>
+    <div class="card-body">
+        <a href="{% url 'backoffice_appointment_create' %}" class="btn btn-primary btn-icon-split mb-3">
+            <span class="icon text-white-50">
+                <i class="fas fa-plus"></i>
+            </span>
+            <span class="text">Add New Appointment</span>
+        </a>
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                        <th>Client Email</th>
+                        <th>Appointment Date</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Mode</th>
+                        <th>Visio Link</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment.client.nom_complet }}</td>
+                        <td>{{ appointment.client.email }}</td>
+                        <td>{{ appointment.appointment_date }}</td>
+                        <td>{{ appointment.start_time }}</td>
+                        <td>{{ appointment.end_time }}</td>
+                        <td>{{ appointment.mode }}</td>
+                        <td>
+                            {% if appointment.visio_link %}
+                                <a href="{{ appointment.visio_link }}" target="_blank">{{ appointment.visio_link }}</a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'backoffice_appointment_update' appointment.pk %}" class="btn btn-info btn-circle btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'backoffice_appointment_delete' appointment.pk %}" class="btn btn-danger btn-circle btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8">No appointments found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

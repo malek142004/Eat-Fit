@@ -27,7 +27,7 @@ urlpatterns = [
     path('backoffice/register/', views.backoffice_register, name='backoffice_register'),
     path("backoffice/tables_user/", views.users_list, name="users_list"),
     path('backoffice/tables_nutritionists/', views.backoffice_tables, name='backoffice_nutritionist_list'),
-    path('backoffice/tables_blogs/', views.backoffice_tables, name='blogs_list'),
+   
 
 
     # Backoffice Appointment CRUD URLs

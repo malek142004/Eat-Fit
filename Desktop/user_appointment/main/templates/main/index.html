@@ -1,615 +1,640 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
-{% block title %}Home - Ahana | Yoga HTML Template{% endblock %}
+{% block title %}EAt & Fit frontoffice{% endblock %}
 
 {% block content %}
-	<!-- Hero Section -->
-	<section class="hero-section">
-		<div class="hero-social-warp">
-			<div class="hero-social">
-				<a href="#"><i class="fa fa-facebook"></i></a>
-				<a href="#"><i class="fa fa-instagram"></i></a>
-				<a href="#"><i class="fa fa-twitter"></i></a>
-				<a href="#"><i class="fa fa-linkedin"></i></a>
-			</div>
-		</div>
-		<div class="arrow-buttom">
-			<img src="{% static 'main/img/icons/arrows-buttom.png' %}" alt="">
-		</div>
-		<div class="hero-slider owl-carousel">
-			<div class="hs-item">
-				<div class="hs-style-1 text-center">
-					<img src="{% static 'main/img/hero-slider/1.png' %}" alt="">
-				</div>
-			</div>
-			<div class="hs-item">
-				<div class="hs-style-2">
-					<div class="container-fluid h-100">
-						<div class="row h-100">
-							<div class="col-lg-6 h-100 d-none d-lg-flex align-items-xl-end align-items-lg-center">
-								<div class="hs-img">
-									<img src="{% static 'main/img/hero-slider/2.png' %}" alt="">
-								</div>
-							</div>
-							<div class="col-lg-6 d-flex align-items-center">
-								<div class="hs-text-warp">
-									<div class="hs-text">
-										<h2>Get slim and toned with yoga</h2>
-										<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nos-trud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>
-										<div class="site-btn sb-white">Register now</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="hs-item">
-				<div class="hs-style-3 text-center">
-					<div class="container">
-						<div class="hs-text">
-							<h2>Reduce your stress</h2>
-							<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi.</p>
-							<div class="site-btn sb-white">Register now</div>
-						</div>
-					</div>
-					<div class="hs-img">
-						<img src="{% static 'main/img/hero-slider/3.png' %}" alt="">
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- Hero Section end -->
+<style>
+    .hero-section-dynamic {
+        position: relative;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+    }
+    .scrolling-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 500%; /* 100% * number of images */
+        height: 100%;
+        display: flex;
+        animation: scroll-right 80s linear infinite;
+        z-index: 1;
+    }
+    .scrolling-bg img {
+        width: 20%; /* 100% / number of images */
+        height: 100%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    @keyframes scroll-right {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-60%); /* -(100% - (100% / number of images)) */
+        }
+    }
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        background: linear-gradient(145deg, rgba(246, 93, 93, 0.7) 0%, rgba(253, 176, 125, 0.7) 100%);
+        padding: 40px;
+        border-radius: 15px;
+    }
+    .hero-content h1 {
+        font-size: 4rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+    }
+    .hero-content p {
+        font-size: 1.5rem;
+    }
+    .service-item {
+        text-align: center;
+        padding: 20px 10px;
+        border: 1px solid #e1e1e1;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        background: #fff;
+        height: 100%;
+    }
+    .service-item img {
+        max-width: 120px;
+        margin-bottom: 20px;
+        border-radius: 50%;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .service-item h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+    .choose-us-item {
+        text-align: center;
+        padding: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: #fdebd0;
+        border-radius: 10px;
+    }
+    .choose-us-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    .choose-us-item img {
+        max-width: 140px;
+        margin-bottom: 15px;
+    }
+    .choose-us-item h4 {
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+    /* Testimonials Section Styles */
+    .testimonial-section {
+        background-color: #f8f8f8;
+    }
+    .testimonial-item {
+        text-align: center;
+        padding: 40px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        margin: 20px; /* For spacing in carousel */
+    }
+    .testimonial-item .ti-img {
+        margin-bottom: 20px;
+    }
+    .testimonial-item .ti-img img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #ff9900;
+    }
+    .testimonial-item p {
+        font-style: italic;
+        margin-bottom: 15px;
+        color: #555;
+    }
+    .testimonial-item h4 {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    .testimonial-item span {
+        font-size: 0.9rem;
+        color: #888;
+    }
+    /* Featured Healthy Meals Styles */
+    .meal-item {
+        text-align: center;
+        padding: 20px;
+        background: #fdebd0;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin: 10px; /* For spacing in carousel */
+    }
+    .meal-item img {
+        max-width: 150px;
+        height: auto;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    .meal-item h4 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #333;
+    }
+    /* How It Works Section Styles */
+    .how-it-works-section {
+        background-color: #f9f9f9;
+    }
+    .how-it-works-item {
+        text-align: center;
+        padding: 30px 20px;
+        border: 1px solid #e1e1e1;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        background: #fff;
+        height: 100%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .how-it-works-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    .how-it-works-item img {
+        max-width: 100px;
+        margin-bottom: 20px;
+    }
+    .how-it-works-item h4 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
 
-	<!-- About Section -->
-	<section class="about-section spad">
-		<div class="container">
-			<div class="section-title text-center">
-				<img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
-				<h2>Welcome to Ahana</h2>
-				<p>Practice Yoga to perfect physical beauty, take care of your soul and enjoy life more fully!</p>
-			</div>
-			<div class="row">
-				<div class="col-lg-6">
-					<div class="about-img">
-						<img src="{% static 'main/img/about.png' %}" alt="">
-					</div>
-				</div>
-				<div class="col-lg-6">
-					<div class="about-item">
-						<div class="ai-icon">
-							<img src="{% static 'main/img/icons/about-1.png' %}" alt="">
-						</div>
-						<div class="ai-text">
-							<h4>Full Rejuvenation</h4>
-							<p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-						</div>
-					</div>
-					<div class="about-item">
-						<div class="ai-icon">
-							<img src="{% static 'main/img/icons/about-2.png' %}" alt="">
-						</div>
-						<div class="ai-text">
-							<h4>Extension of Spring</h4>
-							<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem a cusantium doloremque.</p>
-						</div>
-					</div>
-					<div class="about-item">
-						<div class="ai-icon">
-							<img src="{% static 'main/img/icons/about-3.png' %}" alt="">
-						</div>
-						<div class="ai-text">
-							<h4>Against Aging</h4>
-							<p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.</p>
-						</div>
-					</div>
-					<a href="" class="site-btn sb-gradient mt-5">explore more</a>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- About Section end -->
+    /* Footer Section Styles */
+    .footer-section {
+        background: #1a1a1a;
+        color: #a9a9a9;
+        padding: 70px 0 0;
+    }
+    .footer-widget h4 {
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    .footer-widget p {
+        line-height: 1.8;
+    }
+    .contact-info {
+        list-style: none;
+        padding: 0;
+    }
+    .contact-info li {
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+    .contact-info li i {
+        color: #ff9900;
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    .social-links a {
+        color: #a9a9a9;
+        font-size: 1.5rem;
+        margin-right: 15px;
+        transition: color 0.3s ease;
+    }
+    .social-links a:hover {
+        color: #ff9900;
+    }
+    .footer-bottom {
+        border-top: 1px solid #333;
+        padding: 20px 0;
+        text-align: center;
+        margin-top: 40px;
+    }
+    
+</style>
 
-	<!-- Classes Section -->
-	<section class="classes-section spad">
-		<div class="container">
-			<div class="section-title text-center">
-				<img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
-				<h2>Popular Classes</h2>
-				<p>Practice Yoga to perfect physical beauty, take care of your soul and enjoy life more fully!</p>
-			</div>
-			<div class="classes-slider owl-carousel">
-				<div class="classes-item">
-					<div class="ci-img">
-						<img src="{% static 'main/img/classes/1.jpg' %}" alt="">
-					</div>
-					<div class="ci-text">
-						<h4><a href="classes-details.html">Artistic Yoga</a></h4>
-						<div class="ci-metas">
-							<div class="ci-meta"><i class="material-icons">event_available</i>Mon, Wed, Fri</div>
-							<div class="ci-meta"><i class="material-icons">alarm_on</i>06:30pm - 07:45pm</div>
-						</div>
-						<p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis</p>
-					</div>
-					<div class="ci-bottom">
-						<div class="ci-author">
-							<img src="{% static 'main/img/classes/author/1.jpg' %}" alt="">
-							<div class="author-text">
-								<h6>Victoria Webb</h6>
-								<p>Yoga Trainer</p>
-							</div>
-						</div>
-						<a href="" class="site-btn sb-gradient">book now</a>
-					</div>
-				</div>
-				<div class="classes-item">
-					<div class="ci-img">
-						<img src="{% static 'main/img/classes/2.jpg' %}" alt="">
-					</div>
-					<div class="ci-text">
-						<h4>Traditional Hatha</h4>
-						<div class="ci-metas">
-							<div class="ci-meta"><i class="material-icons">event_available</i>Mon, Wed, Fri</div>
-							<div class="ci-meta"><i class="material-icons">alarm_on</i>06:30pm - 07:45pm</div>
-						</div>
-						<p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis</p>
-					</div>
-					<div class="ci-bottom">
-						<div class="ci-author">
-							<img src="{% static 'main/img/classes/author/2.jpg' %}" alt="">
-							<div class="author-text">
-								<h6>Victoria Webb</h6>
-								<p>Yoga Trainer</p>
-							</div>
-						</div>
-						<a href="" class="site-btn sb-gradient">book now</a>
-					</div>
-				</div>
-				<div class="classes-item">
-					<div class="ci-img">
-						<img src="{% static 'main/img/classes/3.jpg' %}" alt="">
-					</div>
-					<div class="ci-text">
-						<h4>Yoga Therapy</h4>
-						<div class="ci-metas">
-							<div class="ci-meta"><i class="material-icons">event_available</i>Mon, Wed, Fri</div>
-							<div class="ci-meta"><i class="material-icons">alarm_on</i>06:30pm - 07:45pm</div>
-						</div>
-						<p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis</p>
-					</div>
-					<div class="ci-bottom">
-						<div class="ci-author">
-							<img src="{% static 'main/img/classes/author/3.jpg' %}" alt="">
-							<div class="author-text">
-								<h6>Victoria Webb</h6>
-								<p>Yoga Trainer</p>
-							</div>
-						</div>
-						<a href="" class="site-btn sb-gradient">book now</a>
-					</div>
-				</div>
-				<div class="classes-item">
-					<div class="ci-img">
-						<img src="{% static 'main/img/classes/2.jpg' %}" alt="">
-					</div>
-					<div class="ci-text">
-						<h4>Traditional Hatha</h4>
-						<div class="ci-metas">
-							<div class="ci-meta"><i class="material-icons">event_available</i>Mon, Wed, Fri</div>
-							<div class="ci-meta"><i class="material-icons">alarm_on</i>06:30pm - 07:45pm</div>
-						</div>
-						<p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis</p>
-					</div>
-					<div class="ci-bottom">
-						<div class="ci-author">
-							<img src="{% static 'main/img/classes/author/2.jpg' %}" alt="">
-							<div class="author-text">
-								<h6>Victoria Webb</h6>
-								<p>Yoga Trainer</p>
-							</div>
-						</div>
-						<a href="" class="site-btn sb-gradient">book now</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- Classes Section end -->
+<!-- Hero Section -->
+<section class="hero-section-dynamic">
+    <div class="scrolling-bg">
+        <img src="{% static 'home_img/home.png' %}" alt="Eat & Fit background image 1">
+        <img src="{% static 'home_img/home1.png' %}" alt="Eat & Fit background image 2">
+        <img src="{% static 'home_img/home2.png' %}" alt="Eat & Fit background image 3">
+        <img src="{% static 'home_img/home3.png' %}" alt="Eat & Fit background image 4">
+        <img src="{% static 'home_img/home4.png' %}" alt="Eat & Fit background image 5">
+    </div>
+    <div class="hero-content">
+        <h1>EAT & FIT</h1>
+        <p>A unique and innovative lifestyle platform combining health, fitness, and healthy food.</p>
+    </div>
+</section>
+<!-- Hero Section end -->
 
-	<!-- Trainer Section -->
-	<section class="trainer-section overflow-hidden spad">
-		<div class="container">
-			<div class="section-title text-center">
-				<img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
-				<h2>Our Trainer Yoga</h2>
-				<p>Practice Yoga to perfect physical beauty, take care of your soul and enjoy life more fully!</p>
-			</div>
-			<div class="trainer-slider owl-carousel">
-				<div class="ts-item">
-					<div class="trainer-item">
-						<div class="ti-img">
-							<img src="{% static 'main/img/trainer/1.png' %}" alt="">
-						</div>
-						<div class="ti-text">
-							<h4>Lori Kennedy</h4>
-							<h6>Yoga Trainer</h6>
-							<p>Yoga & Therapy Certificate of Uttarakhand University Sanskrit</p>
-							<div class="ti-social">
-								<a href="#"><i class="fa fa-facebook"></i></a>
-								<a href="#"><i class="fa fa-instagram"></i></a>
-								<a href="#"><i class="fa fa-twitter"></i></a>
-								<a href="#"><i class="fa fa-linkedin"></i></a>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="ts-item">
-					<div class="trainer-item">
-						<div class="ti-img">
-							<img src="{% static 'main/img/trainer/2.png' %}" alt="">
-						</div>
-						<div class="ti-text">
-							<h4>Lori Kennedy</h4>
-							<h6>Yoga Trainer</h6>
-							<p>Yoga & Therapy Certificate of Uttarakhand University Sanskrit</p>
-							<div class="ti-social">
-								<a href="#"><i class="fa fa-facebook"></i></a>
-								<a href="#"><i class="fa fa-instagram"></i></a>
-								<a href="#"><i class="fa fa-twitter"></i></a>
-								<a href="#"><i class="fa fa-linkedin"></i></a>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="ts-item">
-					<div class="trainer-item">
-						<div class="ti-img">
-							<img src="{% static 'main/img/trainer/3.png' %}" alt="">
-						</div>
-						<div class="ti-text">
-							<h4>Rebecca James</h4>
-							<h6>Yoga Trainer</h6>
-							<p>Yoga & Therapy Certificate of Uttarakhand University Sanskrit</p>
-							<div class="ti-social">
-								<a href="#"><i class="fa fa-facebook"></i></a>
-								<a href="#"><i class="fa fa-instagram"></i></a>
-								<a href="#"><i class="fa fa-twitter"></i></a>
-								<a href="#"><i class="fa fa-linkedin"></i></a>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- Trainer Section end -->
+<div class="section-separator"></div>
 
-	<!-- Review Section -->
-	<section class="review-section spad set-bg" data-setbg="{% static 'main/img/review-bg.jpg' %}">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-8 m-auto">
-					<div class="review-slider owl-carousel">
-						<div class="review-item">
-							<div class="ri-img">
-								<img src="{% static 'main/img/classes/author/1.jpg' %}" alt="">
-							</div>
-							<div class="ri-text text-white">
-								<p>On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness.</p>
-								<h4>Denise Thomas</h4>
-								<h6>Designer</h6>
-							</div>
-						</div>
-						<div class="review-item">
-							<div class="ri-img">
-								<img src="{% static 'main/img/classes/author/2.jpg' %}" alt="">
-							</div>
-							<div class="ri-text text-white">
-								<p>On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness.</p>
-								<h4>Denise Thomas</h4>
-								<h6>Designer</h6>
-							</div>
-						</div>
-						<div class="review-item">
-							<div class="ri-img">
-								<img src="{% static 'main/img/classes/author/3.jpg' %}" alt="">
-							</div>
-							<div class="ri-text text-white">
-								<p>On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness.</p>
-								<h4>Denise Thomas</h4>
-								<h6>Designer</h6>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- Review Section end -->
+<!-- Main Services Section -->
+<section class="about-section spad">
+    <div class="container">
+        <div class="section-title text-center">
+            <img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
+            <h2>Main Services</h2>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <img src="{% static 'home_img/nut_service.png' %}" alt="Nutritionists">
+                    <h3>Nutritionists</h3>
+                    <p>Connect with certified nutritionists to create your personalized diet plan and achieve your health goals.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <img src="{% static 'home_img/meals_service.png' %}" alt="Meals">
+                    <h3>Healthy Meals</h3>
+                    <p>Get delicious, healthy, and pre-planned meals delivered right to your doorstep. Eating well has never been easier.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <img src="{% static 'home_img/coach_service.png' %}" alt="Coaches">
+                    <h3>Fitness Coaches</h3>
+                    <p>Find expert fitness coaches to guide you on your workout journey, keeping you motivated and on track.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Main Services Section end -->
 
-	<!-- Event Section -->
-	<section class="event-section spad">
-		<div class="container">
-			<div class="section-title text-center">
-				<img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
-				<h2>Upcoming Events</h2>
-				<p>Practice Yoga to perfect physical beauty, take care of your soul and enjoy life more fully!</p>
-			</div>
-			<div class="row">
-				<div class="col-xl-6">
-					<div class="event-video">
-						<img src="{% static 'main/img/video.jpg' %}" alt="">
-						<a href="https://www.youtube.com/watch?v=vgv-hzTl5FA" class="video-popup"><img src="{% static 'main/img/icons/play.png' %}" alt=""></a>
-					</div>
-				</div>
-				<div class="col-xl-6">
-					<div class="event-item">
-						<div class="ei-img">
-							<img src="{% static 'main/img/event/1.jpg' %}" alt="">
-						</div>
-						<div class="ei-text">
-							<h4><a href="#">Lole White Yoga Tour</a></h4>
-							<ul>
-								<li><i class="material-icons">person</i>Kelly Alexander</li>
-								<li><i class="material-icons">event_available</i>15 January, 2019</li>
-								<li><i class="material-icons">map</i>184 Main Collins Street</li>
-							</ul>
-						</div>
-					</div>
-					<div class="event-item">
-						<div class="ei-img">
-							<img src="{% static 'main/img/event/2.jpg' %}" alt="">
-						</div>
-						<div class="ei-text">
-							<h4>Free Yoga Madrid</h4>
-							<ul>
-								<li><i class="material-icons">person</i>Kelly Alexander</li>
-								<li><i class="material-icons">event_available</i>15 January, 2019</li>
-								<li><i class="material-icons">map</i>184 Main Collins Street</li>
-							</ul>
-						</div>
-					</div>
-					<div class="event-item">
-						<div class="ei-img">
-							<img src="{% static 'main/img/event/3.jpg' %}" alt="">
-						</div>
-						<div class="ei-text">
-							<h4>One Love Dallas</h4>
-							<ul>
-								<li><i class="material-icons">person</i>Kelly Alexander</li>
-								<li><i class="material-icons">event_available</i>15 January, 2019</li>
-								<li><i class="material-icons">map</i>184 Main Collins Street</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-xl-6">
-					<div class="event-video">
-						<img src="{% static 'main/img/video.jpg' %}" alt="">
-						<a href="https://www.youtube.com/watch?v=vgv-hzTl5FA" class="video-popup"><img src="{% static 'main/img/icons/play.png' %}" alt=""></a>
-					</div>
-				</div>
-				<div class="col-xl-6">
-					<div class="event-item">
-						<div class="ei-img">
-							<img src="{% static 'main/img/event/1.jpg' %}" alt="">
-						</div>
-						<div class="ei-text">
-							<h4><a href="#">Lole White Yoga Tour</a></h4>
-							<ul>
-								<li><i class="material-icons">person</i>Kelly Alexander</li>
-								<li><i class="material-icons">event_available</i>15 January, 2019</li>
-								<li><i class="material-icons">map</i>184 Main Collins Street</li>
-							</ul>
-						</div>
-					</div>
-					<div class="event-item">
-						<div class="ei-img">
-							<img src="{% static 'main/img/event/2.jpg' %}" alt="">
-						</div>
-						<div class="ei-text">
-							<h4>Free Yoga Madrid</h4>
-							<ul>
-								<li><i class="material-icons">person</i>Kelly Alexander</li>
-								<li><i class="material-icons">event_available</i>15 January, 2019</li>
-								<li><i class="material-icons">map</i>184 Main Collins Street</li>
-							</ul>
-						</div>
-					</div>
-					<div class="event-item">
-						<div class="ei-img">
-							<img src="{% static 'main/img/event/3.jpg' %}" alt="">
-						</div>
-						<div class="ei-text">
-							<h4>One Love Dallas</h4>
-							<ul>
-								<li><i class="material-icons">person</i>Kelly Alexander</li>
-								<li><i class="material-icons">event_available</i>15 January, 2019</li>
-								<li><i class="material-icons">map</i>184 Main Collins Street</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- Event Section end -->
+<div class="section-separator"></div>
 
+<!-- Why Choose Us Section -->
+<section class="trainer-section spad">
+    <div class="container">
+        <div class="section-title text-center">
+            <img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
+            <h2>Why Choose Us?</h2>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-sm-6">
+                <div class="choose-us-item">
+                    <img src="{% static 'home_img/BO.png' %}" alt="Backoffice">
+                    <h4>Powerful Management</h4>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="choose-us-item">
+                    <img src="{% static 'home_img/coach.png' %}" alt="Coaches">
+                    <h4>Expert Coaches</h4>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="choose-us-item">
+                    <img src="{% static 'home_img/nut.png' %}" alt="Nutritionists">
+                    <h4>Certified Nutritionists</h4>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="choose-us-item">
+                    <img src="{% static 'home_img/client.png' %}" alt="Client Focused">
+                    <h4>Client-Focused Approach</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Why Choose Us Section end -->
 
-	<!-- Pricing Section -->
-	<section class="pricing-section spad">
-		<div class="container">
-			<div class="section-title text-center">
-				<img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
-				<h2>Pricing plans</h2>
-				<p>Practice Yoga to perfect physical beauty, take care of your soul and enjoy life more fully!</p>
-			</div>
-			<div class="row">
-				<div class="col-lg-3 col-sm-6">
-					<div class="pricing-item begginer">
-						<div class="pi-top">
-							<h4>Begginer</h4>
-						</div>
-						<div class="pi-price">
-							<h3>$59</h3>
-							<p>Per month</p>
-						</div>
-						<ul>
-							<li>Take Up To 7 Classes</li>
-							<li>Available To Anyone</li>
-							<li>Towels Included</li>
-							<li>Never Expires</li>
-						</ul>
-						<a href="#" class="site-btn sb-line-gradient">Get started</a>
-					</div>
-				</div>
-				<div class="col-lg-3 col-sm-6">
-					<div class="pricing-item entermediate">
-						<div class="pi-top">
-							<h4>Entermediate</h4>
-						</div>
-						<div class="pi-price">
-							<h3>$99</h3>
-							<p>Per month</p>
-						</div>
-						<ul>
-							<li>Take Up To 7 Classes</li>
-							<li>Available To Anyone</li>
-							<li>Towels Included</li>
-							<li>Never Expires</li>
-						</ul>
-						<a href="#" class="site-btn sb-line-gradient">Get started</a>
-					</div>
-				</div>
-				<div class="col-lg-3 col-sm-6">
-					<div class="pricing-item advanced">
-						<div class="pi-top">
-							<h4>Advanced</h4>
-						</div>
-						<div class="pi-price">
-							<h3>$159</h3>
-							<p>Per month</p>
-						</div>
-						<ul>
-							<li>Take Up To 7 Classes</li>
-							<li>Available To Anyone</li>
-							<li>Towels Included</li>
-							<li>Never Expires</li>
-						</ul>
-						<a href="#" class="site-btn sb-line-gradient">Get started</a>
-					</div>
-				</div>
-				<div class="col-lg-3 col-sm-6">
-					<div class="pricing-item professional">
-						<div class="pi-top">
-							<h4>Professional</h4>
-						</div>
-						<div class="pi-price">
-							<h3>$199</h3>
-							<p>Per month</p>
-						</div>
-						<ul>
-							<li>Take Up To 7 Classes</li>
-							<li>Available To Anyone</li>
-							<li>Towels Included</li>
-							<li>Never Expires</li>
-						</ul>
-						<a href="#" class="site-btn sb-line-gradient">Get started</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- Pricing Section end -->
+<div class="section-separator"></div>
 
-	<!-- Sign up Section -->
-	<section class="signup-section spad">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-6">
-					<div class="signup-map"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d33245.297803635964!2d-73.76987401620775!3d40.704774398815005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2sbd!4v1575866843291!5m2!1sen!2sbd" style="border:0;" allowfullscreen=""></iframe></div>
-				</div>
-				<div class="col-lg-6">
-					<div class="singup-text">
-						<h3>Sign Up for Our Classes</h3>
-						<p>To be invited to the nearest Cali center and get free physical advice to learn more about the program.</p>
-					</div>
-					<form class="singup-form">
-						<div class="row">
-							<div class="col-md-6">
-								<input type="text" placeholder="First Name">
-							</div>
-							<div class="col-md-6">
-								<input type="text" placeholder="Last Name">
-							</div>
-							<div class="col-md-6">
-								<input type="text" placeholder="Your Email">
-							</div>
-							<div class="col-md-6">
-								<input type="text" placeholder="Phone Number">
-							</div>
-							<div class="col-md-12">
-								<textarea placeholder="Message"></textarea>
-								<a href="#" class="site-btn sb-gradient">Get started</a>
-							</div>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- Sign up Section end -->
+<!-- Testimonials Section -->
+<section class="testimonial-section spad">
+    <div class="container">
+        <div class="section-title text-center">
+            <img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
+            <h2>What Our Clients Say</h2>
+        </div>
+        <div class="testimonial-slider custom-owl-carousel">
+            <div class="testimonial-item">
+                <div class="ti-img">
+                    <img src="{% static 'home_img/pdp1.png' %}" alt="Client 1">
+                </div>
+                <p>"Eat&Fit helped me lose 6kg in 2 months! I feel so much healthier and more energetic."</p>
+                <h4>Alice Johnson</h4>
+                <span>Happy Client</span>
+            </div>
+            <div class="testimonial-item">
+                <div class="ti-img">
+                    <img src="{% static 'home_img/pdp2.png' %}" alt="Client 2">
+                </div>
+                <p>"I really loved the products here, very delicious and perfectly portioned. Highly recommend!"</p>
+                <h4>Ben Smith</h4>
+                <span>Food Enthusiast</span>
+            </div>
+            <div class="testimonial-item">
+                <div class="ti-img">
+                    <img src="{% static 'home_img/pdp3.png' %}" alt="Client 3">
+                </div>
+                <p>"The nutritionists are so kind and supportive. They guided me every step of the way to a better lifestyle."</p>
+                <h4>Clara Lee</h4>
+                <span>Wellness Seeker</span>
+            </div>
+            <div class="testimonial-item">
+                <div class="ti-img">
+                    <img src="{% static 'home_img/pdp4.png' %}" alt="Client 4">
+                </div>
+                <p>"My fitness coach is amazing! I've seen incredible progress and stay motivated thanks to their personalized workouts."</p>
+                <h4>David Green</h4>
+                <span>Fitness Journey</span>
+            </div>
+            <div class="testimonial-item">
+                <div class="ti-img">
+                    <img src="{% static 'home_img/pdp5.png' %}" alt="Client 5">
+                </div>
+                <p>"A unique platform that truly transforms lives. The combination of healthy meals and expert guidance is unbeatable."</p>
+                <h4>Emily White</h4>
+                <span>Life Changer</span>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Testimonials Section end -->
 
-	<!-- Gallery Section -->
-	<div class="gallery-section">
-		<div class="gallery-slider owl-carousel">
-			<div class="gs-item">
-				<img src="{% static 'main/img/gallery/1.jpg' %}" alt="">
-				<div class="gs-hover">
-					<i class="fa fa-instagram"></i>
-					<p>ahana.yoga</p>
-				</div>
-			</div>
-			<div class="gs-item">
-				<img src="{% static 'main/img/gallery/2.jpg' %}" alt="">
-				<div class="gs-hover">
-					<i class="fa fa-instagram"></i>
-					<p>ahana.yoga</p>
-				</div>
-			</div>
-			<div class="gs-item">
-				<img src="{% static 'main/img/gallery/3.jpg' %}" alt="">
-				<div class="gs-hover">
-					<i class="fa fa-instagram"></i>
-					<p>ahana.yoga</p>
-				</div>
-			</div>
-			<div class="gs-item">
-				<img src="{% static 'main/img/gallery/4.jpg' %}" alt="">
-				<div class="gs-hover">
-					<i class="fa fa-instagram"></i>
-					<p>ahana.yoga</p>
-				</div>
-			</div>
-			<div class="gs-item">
-				<img src="{% static 'main/img/gallery/5.jpg' %}" alt="">
-				<div class="gs-hover">
-					<i class="fa fa-instagram"></i>
-					<p>ahana.yoga</p>
-				</div>
-			</div>
-			<div class="gs-item">
-				<img src="{% static 'main/img/gallery/6.jpg' %}" alt="">
-				<div class="gs-hover">
-					<i class="fa fa-instagram"></i>
-					<p>ahana.yoga</p>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- Gallery Section end -->
-{% endblock %}
+<div class="section-separator"></div>
+
+<!-- Featured Healthy Meals Section -->
+<section class="about-section spad">
+    <div class="container">
+        <div class="section-title text-center">
+            <img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
+            <h2>Featured Healthy Meals</h2>
+        </div>
+        <div class="meals-slider custom-owl-carousel">
+            <div class="meal-item">
+                <img src="{% static 'home_img/meal1.png' %}" alt="Meal 1">
+                <h4>Grilled Chicken with Veggies</h4>
+            </div>
+            <div class="meal-item">
+                <img src="{% static 'home_img/meal2.png' %}" alt="Meal 2">
+                <h4>Quinoa Salad with Avocado</h4>
+            </div>
+            <div class="meal-item">
+                <img src="{% static 'home_img/meal3.png' %}" alt="Meal 3">
+                <h4>Salmon with Asparagus</h4>
+            </div>
+            <div class="meal-item">
+                <img src="{% static 'home_img/meal4.png' %}" alt="Meal 4">
+                <h4>Vegetarian Buddha Bowl</h4>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Featured Healthy Meals Section end -->
+
+<div class="section-separator"></div>
+
+<!-- Meet Our Coaches Section -->
+<section class="about-section spad">
+    <div class="container">
+        <div class="section-title text-center">
+            <img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
+            <h2>Meet Our Coaches</h2>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <div class="ci-img">
+                        <img src="{% static 'home_img/coach1.png' %}" alt="Coach John Doe">
+                    </div>
+                    <h4>John Doe</h4>
+                    <p>Specializes in strength training and personalized workout plans.</p>
+                    <a href="#" class="site-btn sb-gradient">Book Now</a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <div class="ci-img">
+                        <img src="{% static 'home_img/coach2.png' %}" alt="Coach Jane Smith">
+                    </div>
+                    <h4>Jane Smith</h4>
+                    <p>Expert in yoga and flexibility, focusing on mind-body connection.</p>
+                    <a href="#" class="site-btn sb-gradient">Book Now</a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <div class="ci-img">
+                        <img src="{% static 'home_img/coach3.png' %}" alt="Coach Mike Ross">
+                    </div>
+                    <h4>Mike Ross</h4>
+                    <p>Certified in high-intensity interval training (HIIT) and endurance coaching.</p>
+                    <a href="#" class="site-btn sb-gradient">Book Now</a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <div class="ci-img">
+                        <img src="{% static 'home_img/coach4.png' %}" alt="Coach Sarah Connor">
+                    </div>
+                    <h4>Sarah Connor</h4>
+                    <p>Passionate about functional fitness and injury prevention.</p>
+                    <a href="#" class="site-btn sb-gradient">Book Now</a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <div class="ci-img">
+                        <img src="{% static 'home_img/coach5.png' %}" alt="Coach Chris Evans">
+                    </div>
+                    <h4>Chris Evans</h4>
+                    <p>Dedicated to helping clients achieve sustainable health and wellness goals.</p>
+                    <a href="#" class="site-btn sb-gradient">Book Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Meet Our Coaches Section end -->
+
+<div class="section-separator"></div>
+
+<!-- Meet Our Nutritionists Section -->
+<section class="about-section spad">
+    <div class="container">
+        <div class="section-title text-center">
+            <img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
+            <h2>Meet Our Nutritionists</h2>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <div class="ci-img">
+                        <img src="{% static 'home_img/nut1.jpg' %}" alt="Nutritionist Emily Carter">
+                    </div>
+                    <h4>Emily Carter</h4>
+                    <p>Expert in clinical nutrition and weight management programs.</p>
+                    <a href="#" class="site-btn sb-gradient">Book Now</a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <div class="ci-img">
+                        <img src="{% static 'home_img/nut2.jpg' %}" alt="Nutritionist Ben Miles">
+                    </div>
+                    <h4>Ben Miles</h4>
+                    <p>Specializes in sports nutrition and performance-enhancing diets.</p>
+                    <a href="#" class="site-btn sb-gradient">Book Now</a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <div class="ci-img">
+                        <img src="{% static 'home_img/nut3.webp' %}" alt="Nutritionist Olivia Chen">
+                    </div>
+                    <h4>Olivia Chen</h4>
+                    <p>Focuses on holistic nutrition and creating balanced meal plans.</p>
+                    <a href="#" class="site-btn sb-gradient">Book Now</a>
+                </div>
+            </div>
+            <div class="col-lg-4 d-flex align-items-stretch">
+                <div class="service-item">
+                    <div class="ci-img">
+                        <img src="{% static 'home_img/nut4.jpg' %}" alt="Nutritionist David Wilson">
+                    </div>
+                    <h4>David Wilson</h4>
+                    <p>Passionate about pediatric nutrition and family health.</p>
+                    <a href="#" class="site-btn sb-gradient">Book Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Meet Our Nutritionists Section end -->
+
+<div class="section-separator"></div>
+
+<!-- How It Works Section -->
+<section class="how-it-works-section spad">
+    <div class="container">
+        <div class="section-title text-center">
+            <img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
+            <h2>How Our Platform Works</h2>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-sm-6">
+                <div class="how-it-works-item">
+                    <img src="{% static 'home_img/pers_icon.png' %}" alt="Personalized Plan">
+                    <h4>1. Personalized Plan</h4>
+                    <p>Answer a few questions to get a personalized fitness and meal plan tailored to your goals.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="how-it-works-item">
+                    <img src="{% static 'home_img/booking_icon.png' %}" alt="Book Sessions">
+                    <h4>2. Book Sessions</h4>
+                    <p>Easily book sessions with our expert coaches and nutritionists at your convenience.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="how-it-works-item">
+                    <img src="{% static 'home_img/guid_icon.png' %}" alt="Get Guidance">
+                    <h4>3. Get Guidance</h4>
+                    <p>Receive continuous support and guidance from our professionals to stay on track.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="how-it-works-item">
+                    <img src="{% static 'home_img/results_icon.png' %}" alt="Achieve Results">
+                    <h4>4. Achieve Results</h4>
+                    <p>Follow your plan, stay consistent, and achieve the health and fitness results you desire.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- How It Works Section end -->
+
+<div class="section-separator"></div>
+
+<!-- Footer Section -->
+<footer class="footer-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="footer-widget">
+                    <h4>About Us</h4>
+                    <p>EAT & FIT is a unique and innovative lifestyle platform combining health, fitness, and healthy food to help you achieve your wellness goals.</p>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="footer-widget">
+                    <h4>Contact Us</h4>
+                    <ul class="contact-info">
+                        <li><i class="fa fa-map-marker"></i> Adresse. 1, 2 rue André Ampère - 2083 - Pôle Technologique - El Ghazala</li>
+                        <li><i class="fa fa-phone"></i> Téléphone : (+216) 70 250 000</li>
+                        <li><i class="fa fa-fax"></i> Fax. (+216) 71 236 483</li>
+                        <li><i class="fa fa-envelope"></i> Email : health_platform@eatfit.tn</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="footer-widget">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fa fa-facebook"></i></a>
+                        <a href="#"><i class="fa fa-twitter"></i></a>
+                        <a href="#"><i class="fa fa-instagram"></i></a>
+                        <a href="#"><i class="fa fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 EAT & FIT. All Rights Reserved.</p>
+        </div>
+    </div>
+</footer>
+<!-- Footer Section end -->
+
+<script>
+    $(document).ready(function() {
+        // Testimonial Slider Initialization
+        if ($(".testimonial-slider.custom-owl-carousel").length) {
+            $(".testimonial-slider").owlCarousel({
+                loop: true,
+                margin: 30,
+                nav: false,
+                dots: true,
+                autoplay: true,
+                autoplayHoverPause: true,
+                responsive: {
+                    0: {
+                        items: 1
+                    },
+                    768: {
+                        items: 2
+                    },
+                    992: {
+                        items: 3
+                    }
+                }
+            });
+        }
+
+        
+    });
+</script>
+
+{% endblock %}

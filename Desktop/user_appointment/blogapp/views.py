@@ -116,7 +116,7 @@ def blog_delete(request, pk):
 
 
 #backoffiche 
-@login_required
+
 def backoffice_tables(request):
     blogs = Blog.objects.all().order_by('-created_at')
     return render(request, 'backoffice/tables_blogs.html', {'blogs': blogs})
@@ -125,14 +125,14 @@ def backoffice_tables(request):
 
 
 # Détail d’un blog
-@login_required
+
 def backoffice_detail(request, pk):
     blog = get_object_or_404(Blog, pk=pk)
     return render(request, 'backoffice/blog_detail.html', {'blog': blog})
 
 
 # Création d’un blog
-@login_required
+
 def backoffice_create(request):
     if request.method == 'POST':
         form = BlogForm(request.POST)
@@ -148,7 +148,7 @@ def backoffice_create(request):
 
 
 # Modification d’un blog
-@login_required
+
 def backoffice_edit(request, pk):
     blog = get_object_or_404(Blog, pk=pk)
 
@@ -167,7 +167,7 @@ def backoffice_edit(request, pk):
 
 
 # Suppression d’un blog
-@login_required
+
 def backoffice_delete(request, pk):
     blog = get_object_or_404(Blog, pk=pk)
     if request.method == 'POST':
@@ -178,7 +178,7 @@ def backoffice_delete(request, pk):
 
 
 # Ajouter un commentaire depuis le détail du blog
-@login_required
+
 def backoffice_comment_create(request, blog_pk):
     blog = get_object_or_404(Blog, pk=blog_pk)
     if request.method == 'POST':
@@ -194,7 +194,7 @@ def backoffice_comment_create(request, blog_pk):
     return render(request, 'backoffice/comment_form.html', {'form': form, 'blog': blog, 'action': 'Ajouter'})
 
 # Modifier un commentaire
-@login_required
+
 def backoffice_comment_edit(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     if request.method == 'POST':
@@ -207,7 +207,7 @@ def backoffice_comment_edit(request, pk):
     return render(request, 'backoffice/comment_form.html', {'form': form, 'blog': comment.blog, 'action': 'Modifier'})
 
 # Supprimer un commentaire
-@login_required
+
 def backoffice_comment_delete(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     blog_pk = comment.blog.pk

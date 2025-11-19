@@ -1,4 +1,5 @@
 # users/views.py
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -7,12 +8,11 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponseBadRequest
-
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, CustomUserUpdateForm, NutritionistForm
-from .models import CustomUser as User, Nutritionist
-
-# ----------------------
-# Pages principales
+from django.db.models import Q
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, CustomUserUpdateForm, NutritionistForm , CoachForm
+from .models import CustomUser as User, Nutritionist , Coach
+from .forms import UserForm, CoachForm
+# Pages principale
 # ----------------------
 
 # ----------------------
@@ -322,3 +322,273 @@ def backoffice_nutritionist_create(request):
 def backoffice_nutritionist_detail(request, pk):
     nutritionist = get_object_or_404(Nutritionist, pk=pk)
     return render(request, 'backoffice/BOnutritionist_detail.html', {'nutritionist': nutritionist})
+# ----------------------
+# CRUD Coaches
+
+def coach_list(request):
+    """
+    Liste des coachs affichables sur le site (Front-end),
+    avec options de filtrage par sport et de tri.
+    """
+    # 1. Requête de base avec les filtres obligatoires
+    coaches = Coach.objects.filter(
+        show_on_website=True,
+        is_active=True
+    ).select_related('customuser_ptr') 
+
+    # 2. LOGIQUE DE FILTRAGE SUPPLÉMENTAIRE PAR TYPE DE SPORT
+    sport_type = request.GET.get('sport') 
+    
+    if sport_type:
+        coaches = coaches.filter(sport_type__iexact=sport_type)
+
+    # 3. LOGIQUE DE TRI (ORDRE)
+    sort_by = request.GET.get('sort', 'id') 
+
+    # ⚠️ Correction: Gérer le cas où 'sort_by' n'est pas un champ valide pour éviter une erreur 500
+    try:
+        coaches = coaches.order_by(sort_by)
+    except Exception:
+         # Revenir à un tri par défaut si le champ de tri n'existe pas
+        coaches = coaches.order_by('id') 
+
+    # 4. Rendu de la page
+    context = {
+        'coaches': coaches,
+        'current_sport': sport_type,
+        'current_sort': sort_by,
+        # ⚠️ Correction: Utiliser Coach.SPORT_CHOICES si défini dans models.py
+        'all_sport_types': getattr(Coach, 'SPORT_CHOICES', []) 
+    }
+    
+    return render(request, 'main/trainer.html', context)
+
+# users/views.py - Fonction coach_create (Corrigée et simplifiée)
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+# Assurez-vous d'importer Coach (votre modèle) et CoachForm (votre formulaire)
+from .models import Coach
+from .forms import CoachForm
+
+# views.py
+
+@login_required
+def coach_create(request):
+    user = request.user
+    
+    # 1. LOGIQUE DE REDIRECTION (Vérifie si le profil Coach complet existe)
+    if user.role == 'coach':
+        try:
+            Coach.objects.get(pk=user.pk) 
+            messages.info(request, "Vous êtes déjà un Coach. Vous pouvez modifier votre profil.")
+            return redirect('users:coach_update', pk=user.pk)
+        except Coach.DoesNotExist:
+            pass
+            
+    # --- 2. LOGIQUE DE TRAITEMENT POST ---
+    if request.method == 'POST':
+        # 🟢 Utiliser le nom d'argument correct : 'instance'
+        form = CoachForm(request.POST, request.FILES, instance=user)
+        
+        if form.is_valid():
+            form.save() 
+            messages.success(request, 'Félicitations, votre profil Coach est créé !')
+            return redirect('users:coach_list') 
+        
+    # --- 3. LOGIQUE D'AFFICHAGE INITIAL (GET) ---
+    else: 
+        # 🟢 Simplifier et utiliser le nom d'argument correct : 'instance'
+        # On passe l'objet CustomUser. Les champs Coach seront vides, ce qui est normal pour une création.
+        form = CoachForm(instance=request.user)
+
+    # --- 4. RENDU FINAL ---
+    return render(request, 'main/coach_form.html', {
+        'form': form,
+        'title': 'Créer votre Profil Coach'
+    })
+    
+    
+@login_required
+def coach_update(request, pk):
+    """Mise à jour du profil Coach (Front-end)."""
+    coach = get_object_or_404(Coach, pk=pk)
+    
+    if request.user.pk != coach.pk and request.user.role != 'admin':
+        messages.error(request, "Vous n'êtes pas autorisé à modifier ce profil.")
+        return redirect('main:index')
+        
+    if request.method == 'POST':
+        # Utiliser l'instance Coach pour la mise à jour
+        form = CoachForm(request.POST, request.FILES, instance=coach)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profil Coach modifié avec succès ✅')
+            return redirect('users:coach_list')
+    else:
+        form = CoachForm(instance=coach)
+
+    return render(request, 'main/coach_form.html', {
+        'form': form,
+        'title': 'Éditer le Coach',
+        'coach': coach
+    })
+
+@login_required
+@require_POST
+def coach_delete(request, pk):
+    """Suppression du profil Coach (Front-end)."""
+    coach = get_object_or_404(Coach, pk=pk)
+    
+    if request.user.pk != coach.pk and request.user.role != 'admin':
+        return HttpResponseBadRequest("Action non autorisée.")
+        
+    nom_complet = coach.nom_complet
+    coach.delete() # Supprime l'objet Coach ET CustomUser (héritage multi-table)
+
+    messages.success(request, f'Le profil Coach {nom_complet} a été supprimé.')
+    return redirect('users:coach_list')
+    
+def coach_detail(request, pk):
+    """Détail d'un coach (Front-end)."""
+    coach = get_object_or_404(Coach, pk=pk)
+    return render(request, 'main/coach_detail.html', {'coach': coach})
+
+# ----------------------
+# Backoffice CRUD Coaches
+# ----------------------
+
+
+
+def manage_coaches(request):
+    # Handle search functionality
+    coaches = Coach.objects.select_related('customuser_ptr').all()
+    return render(request, 'backoffice/coaches/manage_coaches.html', {'coaches': coaches})
+
+
+def add_coach(request):
+    if request.method == 'POST':
+        try:
+            # --- Data Retrieval ---
+            full_name = request.POST.get('full_name')
+            email = request.POST.get('email')
+            phone_number = request.POST.get('phone_number', '')
+            city = request.POST.get('city', '')
+            # Use request.FILES.get() for file uploads (profile_photo)
+            profile_photo = request.FILES.get('profile_photo') 
+            
+            sport_type = request.POST.get('sport_type')
+            experience_years = request.POST.get('experience_years')
+            location = request.POST.get('location')
+            session_price = request.POST.get('session_price')
+            subscription_price = request.POST.get('subscription_price')
+            bio = request.POST.get('bio', '')
+            certifications = request.POST.get('certifications', '')
+            # Checkbox values are 'on' or None
+            is_available = request.POST.get('is_available') == 'on'
+            show_on_website = request.POST.get('show_on_website') == 'on'
+            
+            # --- Validation ---
+            if not all([full_name, email, sport_type, experience_years, location, session_price, subscription_price]):
+                messages.error(request, 'Please fill in all required fields.')
+                return redirect('backoffice:manage_coaches')
+            
+            if User.objects.filter(email=email).exists():
+                messages.error(request, 'A user with this email already exists.')
+                return redirect('backoffice:manage_coaches')
+            
+            # --- Processing and Creation ---
+            
+            # Generate a random password (Requires import random and string)
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
+            
+            # Create user
+            user = User.objects.create_user(
+                email=email,
+                password=password,
+                full_name=full_name,
+                phone_number=phone_number,
+                city=city,
+                role='coach'
+            )
+            
+            if profile_photo:
+                user.profile_photo = profile_photo
+            
+            user.save()
+            
+            # Create coach profile
+            coach = Coach.objects.create(
+                user=user,
+                sport_type=sport_type,
+                # Convert string inputs to correct types
+                experience_years=int(experience_years), 
+                session_price=float(session_price),
+                subscription_price=float(subscription_price),
+                location=location,
+                bio=bio,
+                certifications=certifications,
+                is_available=is_available,
+                show_on_website=show_on_website
+            )
+            
+            messages.success(request, f'Coach {full_name} was added successfully! A random password has been generated for their account.')
+            
+        except Exception as e:
+            # Catch exceptions like invalid type conversion (float/int)
+            messages.error(request, f'Error adding coach: {str(e)}')
+        
+        return redirect('backoffice:manage_coaches')
+    
+    # If not POST (or a GET request to this URL), redirect back to coaches page
+    return redirect('backoffice:manage_coaches')
+
+
+
+def coach_edit(request, pk):
+    coach = get_object_or_404(Coach, pk=pk)
+    
+    # 🎯 FIX 1: Change coach.user to coach.customuser_ptr
+    user_instance = coach.customuser_ptr 
+    
+    if request.method == 'POST':
+        # 🎯 Apply FIX 1 here
+        user_form = UserForm(request.POST, request.FILES, instance=user_instance)
+        coach_form = CoachForm(request.POST, instance=coach)
+        
+        if user_form.is_valid() and coach_form.is_valid():
+            user_form.save()
+            
+            coach_obj = coach_form.save(commit=False)
+            # You can keep this line if you want to force visibility on edit
+            # coach_obj.show_on_website = True 
+            coach_obj.save()
+            
+            # 🎯 Apply FIX 1 here for the success message
+            messages.success(request, f'Coach "{user_instance.nom_complet}" updated successfully!')
+            return redirect('users:manage_coaches')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        # 🎯 Apply FIX 1 here
+        user_form = UserForm(instance=user_instance)
+        coach_form = CoachForm(instance=coach)
+
+    return render(request, 'backoffice/coaches/coach_edit_page.html', {
+        'user_form': user_form,
+        'coach_form': coach_form,
+        'coach': coach,
+        'title': 'Edit Coach',
+    })
+        
+def coaches_coach_delete(request, pk):
+    coach = get_object_or_404(Coach, pk=pk)
+    
+    # Use the correct attribute for the base user instance
+    user_instance = coach.customuser_ptr 
+    
+    nom_complet = user_instance.nom_complet # Use nom_complet 
+    user_instance.delete() # Deletes the CustomUser, which cascades to delete the Coach
+    
+    messages.success(request, f'Coach profile "{nom_complet}" has been deleted.')
+    return redirect('users:manage_coaches')

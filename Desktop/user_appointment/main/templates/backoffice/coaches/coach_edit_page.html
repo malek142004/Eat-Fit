@@ -1,0 +1,68 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Edit Coach: {{ coach.user.full_name }}</h1>
+        <a href="{% url 'users:manage_coaches' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-gradient-primary text-white">
+                    <h6 class="m-0 font-weight-bold">Coach Information</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <h5 class="mt-4 mb-3 text-primary">User Account</h5>
+                        <div class="border-left-primary pl-3">
+                            {{ user_form.as_p }}
+                        </div>
+
+                        <hr>
+
+                        <h5 class="mt-4 mb-3 text-primary">Coach Profile</h5>
+                        <div class="border-left-success pl-3">
+                            {{ coach_form.as_p }}
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a href="{% url 'users:manage_coaches' %}" class="btn btn-secondary ml-2">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-gradient-info text-white">
+                    <h6 class="m-0 font-weight-bold">Current Photo</h6>
+                </div>
+                <div class="card-body text-center">
+                    {% if coach.user.profile_photo %}
+                        <img src="{{ coach.user.profile_photo.url }}" class="img-fluid rounded" style="max-height: 300px;">
+                    {% else %}
+                        <div class="bg-light border rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <i class="fas fa-user fa-5x text-muted"></i>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

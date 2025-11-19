@@ -176,13 +176,8 @@ if (dropdownToggle) {
 					<li class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}"><a href="{% url 'main:contact' %}">Contact</a></li>
 					
 					{% with request.resolver_match.url_name as url_name %}
-					<li class="menu-item-has-children {% if url_name == 'trainer' or url_name == 'trainer-details' %}active{% endif %}">
-						<a href="{% url 'main:trainer' %}">coaches</a>
-						<ul class="sub-menu improved-submenu">
-							<li><a href="{% url 'main:trainer' %}">Our coaches</a></li>
-							<li><a href="{% url 'main:trainer-details' %}">coaches Details</a></li>
-						</ul>
-					</li>
+					<li><a href="{% url 'users:coach_list' %}" {% if request.resolver_match.url_name == 'trainers' %}class="active"{% endif %}>Coaches</a></li>
+
 					<li><a href="{% url 'users:nutritionist_list' %}">Nutritionists</a></li>
 
 					<li class="menu-item-has-children {% if url_name == 'blog' or url_name == 'single-blog' %}active{% endif %}">

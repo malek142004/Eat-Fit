@@ -1,0 +1,132 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}{{ coach.nom_complet }} | Profil Coach{% endblock %}
+
+{% block content %}
+<section class="page-top-section set-bg" data-setbg="{% static 'img/page-top-bg.jpg' %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 m-auto text-white text-center">
+                <h2>Profil de l'Entraîneur</h2>
+                <p>Détails professionnels de **{{ coach.nom_complet }}**, votre coach de {{ coach.get_sport_type_display }}.</p>
+            </div>
+        </div>
+        </div>
+</section>
+
+---
+
+<section class="trainer-details-section spad overflow-hidden bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-md-10">
+                
+                {# Bloc principal : Photo et infos rapides #}
+                <div class="card p-4 shadow-sm mb-5">
+                    <div class="trainer-header d-flex flex-column flex-md-row align-items-center align-items-md-start">
+                        
+                        <div class="profile-photo me-md-4 mb-3 mb-md-0 text-center flex-shrink-0">
+                            {% if coach.pdp %}
+                                <img src="{{ coach.pdp.url }}" alt="Photo de profil de {{ coach.nom_complet }}" 
+                                     class="rounded-circle border border-primary border-3" style="width: 120px; height: 120px; object-fit: cover;">
+                            {% else %}
+                                <img src="{% static 'img/trainer/default.png' %}" alt="Photo par défaut" 
+                                     class="rounded-circle border border-secondary border-3" style="width: 120px; height: 120px; object-fit: cover;">
+                            {% endif %}
+                            
+                            <div class="td-social mt-2 small">
+                                <a href="#" class="text-secondary me-2"><i class="fa fa-facebook"></i></a>
+                                <a href="#" class="text-secondary me-2"><i class="fa fa-instagram"></i></a>
+                                <a href="#" class="text-secondary me-2"><i class="fa fa-twitter"></i></a>
+                                <a href="#" class="text-secondary"><i class="fa fa-linkedin"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="profile-info flex-grow-1 text-center text-md-start">
+                            <h2 class="mb-0">{{ coach.nom_complet }}</h2>
+                            <h5 class="text-primary mb-2">Coach de {{ coach.get_sport_type_display }}</h5>
+                            
+                            <ul class="list-unstyled contact-details small d-flex flex-column flex-md-row justify-content-center justify-content-md-start">
+                                <li class="me-md-3">
+                                    <strong>Expérience:</strong> 
+                                    <span class="fw-bold">{{ coach.experience_years }} an(s)</span>
+                                </li>
+                                <li>
+                                    <strong>Statut:</strong> 
+                                    <span class="fw-bold {% if coach.is_available %}text-success{% else %}text-danger{% endif %}">
+                                        {% if coach.is_available %}Disponible{% else %}Non disponible{% endif %}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {# Bloc des Coordonnées #}
+                <div class="card p-4 shadow-sm mb-5">
+                    <h4 class="mb-3 text-secondary border-bottom pb-2">Coordonnées</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <i class="fa fa-envelope text-primary me-2"></i>
+                            <strong>Email:</strong> <a href="mailto:{{ coach.email }}" class="text-decoration-none text-dark">{{ coach.email }}</a>
+                        </div>
+                        {% if coach.num_tel %}
+                        <div class="col-md-6 mb-3">
+                            <i class="fa fa-phone text-primary me-2"></i>
+                            <strong>Téléphone:</strong> {{ coach.num_tel }}
+                        </div>
+                        {% endif %}
+                        {% if coach.location or coach.ville %}
+                        <div class="col-md-6 mb-3">
+                            <i class="fa fa-map-marker text-primary me-2"></i>
+                            <strong>Ville:</strong> {{ coach.location|default:coach.ville }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Bloc Biographie et Certifications (CORRECTION D'UNIFORMITÉ) #}
+                <div class="card p-4 shadow-sm mb-5">
+                    {% if coach.bio %}
+                        <h4 class="mb-3 text-secondary border-bottom pb-2">Biographie et Parcours</h4>
+                        <p class="text-muted mb-4">{{ coach.bio|linebreaks }}</p>
+                    {% endif %}
+
+                    {% if coach.certifications %}
+                        <h4 class="{% if coach.bio %}mt-4{% endif %} mb-3 text-secondary border-bottom pb-2">Certifications et Qualifications</h4>
+                        {# 🎯 CORRECTION: Suppression du bloc gris bg-light p-3 pour uniformiser le style avec la biographie. #}
+                        <p class="text-muted mb-0">{{ coach.certifications|linebreaksbr }}</p>
+                    {% endif %}
+                </div>
+
+                {# Bloc Tarification (Alignement déjà corrigé) #}
+                {% if coach.session_price or coach.subscription_price %}
+                <div class="card p-4 shadow-sm">
+                    <h4 class="mb-4 text-secondary border-bottom pb-2">Tarification</h4>
+                    <div class="row g-3">
+                        
+                        <div class="col-sm-6 col-lg-6">
+                            <div class="p-4 border rounded text-center h-100 d-flex flex-column justify-content-between">
+                                <p class="mb-2 text-muted small text-uppercase fw-bold">Prix par Séance</p>
+                                <h3 class="text-success fw-bold">${{ coach.session_price|floatformat:2 }}</h3>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-6">
+                            <div class="p-4 border rounded text-center h-100 d-flex flex-column justify-content-between">
+                                <p class="mb-2 text-muted small text-uppercase fw-bold">Abonnement Mensuel</p>
+                                <h3 class="text-success fw-bold">${{ coach.subscription_price|floatformat:2 }}</h3>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

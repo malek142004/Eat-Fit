@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',
     'widget_tweaks',
+    'django.contrib.humanize',
     'users',
     'appointments',
     'blogapp',

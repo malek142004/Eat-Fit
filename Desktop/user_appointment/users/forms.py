@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import CustomUser, Nutritionist # Assurez-vous d'importer Nutritionist
+from .models import CustomUser, Nutritionist, Coach # Assurez-vous d'importer Nutritionist
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
@@ -45,7 +45,21 @@ class CustomUserUpdateForm(forms.ModelForm):
         self.fields['role'].choices = [
             (key, value) for key, value in self.fields['role'].choices if key != 'admin'
         ]
-
+class UserForm(forms.ModelForm):
+    """
+    Formulaire minimal pour mettre à jour les champs de base de CustomUser.
+    Utilisé en conjonction avec CoachForm dans le backoffice.
+    """
+    class Meta:
+        model = CustomUser
+        # Incluez tous les champs CustomUser nécessaires pour le formulaire d'édition
+        fields = ['nom_complet', 'email', 'num_tel', 'ville', 'pdp', 'role']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Si on est en mode édition, on peut vouloir désactiver l'édition du rôle/email pour l'utilisateur lambda
+        # (La vue backoffice aura sa propre logique)
+        # Exemple : self.fields['email'].disabled = True
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(widget=forms.EmailInput(attrs={'autofocus': True}))
 
@@ -96,3 +110,82 @@ class NutritionistForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+#coach model
+
+# users/forms.py
+# users/forms.py
+class CoachForm(forms.ModelForm):
+    # 🟢 Champ email désactivé pour l'affichage (recommandé si l'instance est CustomUser)
+    email = forms.EmailField(disabled=True, required=False) 
+
+    # ❌ Pas de champ password ici si vous gérez l'utilisateur existant
+    # Le champ password a été retiré, c'est bien.
+
+    class Meta: # ⬅️ CETTE CLASSE ÉTAIT MANQUANTE OU INCOMPLÈTE DANS VOTRE CODE
+        model = Coach # ⬅️ CRITIQUE : Définit le modèle de base du formulaire
+        fields = (
+            # Champs de CustomUser
+            'email', 'nom_complet', 'num_tel', 'ville', 'pdp', 
+            
+            # Champs de Coach
+            'sport_type', 'experience_years', 'location', 'session_price', 
+            'subscription_price', 'bio', 'certifications', 'is_available', 'show_on_website'
+        )
+
+    def __init__(self, *args, **kwargs):
+        # 🟢 Laissez cette partie simple pour gérer l'instance CustomUser/Coach
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            # Désactiver les champs clés si l'instance existe
+            self.fields['email'].disabled = True
+            
+    # La méthode save() (que vous avez fournie) semble correcte pour la logique d'héritage.
+    def save(self, commit=True):
+        # ... (votre code de la méthode save() est conservé ici) ...
+        # 1. Obtenir l'instance CustomUser mise à jour par le formulaire
+        user_instance = super().save(commit=False)
+        
+        # 2. Forcer le rôle
+        user_instance.role = 'coach'
+        
+        # 3. Sauvegarder l'objet CustomUser
+        if commit:
+            user_instance.save()
+            
+        # 4. LOGIQUE CRITIQUE DE CRÉATION DE L'ENFANT
+        coach_data = {
+             'sport_type': self.cleaned_data.get('sport_type'),
+             'experience_years': self.cleaned_data.get('experience_years'),
+             'session_price': self.cleaned_data.get('session_price'),
+             'subscription_price': self.cleaned_data.get('subscription_price'),
+             'location': self.cleaned_data.get('location'),
+             'bio': self.cleaned_data.get('bio'),
+             'is_available': self.cleaned_data.get('is_available'),
+             'certifications': self.cleaned_data.get('certifications'),
+             'show_on_website': self.cleaned_data.get('show_on_website'),
+         }
+
+        try:
+            # Mise à jour si existe
+            coach_obj = Coach.objects.get(pk=user_instance.pk)
+            for field, value in coach_data.items():
+                setattr(coach_obj, field, value)
+                
+        except Coach.DoesNotExist:
+            # Création si n'existe pas
+            coach_obj = Coach()
+            coach_obj.pk = user_instance.pk
+            
+            for field, value in coach_data.items():
+                 setattr(coach_obj, field, value)
+            
+            if commit:
+                # Création de l'objet enfant
+                coach_obj.save_base(raw=True) # Créer l'enfant avec la même PK
+                
+        # Sauvegarde finale (pour les mises à jour et les données du formulaire)
+        if commit:
+            coach_obj.save() 
+            
+        return coach_obj

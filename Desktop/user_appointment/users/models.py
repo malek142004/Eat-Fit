@@ -116,3 +116,42 @@ class Nutritionist(CustomUser):   # ✨ HÉRITAGE (multi-table)
 
     def __str__(self):
         return f"Nutritionist: {self.nom_complet} "
+
+# Héritage multi-table pour Coach
+
+class Coach(CustomUser): # Héritage multi-table (pour respecter la demande)
+    SPORT_TYPES = [
+        ('fitness', 'Fitness'),
+        ('yoga', 'Yoga'),
+        ('cardio', 'Cardio'),
+        ('musculation', 'Musculation'),
+        ('crossfit', 'CrossFit'),
+    ]
+    
+    # Les champs qui étaient dans la première version de Coach
+    sport_type = models.CharField(max_length=50, choices=SPORT_TYPES)
+    experience_years = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)]) # Utilise PositiveIntegerField et validator
+    session_price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00) # Utilise DecimalField pour la monnaie
+    subscription_price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00) # Utilise DecimalField pour la monnaie
+    location = models.CharField(max_length=255)
+    bio = models.TextField(blank=True)
+    is_available = models.BooleanField(default=True)
+    
+    # Champs NEW FIELDS
+    certifications = models.TextField(
+        blank=True, 
+        help_text="Coach certifications and credentials"
+    )
+    show_on_website = models.BooleanField(
+        default=True, 
+        help_text="Display this coach on the public trainers page"
+    )
+
+    def __str__(self):
+        return f"Coach: {self.nom_complet} - {self.sport_type}"
+
+    def generate_training_plan(self):
+        return f"Training plan generated for {self.nom_complet}"
+
+    def manage_appointments(self):
+        return f"Appointments managed for {self.nom_complet}"

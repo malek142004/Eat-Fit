@@ -31,6 +31,15 @@ urlpatterns = [
     path('backoffice/nutritionists/<int:pk>/edit/', views.backoffice_nutritionist_update, name='backoffice_nutritionist_update'),
     path('backoffice/nutritionists/<int:pk>/', views.backoffice_nutritionist_detail, name='backoffice_nutritionist_detail'),
     path('backoffice/nutritionists/<int:pk>/delete/', views.backoffice_nutritionist_delete, name='backoffice_nutritionist_delete'),
-
-
+    # Coaches CRUD
+    path('coaches/', views.coach_list, name='coach_list'), # Liste des coachs (alias 'trainers' si besoin)
+    path('coaches/add/', views.coach_create, name='coach_create'),
+    path('coaches/<int:pk>/', views.coach_detail, name='coach_detail'),
+    path('coaches/<int:pk>/edit/', views.coach_update, name='coach_update'),
+    path('coaches/<int:pk>/delete/', views.coach_delete, name='coach_delete'),
+    # Backoffice CRUD Coaches
+    path('backoffice/coaches/', views.manage_coaches, name='manage_coaches'),
+    path('coaches/add/', views.add_coach, name='add_coach'),
+    path('coaches/edit/<int:pk>/', views.coach_edit, name='coach_edit'),
+    path('coaches/delete/<int:pk>/', views.coaches_coach_delete, name='coaches_coach_delete'),
 ]

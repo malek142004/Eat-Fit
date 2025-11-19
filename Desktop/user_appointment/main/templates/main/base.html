@@ -20,6 +20,7 @@
 	<link rel="stylesheet" href="{% static 'main/css/style.css' %}"/>
 
 	{% block extra_head %}{% endblock %}
+	
 
 	<!--[if lt IE 9]>
 		<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -187,7 +188,7 @@ if (dropdownToggle) {
 </script>
 		<div class="header-bottom bg-g-1">
 			<a href="{% url 'main:index' %}" class="site-logo">
-				
+				<img src="{% static 'main/img/logo_eatfit.png' %}" alt="Eat & Fit Logo">
 			</a>
 			<div class="hb-right">
 				<div class="hb-switch" id="search-switch">
@@ -200,42 +201,39 @@ if (dropdownToggle) {
 			<div class="container">
 				<div class="container">
 				<ul class="main-menu">
-					<li><a href="{% url 'main:index' %}">Home</a></li>
-					<li><a href="{% url 'main:about' %}">About</a></li>
-					<li><a href="{% url 'main:contact' %}">Contact</a></li>
-					<li><a href="{% url 'main:trainer' %}">coaches</a>
-						<ul class="sub-menu">
+					<li class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}"><a href="{% url 'main:index' %}">Home</a></li>
+					<li class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}"><a href="{% url 'main:about' %}">About</a></li>
+					<li class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}"><a href="{% url 'main:contact' %}">Contact</a></li>
+					
+					{% with request.resolver_match.url_name as url_name %}
+					<li class="menu-item-has-children {% if url_name == 'trainer' or url_name == 'trainer-details' %}active{% endif %}">
+						<a href="{% url 'main:trainer' %}">coaches</a>
+						<ul class="sub-menu improved-submenu">
 							<li><a href="{% url 'main:trainer' %}">Our coaches</a></li>
 							<li><a href="{% url 'main:trainer-details' %}">coaches Details</a></li>
 						</ul>
 					</li>
-					<li><a href="{% url 'main:trainer' %}">nutritionists</a>
-						<ul class="sub-menu">
-							<li><a href="{% url 'main:trainer' %}">Our nutritionists</a></li>
-							<li><a href="{% url 'main:trainer-details' %}">nutritionists Details</a></li>
-						</ul>
-					</li>
+					<li><a href="{% url 'users:nutritionist_list' %}">Nutritionists</a></li>
 
-
-					<li><a href="{% url 'main:blog' %}" class="active">Blog</a>
-						<ul class="sub-menu">
+					<li class="menu-item-has-children {% if url_name == 'blog' or url_name == 'single-blog' %}active{% endif %}">
+						<a href="{% url 'main:blog' %}">Blog</a>
+						<ul class="sub-menu improved-submenu">
 							<li><a href="{% url 'main:blog' %}">Our Blog</a></li>
 							<li><a href="{% url 'main:single-blog' %}">Blog Details</a></li>
 						</ul>
 					</li>
+					{% endwith %}
 					
-					<li class="menu-item-has-children">
+					<li class="menu-item-has-children {% if request.resolver_match.app_name == 'appointments' %}active{% endif %}">
 						<a href="#" onclick="checkRoleAndRedirect('{% url 'appointment_list' %}')">
 							Appointments
 						</a>
-
 						<ul class="sub-menu improved-submenu">
 							<li>
 								<a href="#" onclick="checkRoleAndRedirect('{% url 'appointment_list' %}')">
 									List Appointments
 								</a>
 							</li>
-
 							<li>
 								<a href="#" onclick="checkRoleAndRedirect('{% url 'add_appointment' %}')">
 									Add Appointment
@@ -281,8 +279,50 @@ if (dropdownToggle) {
 							position: relative;
 						}
 
-						.menu-item-has-children:hover > a {
+						.menu-item-has-children:hover > a,
+						.main-menu > .menu-item-has-children.active > a {
 							color: #2b9bff !important;
+						}
+
+						/* Styles for Home Page Header */
+						.page-top-section.home-header {
+							text-align: center;
+						}
+						.page-top-section.home-header::after {
+							content: "";
+							position: absolute;
+							left: 0;
+							top: 0;
+							width: 100%;
+							height: 100%;
+							background: linear-gradient(145deg, #f65d5d 0%, #fdb07d 100%);
+							z-index: -2;
+						}
+						.page-top-section .intro-text {
+							font-size: 18px;
+							color: #fff;
+							margin-top: 15px;
+							opacity: 0.9;
+						}
+
+						/* Logo Styles */
+						.site-logo img {
+							height: 50px; /* Slightly smaller */
+							width: 50px;
+							border-radius: 50%;
+							border: 2px solid white;
+							box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+							object-fit: cover;
+						}
+
+						/* Header Layout Fix */
+						.header-bottom {
+							padding: 15px 80px !important; /* Symmetrical vertical padding */
+						}
+						.header-bottom::after {
+							content: "";
+							display: table;
+							clear: both;
 						}
 					</style>
 
@@ -404,11 +444,6 @@ if (dropdownToggle) {
 	</div>
 	<!-- Infor Model end -->
 
-    <div class="page-top-section">
-        <div class="container">
-            <h2>{% block page_title %}{% endblock %}</h2>
-        </div>
-    </div>
 
 	{% block content %}
 	<!-- Hero Section -->

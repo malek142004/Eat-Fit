@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.core.validators import (
-    RegexValidator, MinLengthValidator, EmailValidator
+    RegexValidator, MinLengthValidator, EmailValidator , MinValueValidator
 )
 from django.core.exceptions import ValidationError
 
@@ -105,3 +105,14 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return f"{self.nom_complet} ({self.email})"
+
+class Nutritionist(CustomUser):   # ✨ HÉRITAGE (multi-table)
+    speciality = models.CharField(max_length=100, blank=True)
+    experience_years = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
+    office_address = models.CharField(max_length=255, blank=True)
+    # Use DecimalField for monetary values
+    consultation_fee = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
+    availability = models.CharField(max_length=200, blank=True)
+
+    def __str__(self):
+        return f"Nutritionist: {self.nom_complet}"

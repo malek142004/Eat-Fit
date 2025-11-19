@@ -1,0 +1,278 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="page-top-section set-bg" data-setbg="{% static 'front/img/my-hero2.jpg' %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 m-auto text-white">
+                <h2>{% if form.instance.pk %}Edit Nutritionist{% else %}Add Nutritionist{% endif %}</h2>
+                <p>Please fill out the form below carefully to manage nutritionist information.</p>
+            </div>
+        </div>
+    </div> 
+</section>
+<section class="signup-section spad" style="background: #f7f9fb; min-height: 100vh;">
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 rounded-4 p-5 animate__animated animate__fadeInUp position-relative" 
+                     style="background-color: #fff;">
+                     
+                    <div class="text-center mb-4 position-relative">
+                        <div class="profile-photo-wrapper mx-auto mb-3">
+                            {% if form.instance.pdp %}
+                                <img src="{{ form.instance.pdp.url }}" alt="Profile Picture" class="profile-photo">
+                            {% else %}
+                                <img src="{% static 'images/default-avatar.png' %}" alt="Default Avatar" class="profile-photo">
+                            {% endif %}
+                            <label for="id_pdp" class="upload-label" title="Change photo">
+                                <i class="fa fa-camera"></i>
+                            </label>
+                        </div>
+                        <h3 class="fw-bold text-uppercase" style="color:#2c3e50;">
+                            {% if form.instance.pk %}Edit Nutritionist{% else %}Add Nutritionist{% endif %}
+                        </h3>
+                        <p class="text-muted">Please fill out the form below carefully</p>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data" class="row g-4" id="nutritionistForm">
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                            {% if field.name != "pdp" %}
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ field.id_for_label }}" class="fw-semibold text-secondary">
+                                        {{ field.label }}
+                                    </label>
+                                    <div class="form-control modern-input">
+                                        {{ field }}
+                                    </div>
+                                    {% if field.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {{ field.errors }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        <input type="file" name="pdp" id="id_pdp" style="display:none;">
+
+                        <div class="col-12 mt-4 text-center">
+                            <button type="submit" class="site-btn sb-gradient px-5 py-2 rounded-pill me-3">
+                                <i class="fa fa-save me-2"></i> Save
+                            </button>
+                            {% if form.instance.pk %}
+                            <button type="button" class="btn btn-outline-danger px-4 py-2 rounded-pill open-delete-modal-edit" data-id="{{ form.instance.pk }}" data-name="{{ form.instance.nom_complet }}">
+                                <i class="fa fa-trash me-1"></i> Delete
+                            </button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if form.instance.pk %}
+<div id="delete-modal-edit" class="delete-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1050;">
+    <div class="delete-modal-card" style="background:#fff; width:90%; max-width:480px; border-radius:10px; padding:20px; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+        <h4 style="margin-top:0; color:#2c3e50;">Confirmer la suppression</h4>
+        <p style="color:#666;" id="delete-modal-edit-message">Vous êtes sur le point de supprimer ce nutritionniste. Cette action est irréversible. Voulez-vous continuer ?</p>
+        <form id="delete-form-edit" method="post" action="{% url 'users:nutritionist_delete' form.instance.pk %}">
+            {% csrf_token %}
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
+                <button type="button" id="cancel-delete-edit" class="site-btn sb-line-gradient" style="background:#fff; border:1px solid #ddd; color:#333; padding:8px 16px;">Annuler</button>
+                <button type="submit" id="confirm-delete-edit" class="site-btn" style="background:#e74c3c; color:#fff; border:none; padding:8px 16px;">Supprimer</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<style>
+/* ... (Les styles CSS sont inchangés) ... */
+.profile-photo-wrapper {
+    position: relative;
+    display: inline-block;
+    padding: 4px; 
+    border-radius: 50%;
+    background: linear-gradient(145deg, #fdb07d 0%, #f65d5d 100%);
+    box-shadow: 0 6px 18px rgba(246, 93, 93, 0.12);
+}
+.profile-photo {
+    display: block;
+    width: 122px; 
+    height: 122px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #fff; 
+    border: 3px solid #fff;
+    transition: transform 0.25s ease;
+}
+.profile-photo:hover {
+    transform: scale(1.03);
+}
+.upload-label {
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    background: #fff;
+    color: #f65d5d;
+    border-radius: 50%;
+    padding: 8px;
+    cursor: pointer;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.upload-label i { font-size: 14px; }
+
+/* Input modern look */
+.modern-input input,
+.modern-input select,
+.modern-input textarea {
+    border: none;
+    background: transparent;
+    width: 100%;
+    outline: none;
+    color: #2c3e50;
+}
+.modern-input {
+    border: 2px solid #e3e6f0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    transition: all 0.3s ease;
+    background-color: #fafafa;
+}
+.modern-input:focus-within {
+    border-color: #f65d5d;
+    box-shadow: 0 0 12px rgba(246,93,93,0.12);
+    background-color: #fff;
+}
+
+/* Gradient button */
+.btn-gradient {
+    /* legacy - kept for compatibility, prefer site-btn.sb-gradient */
+    background: linear-gradient(90deg, #6c63ff, #48c6ef);
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}
+.btn-gradient:hover {
+    transform: scale(1.03);
+    background: linear-gradient(90deg, #48c6ef, #6c63ff);
+}
+
+/* Placeholder color tweak */
+input::placeholder, textarea::placeholder {
+    color: #bbb !important;
+    font-size: 0.9rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Replace inline confirm by modal-driven delete for edit page (inchangé, sauf le data-name)
+    const openEditDeleteBtns = document.querySelectorAll('.open-delete-modal-edit');
+    const modalEdit = document.getElementById('delete-modal-edit');
+    const cancelEditBtn = document.getElementById('cancel-delete-edit');
+    const deleteFormEdit = document.getElementById('delete-form-edit');
+
+    if (openEditDeleteBtns && openEditDeleteBtns.length && modalEdit && deleteFormEdit) {
+        function showEditModal(name) {
+            modalEdit.style.display = 'flex';
+            modalEdit.setAttribute('aria-hidden', 'false');
+            const msg = document.getElementById('delete-modal-edit-message');
+            if (msg) msg.innerHTML = 'Vous êtes sur le point de supprimer <strong>' + (name || '') + '</strong>. Cette action est irréversible. Voulez-vous continuer ?';
+        }
+
+        function hideEditModal() {
+            modalEdit.style.display = 'none';
+            modalEdit.setAttribute('aria-hidden', 'true');
+        }
+
+        openEditDeleteBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const name = btn.getAttribute('data-name') || '';
+                showEditModal(name);
+            });
+        });
+
+        cancelEditBtn && cancelEditBtn.addEventListener('click', function () {
+            hideEditModal();
+        });
+
+        modalEdit.addEventListener('click', function (e) {
+            if (e.target === modalEdit) hideEditModal();
+        });
+
+        // Submit delete via AJAX
+        deleteFormEdit.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const url = deleteFormEdit.action;
+            const formData = new FormData(deleteFormEdit);
+
+            const submitBtn = document.getElementById('confirm-delete-edit');
+            const originalText = submitBtn ? submitBtn.innerHTML : null;
+            if (submitBtn) submitBtn.innerHTML = 'Suppression...';
+
+            fetch(url, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(function (resp) {
+                if (resp.ok) {
+                    // Redirect to list after success
+                    // La redirection vers 'users:nutritionist_list' a été conservée
+                    window.location.href = "{% url 'users:nutritionist_list' %}";
+                    return;
+                }
+                return resp.text().then(function (text) {
+                    alert('Erreur lors de la suppression: ' + (text || resp.statusText));
+                });
+            }).catch(function (err) {
+                alert('Erreur réseau lors de la suppression.');
+                console.error(err);
+            }).finally(function () {
+                if (submitBtn) submitBtn.innerHTML = originalText;
+                hideEditModal();
+            });
+        });
+    }
+
+    // Clique sur l'image => ouvre le sélecteur de fichier
+    const profilePhoto = document.querySelector('.profile-photo');
+    // CORRIGÉ : ID du champ de fichier
+    const photoInput = document.getElementById('id_pdp'); 
+    const uploadLabel = document.querySelector('.upload-label');
+
+    if (profilePhoto && photoInput) {
+        uploadLabel.addEventListener('click', function(e) {
+            e.preventDefault();
+            photoInput.click();
+        });
+
+        // Prévisualisation immédiate de la nouvelle photo
+        photoInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profilePhoto.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

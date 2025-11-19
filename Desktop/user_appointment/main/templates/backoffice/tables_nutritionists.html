@@ -1,0 +1,133 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+  <h1 class="h3 mb-2 text-gray-800">Nutritionists</h1>
+
+  <div class="card shadow-sm mb-4 border-0 rounded-4">
+    <div class="card-header py-3 d-flex align-items-center justify-content-between bg-gradient-primary text-white rounded-top">
+        <h6 class="m-0 font-weight-bold">Nutritionists</h6>
+        <a href="{% url 'users:backoffice_nutritionist_create' %}" class="btn btn-sm btn-light font-weight-bold shadow-sm">
+            <i class="fas fa-plus"></i> Ajouter
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="dataTable" width="100%" cellspacing="0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Photo</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Ville</th>
+                        <th>Spécialité</th>
+                        <th>Expérience</th>
+                        <th>Tarif</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for n in nutritionists %}
+                    <tr class="shadow-sm rounded hover-row">
+                        <td class="text-center position-relative">
+                            <a href="{% url 'users:backoffice_nutritionist_detail' n.pk %}" class="photo-hover">
+                                {% if n.pdp %}
+                                    <img src="{{ n.pdp.url }}" alt="{{ n.nom_complet }}"
+                                        class="rounded-circle shadow-sm" style="width:60px; height:60px; object-fit:cover;">
+                                {% else %}
+                                    <img src="{% static 'main/img/undraw_profile.svg' %}" alt="no-photo"
+                                        class="rounded-circle shadow-sm" style="width:60px; height:60px; object-fit:cover;">
+                                {% endif %}
+                                <div class="overlay"><i class="fas fa-eye text-white"></i></div>
+                            </a>
+                        </td>
+                        <td><strong>{{ n.nom_complet }}</strong></td>
+                        <td>{{ n.email }}</td>
+                        <td>{{ n.num_tel }}</td>
+                        <td>{{ n.ville }}</td>
+                        <td><span class="badge bg-gradient-info text-white">{{ n.speciality }}</span></td>
+                        <td>{{ n.experience_years }} ans</td>
+                        <td>{{ n.consultation_fee }} DT</td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{% url 'users:backoffice_nutritionist_update' n.pk %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger js-open-delete-modal" 
+                                        data-delete-url="{% url 'users:backoffice_nutritionist_delete' n.pk %}" 
+                                        data-name="{{ n.nom_complet|escape }}" data-bs-toggle="tooltip" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted">Aucun nutritionniste trouvé.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content rounded-3 shadow">
+              <div class="modal-header bg-danger text-white">
+                  <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+
+              <!-- Formulaire de suppression -->
+              <form id="deleteForm" method="post">
+                  {% csrf_token %}
+                  <div class="modal-body">
+                      <p id="deleteModalMessage">Êtes-vous sûr de vouloir supprimer ce nutritionniste ?</p>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                      <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+<style>
+.hover-row:hover { background-color: #f0f8ff; transition: background 0.3s ease; }
+.photo-hover { display: inline-block; position: relative; }
+.photo-hover .overlay { position: absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; background: rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; opacity:0; transition: opacity 0.3s ease; }
+.photo-hover:hover .overlay { opacity:1; }
+.badge { font-size:0.85rem; padding:0.5em 0.8em; border-radius:0.5rem; }
+.btn-outline-primary, .btn-outline-danger { border-radius:0.5rem; width:40px; height:40px; display:flex; align-items:center; justify-content:center; padding:0; }
+</style>
+
+<!-- Script pour Delete Modal -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const deleteButtons = document.querySelectorAll('.js-open-delete-modal');
+    const deleteForm = document.getElementById('deleteForm');
+    const deleteModalMessage = document.getElementById('deleteModalMessage');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const url = button.dataset.deleteUrl;        // URL dynamique
+            const name = button.dataset.name;           // Nom du nutritionniste
+            deleteForm.action = url;                    // Met l'action du formulaire
+            deleteModalMessage.textContent = `Êtes-vous sûr de vouloir supprimer ${name} ?`;
+
+            // Afficher le modal
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        });
+    });
+});
+</script>
+
+{% endblock %}

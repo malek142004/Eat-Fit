@@ -7,14 +7,52 @@
 
 {% block extra_head %}
     <style>
+        .contact-section.spad {
+            padding-top: 80px;
+            padding-bottom: 80px;
+        }
+        .contact-form {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #f65d5d;
+        }
+        .contact-form h4 {
+            text-align: center;
+            font-family: "Playfair Display", serif;
+            font-size: 28px;
+            margin-bottom: 35px;
+            background: linear-gradient(145deg, #f65d5d 0%, #fdb07d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        .contact-form h5 {
+            width: 100%;
+            font-family: "Playfair Display", serif;
+            color: #333;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .contact-form form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
         .form-field-container {
-            margin-bottom: 15px;
+            width: 48%; /* Two columns with a gap */
+            margin-bottom: 20px;
         }
         .form-field-container label {
             display: block;
-            margin-bottom: 5px;
-            color: #fff;
-            font-weight: bold;
+            margin-bottom: 8px; /* More space */
+            color: #555; /* Dark grey for readability */
+            font-weight: 600;
+            font-size: 14px;
         }
         .form-control-custom {
             width: 100%;
@@ -22,14 +60,16 @@
             padding: 0 25px;
             font-size: 16px;
             color: #333; /* Darker text for readability */
-            background-color: #fff;
+            background-color: #f9f9f9; /* Light grey background */
             border: 2px solid #e5e5e5;
             border-radius: 50px;
             transition: all 0.4s;
         }
         .form-control-custom:focus {
-            border-color: #e12d2d;
+            border-color: #f65d5d;
+            background-color: #fff;
             outline: none;
+            box-shadow: 0 0 10px rgba(246, 93, 93, 0.2);
         }
         select.form-control-custom {
             -webkit-appearance: none;
@@ -59,6 +99,10 @@
         }
         .invalid-field {
             border-color: #dc3545 !important;
+        }
+        #submit-button {
+            width: 100%;
+            margin-top: 10px; /* Space above the button */
         }
         #submit-button:disabled {
             background-color: #aaa;
@@ -97,7 +141,7 @@
                             </div>
                         {% endfor %}
 
-                        <button type="submit" id="submit-button" class="site-btn">Save Changes</button>
+                        <button type="submit" id="submit-button" class="site-btn sb-gradient">Save Changes</button>
                         <a href="{% url 'appointment_list' %}" class="site-btn sb-line-gradient" style="margin-top: 15px; display: block; text-align: center;">Cancel</a>
                     </form>
                 </div>

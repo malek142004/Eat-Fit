@@ -1,19 +1,15 @@
 # users/views.py
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth import update_session_auth_hash
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, CustomUserUpdateForm
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
 from django.contrib import messages
-from django.shortcuts import render
-from django.contrib.auth import get_user_model
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import CustomUser as User
+from django.http import JsonResponse, HttpResponseBadRequest
 
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, CustomUserUpdateForm, NutritionistForm
+from .models import CustomUser as User, Nutritionist
 
 # ----------------------
 # Pages principales
@@ -220,3 +216,109 @@ def ajouter_utilisateur(request):
             form.fields['role'].initial = 'admin'
 
     return render(request, "backoffice/ajouter_utilisateur.html", {"form": form})
+
+
+
+# ----------------------
+# CRUD Nutritionnistes
+# ----------------------
+
+def nutritionist_list(request):
+    nutritionists = Nutritionist.objects.all()
+    return render(request, 'main/nutritionist_list.html', {'nutritionists': nutritionists})
+
+def nutritionist_detail(request, pk):
+    nutritionist = get_object_or_404(Nutritionist, pk=pk)
+    return render(request, 'main/nutritionist_detail.html', {'nutritionist': nutritionist})
+
+@login_required
+def nutritionist_create(request):
+    if request.method == 'POST':
+        form = NutritionistForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Nutritionist créé avec succès !")
+            return redirect('users:nutritionist_list')
+    else:
+        form = NutritionistForm(user=request.user)  # passer user connecté
+
+    return render(request, 'main/nutritionist_form.html', {'form': form})
+
+@login_required
+def nutritionist_update(request, pk):
+    nutritionist = get_object_or_404(Nutritionist, pk=pk)
+    if request.method == 'POST':
+        form = NutritionistForm(request.POST, request.FILES, instance=nutritionist, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Nutritionist modifié avec succès')
+            return redirect('users:nutritionist_list')
+    else:
+        form = NutritionistForm(instance=nutritionist, user=request.user)
+    return render(request, 'main/nutritionist_form.html', {'form': form})
+
+@require_POST
+def nutritionist_delete(request, pk):
+    nutritionist = get_object_or_404(Nutritionist, pk=pk)
+    try:
+        nutritionist.delete()
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success', 'message': 'Nutritionist deleted successfully.'})
+        messages.success(request, 'Nutritionist deleted successfully.')
+        return redirect('users:nutritionist_list')
+    except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        messages.error(request, f'Error deleting nutritionist: {e}')
+        return redirect('users:nutritionist_list') # Or render the confirm delete page with an error message
+
+
+
+
+def backoffice_tables(request):
+    # Pass all nutritionists to the backoffice tables view
+    nutritionists = Nutritionist.objects.all()
+    return render(request, 'backoffice/tables_nutritionists.html', {'nutritionists': nutritionists})
+
+def backoffice_nutritionist_delete(request, pk):
+    """
+    Supprime un nutritionniste uniquement via POST.
+    Redirige vers la table backoffice après suppression.
+    """
+    if request.method == 'POST':
+        nutritionist = get_object_or_404(Nutritionist, pk=pk)
+        nutritionist.delete()
+        messages.success(request, f'Le nutritionniste {nutritionist.full_name} a été supprimé.')
+        return redirect('users:backoffice_nutritionist_list')
+
+
+def backoffice_nutritionist_update(request, pk):
+    """Edit a nutritionist from the backoffice and stay in the backoffice after saving."""
+    nutritionist = get_object_or_404(Nutritionist, pk=pk)
+    if request.method == 'POST':
+        form = NutritionistForm(request.POST, request.FILES, instance=nutritionist)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'nutritionniste modifié avec succès')
+            return redirect('users:backoffice_tables')
+    else:
+        form = NutritionistForm(instance=nutritionist)
+    return render(request, 'backoffice/nutritionist_form.html', {'form': form, 'nutritionist': nutritionist})
+
+
+def backoffice_nutritionist_create(request):
+    """Create a nutritionist from the backoffice and stay in the backoffice after saving."""
+    if request.method == 'POST':
+        form = NutritionistForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'nutritionniste ajouté avec succès')
+            return redirect('users:backoffice_tables')
+    else:
+        form = NutritionistForm()
+    return render(request, 'backoffice/nutritionist_form.html', {'form': form})
+
+
+def backoffice_nutritionist_detail(request, pk):
+    nutritionist = get_object_or_404(Nutritionist, pk=pk)
+    return render(request, 'backoffice/BOnutritionist_detail.html', {'nutritionist': nutritionist})

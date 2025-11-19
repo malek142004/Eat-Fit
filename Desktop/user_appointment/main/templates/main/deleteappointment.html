@@ -1,24 +1,80 @@
 {% extends 'main/base.html' %}
 {% load static %}
 
-{% block title %}Delete Appointment{% endblock %}
+{% block title %}Confirm Deletion{% endblock %}
+
+{% block page_title %}Confirm Deletion{% endblock %}
+
+{% block extra_head %}
+<style>
+    .contact-section.spad {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+    .confirmation-card {
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.1);
+        border-top: 5px solid #e63946; /* Danger color */
+        text-align: center;
+    }
+    .confirmation-card h4 {
+        text-align: center;
+        font-family: "Playfair Display", serif;
+        font-size: 28px;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    .confirmation-card p {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 30px;
+    }
+    .confirmation-card .appointment-details {
+        background-color: #f9f9f9;
+        border: 1px solid #eee;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        text-align: left;
+    }
+    .confirmation-card .appointment-details strong {
+        color: #333;
+    }
+    .confirmation-card .btn-group {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<section class="contact-section spad" style="padding-top: 100px;">
+<section class="contact-section spad">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 offset-lg-2">
-                <div class="contact-form">
-                    <h4>Delete Appointment</h4>
-                    <p>Are you sure you want to delete the appointment for <strong>{{ appointment.client }}</strong> on <strong>{{ appointment.appointment_date }}</strong>?</p>
-                    <form method="post">
+                <div class="confirmation-card">
+                    <h4>Confirm delete</h4>
+                    <p>Are you sure you want to delete this appointment ? </p>
+                    
+                    <div class="appointment-details">
+                        <p><strong>Client:</strong> {{ appointment.client }}</p>
+                        <p><strong>Date:</strong> {{ appointment.appointment_date }}</p>
+                        <p><strong>Heure:</strong> de {{ appointment.start_time }} à {{ appointment.end_time }}</p>
+                    </div>
+
+                    <form method="post" style="display: inline;">
                         {% csrf_token %}
-                        <button type="submit" class="site-btn sb-white">Confirm Delete</button>
-                        <a href="{% url 'appointment_list' %}" class="site-btn sb-line-gradient" style="margin-top: 15px;">Cancel</a>
+                        <div class="btn-group">
+                            <button type="submit" class="site-btn sb-gradient" style="background: #e63946; border: none;">Yes , confirm delete</button>
+                            <a href="{% url 'appointment_list' %}" class="site-btn sb-white">cancel</a>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </section>
-{% endblock %}
+{% endblock %} 

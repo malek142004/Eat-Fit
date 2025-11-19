@@ -138,3 +138,8 @@ def backoffice_appointment_delete(request, pk):
 def users_list(request):
     users = User.objects.all()
     return render(request, "backoffice/tables_user.html", {"users": users})
+
+def backoffice_tables(request):
+    # Pass all nutritionists to the backoffice tables view
+    nutritionists = Nutritionist.objects.all()
+    return render(request, 'backoffice/tables_nutritionists.html', {'nutritionists': nutritionists})

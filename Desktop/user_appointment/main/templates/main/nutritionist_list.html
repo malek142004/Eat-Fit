@@ -1,0 +1,146 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="page-top-section set-bg" data-setbg="{% static 'front/img/my-hero2.jpg' %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 m-auto text-white">
+                <h2>Our Nutritionists</h2>
+                <p>Expert nutrition guidance for a healthier lifestyle.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="trainers-page-section spad overflow-hidden">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-right mb-4">
+                <a href="{% url 'users:nutritionist_create' %}" class="site-btn sb-gradient">Add Nutritionist</a>
+            </div>
+
+            {% for nutritionist in nutritionists %}
+            <div class="col-lg-6">
+                <div class="trainer-item">
+
+                    <!-- PHOTO -->
+                    {% if nutritionist.pdp %}
+                    <div class="ti-img">
+                        <img src="{{ nutritionist.pdp.url }}" alt="">
+                    </div>
+                    {% else %}
+                    <div class="ti-img">
+                        <img src="{% static 'front/img/default-user.png' %}" alt="">
+                    </div>
+                    {% endif %}
+
+                    <div class="ti-text">
+                        <!-- NOM COMPLET -->
+                        <h4>
+                            <a href="{% url 'users:nutritionist_detail' nutritionist.pk %}">
+                                {{ nutritionist.nom_complet }}
+                            </a>
+                        </h4>
+
+                        <h6>Nutritionist</h6>
+
+                        <!-- SPECIALITÉ -->
+                        <p><strong>Speciality:</strong> {{ nutritionist.speciality }}</p>
+
+                    
+                        <!-- VILLE -->
+                        {% if nutritionist.ville %}
+                        <p><strong>City:</strong> {{ nutritionist.ville }}</p>
+                        {% endif %}
+
+                        <div class="ti-social">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-instagram"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-linkedin"></i></a>
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="{% url 'users:nutritionist_update' nutritionist.pk %}" class="site-btn sb-gradient">Edit</a>
+
+                            <button type="button" class="site-btn sb-dark open-delete-modal-list"
+                                data-id="{{ nutritionist.pk }}"
+                                data-name="{{ nutritionist.nom_complet }}">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="site-pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}"><i class="material-icons">keyboard_arrow_left</i></a>
+                {% endif %}
+
+                <a href="#" class="active">{{ page_obj.number }}</a>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}"><i class="material-icons">keyboard_arrow_right</i></a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal-list" class="delete-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1050;">
+    <div class="delete-modal-card" style="background:#fff; width:90%; max-width:480px; border-radius:10px; padding:20px;">
+        <h4 style="margin-top:0; color:#2c3e50;">Confirmer la suppression</h4>
+
+        <p id="delete-modal-message">
+            Vous êtes sur le point de supprimer ce nutritionniste.
+        </p>
+
+        <form id="delete-form-list" method="post">
+            {% csrf_token %}
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
+                <button type="button" id="cancel-delete-list" class="site-btn sb-line-gradient">
+                    Annuler
+                </button>
+                <button type="submit" id="confirm-delete-list" class="site-btn" style="background:#e74c3c; color:#fff;">
+                    Supprimer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const openBtns = document.querySelectorAll('.open-delete-modal-list');
+    const modal = document.getElementById('delete-modal-list');
+    const cancelBtn = document.getElementById('cancel-delete-list');
+    const deleteForm = document.getElementById('delete-form-list');
+    const messageEl = document.getElementById('delete-modal-message');
+
+    function showModal(id, name) {
+        modal.style.display = 'flex';
+        deleteForm.action = "{% url 'users:nutritionist_delete' 0 %}".replace("0", id);
+        messageEl.innerHTML = `Supprimer <strong>${name}</strong> ?`;
+    }
+
+    openBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            showModal(btn.dataset.id, btn.dataset.name);
+        });
+    });
+
+    cancelBtn.addEventListener('click', () => modal.style.display = 'none');
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+    });
+});
+</script>
+{% endblock %}

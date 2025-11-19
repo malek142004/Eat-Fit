@@ -3,29 +3,48 @@
 
 {% block title %}Appointment List{% endblock %}
 
-{% block page_title %}Appointments{% endblock %}
-
 {% block extra_head %}
     <style>
+        .contact-form {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #f65d5d;
+        }
         .table-custom {
             width: 100%;
-            margin-top: 40px;
+            margin-top: 20px;
             border-collapse: collapse;
-        }
-        .table-custom th, .table-custom td {
-            border: 1px solid #e5e5e5;
-            padding: 12px 15px;
-            text-align: left;
+            border-spacing: 0;
         }
         .table-custom th {
-            background-color: #f2f4f5;
+            background: linear-gradient(145deg, #f65d5d 0%, #fdb07d 100%);
+            color: #fff;
             font-weight: 600;
+            border: none;
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 16px;
         }
-        .table-custom tr:nth-child(even) {
-            background-color: #f9f9f9;
+        .table-custom td {
+            padding: 15px 20px;
+            border: none;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
+            vertical-align: middle;
+        }
+        .table-custom tbody tr {
+            transition: background-color 0.3s ease;
+        }
+        .table-custom tbody tr:hover {
+            background-color: #f9f2f0;
+        }
+        .table-custom tbody tr:last-child td {
+            border-bottom: none;
         }
         .action-btn {
-            padding: 5px 10px;
+            padding: 8px 15px;
             font-size: 14px;
             min-width: auto;
             margin-right: 5px;
@@ -34,6 +53,17 @@
 {% endblock %}
 
 {% block content %}
+
+<!-- Page Top Section -->
+<div class="page-top-section set-bg" data-setbg="{% static 'main/img/appointment.jpg' %}">
+    <div class="container">
+        <h2>Plan Appointment</h2>
+        <p>Organize your meetings and keep track of all your appointments easily.</p>
+
+    </div>
+</div>
+<!-- Page Top Section end -->
+
 <section class="spad">
     <div class="container">
         <div class="row">
@@ -61,8 +91,8 @@
                                 <td>{{ app.end_time }}</td>
                                 <td>{{ app.mode }}</td>
                                 <td>
-                                    <a href="{% url 'appointment_update' app.pk %}" class="site-btn action-btn">Modify</a>
-                                    <a href="{% url 'appointment_delete' app.pk %}" class="site-btn sb-white action-btn">Delete</a>
+                                    <a href="{% url 'appointment_update' app.pk %}" class="site-btn sb-gradient action-btn">Modify</a>
+                                    <a href="{% url 'appointment_delete' app.pk %}" class="site-btn sb-white action-btn delete-link">Delete</a>
                                 </td>
                             </tr>
                             {% empty %}
@@ -77,4 +107,62 @@
         </div>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const deleteLinks = document.querySelectorAll('.delete-link');
+
+    deleteLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const deleteUrl = this.href;
+
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Cette action est irréversible !",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e63946',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Oui, supprimer !',
+                cancelButtonText: 'Annuler',
+                width: '380px',
+                backdrop: 'rgba(0,0,0,0.4)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = deleteUrl;
+
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrfmiddlewaretoken';
+                    csrfInput.value = getCookie('csrftoken');
+                    form.appendChild(csrfInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

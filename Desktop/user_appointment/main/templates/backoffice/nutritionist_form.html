@@ -1,0 +1,123 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+  <h1 class="h3 mb-4 text-gray-800 text-center">
+    {% if form.instance.pk %}Modifier le nutritionniste{% else %}Ajouter un nutritionniste{% endif %}
+  </h1>
+
+  <div class="card shadow-sm border-0 rounded-4 mx-auto" style="max-width: 900px;">
+    <div class="card-body p-5">
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-4">
+
+          <!-- Champs à gauche -->
+          <div class="col-md-8">
+            {% for field in form %}
+              {% if field.name != "pdp" %}
+              <div class="mb-3 row align-items-center">
+                <label for="{{ field.id_for_label }}" class="col-sm-4 col-form-label">{{ field.label }}</label>
+                <div class="col-sm-8">
+                  {{ field }}
+                  {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                  {% endif %}
+                  {% if field.errors %}
+                    <div class="text-danger small mt-1">{{ field.errors }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <!-- Photo à droite -->
+          <div class="col-md-4 d-flex flex-column align-items-center">
+            <label for="id_pdp" class="form-label mb-3">Photo du nutritionniste</label>
+            <div class="position-relative">
+              <img id="photo-preview" src="{% if form.instance.pdp %}{{ form.instance.pdp.url }}{% else %}{% static 'main/img/undraw_profile.svg' %}{% endif %}" 
+                   class="rounded-circle border shadow-sm" 
+                   style="width: 150px; height: 150px; object-fit: cover; cursor:pointer;" 
+                   alt="Photo Preview">
+              <input type="file" name="pdp" id="id_pdp" style="display:none;">
+            </div>
+            {% if form.pdp.errors %}
+              <div class="text-danger small mt-2">{{ form.pdp.errors }}</div>
+            {% endif %}
+          </div>
+
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn btn-gradient-primary me-3 shadow-sm">
+            Enregistrer
+          </button>
+          <a href="{% url 'users:backoffice_nutritionist_list' %}" class="btn btn-outline-secondary shadow-sm">
+            Annuler
+          </a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<style>
+input, select, textarea {
+    border-radius: 0.5rem;
+    border: 1px solid #ced4da;
+    padding: 0.65rem 1rem;
+    transition: 0.3s;
+    width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+.btn-gradient-primary {
+    background: linear-gradient(90deg, #4e73df 0%, #1cc88a 100%);
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    transition: 0.3s;
+}
+.btn-gradient-primary:hover {
+    filter: brightness(1.1);
+}
+.card {
+    border-radius: 1rem;
+}
+.form-label {
+    font-weight: 500;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const photoInput = document.getElementById('id_pdp');
+    const photoPreview = document.getElementById('photo-preview');
+
+    // Cliquer sur l'image ouvre l'input file
+    photoPreview.addEventListener('click', () => photoInput.click());
+
+    // Affichage preview de la photo
+    photoInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                photoPreview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+});
+</script>
+{% endblock %}

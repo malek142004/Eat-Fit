@@ -104,7 +104,7 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return f"{self.nom_complet} ({self.email})"
+        return f"{self.nom_complet} ({self.email}) {self.pdp}"
 
 class Nutritionist(CustomUser):   # ✨ HÉRITAGE (multi-table)
     speciality = models.CharField(max_length=100, blank=True)
@@ -115,4 +115,4 @@ class Nutritionist(CustomUser):   # ✨ HÉRITAGE (multi-table)
     availability = models.CharField(max_length=200, blank=True)
 
     def __str__(self):
-        return f"Nutritionist: {self.nom_complet}"
+        return f"Nutritionist: {self.nom_complet} "

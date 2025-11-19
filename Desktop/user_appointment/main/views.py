@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from appointments.models import Appointment, Client
 from appointments.forms import AppointmentCreateForm, AppointmentUpdateForm, ClientUpdateForm
 
+
 def about(request):
     return render(request, 'main/about.html')
 

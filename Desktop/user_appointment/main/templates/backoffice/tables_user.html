@@ -9,7 +9,31 @@
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-  
+            <form method="GET" class="d-flex mb-3">
+                <input type="text"
+                    name="search"
+                    class="form-control me-2"
+                    placeholder="Rechercher par nom complet ou email..."
+                    value="{{ request.GET.search }}">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </form>
+            <form method="GET" class="mb-3">
+                <label>Filtrer par rôle :</label>
+                <select name="role" class="form-control w-25 d-inline">
+                    <option value="">Tous</option>
+                    <option value="admin" {% if role == "admin" %}selected{% endif %}>Admin</option>
+                    <option value="coach" {% if role == "coach" %}selected{% endif %}>Coach</option>
+                    <option value="client" {% if role == "client" %}selected{% endif %}>Client</option>
+                    <option value="nutritionist" {% if role == "nutritionist" %}selected{% endif %}>Nutritionist</option>
+                    <option value="business_owner" {% if role == "business_owner" %}selected{% endif %}>Business Owner</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary">Filtrer</button>
+            </form>
+            <a href="{% url 'users:users_stats' %}" class="btn btn-info btn-sm">
+                📊 Voir statistiques
+            </a>
+
     <a href="{% url 'users:ajouter_utilisateur' %}?role=admin" class="btn btn-success btn-sm">
         Ajouter un Admin
     </a>
@@ -45,12 +69,14 @@
                             <td>{{ user.email }}</td>
                             <td>{{ user.role }}</td>
                             <td>
-                                <a href="{% url 'users:modifier_utilisateur' user.id %}" class="btn btn-warning btn-sm">Modifier</a>
-
+                            <a href="{% url 'users:modifier_utilisateur' user.id %}" class="btn btn-info btn-circle btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
                                 <!-- Bouton Supprimer qui ouvre le modal -->
-                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user.id }}">
-                                    Supprimer
+                                <button type="button" class="btn btn-danger btn-circle btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ user.id }}">
+                                    <i class="fas fa-trash"></i>
                                 </button>
+
 
                                 <!-- Modal Bootstrap -->
                                 <div class="modal fade" id="deleteModal{{ user.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ user.id }}" aria-hidden="true">
@@ -79,6 +105,11 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <a href="{% url 'users:users_pdf' %}?search={{ search }}&role={{ role }}"
+                class="btn btn-danger btn-sm">
+                📄 Exporter en PDF
+             </a>
+
         </div>
     </div>
 </div>

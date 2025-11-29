@@ -32,7 +32,7 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'main:backoffice_dashboard' %}">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'users:users_list' %}">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <!-- logo eat & fit-->
                 </div>
@@ -44,7 +44,7 @@
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
-                <a class="nav-link" href="{% url 'main:backoffice_dashboard' %}">
+                <a class="nav-link" href="{% url 'users:users_list' %}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
@@ -87,15 +87,18 @@
 
             <!-- business owners -->
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'main:backoffice_appointments_list' %}">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Manage Business owners</span></a>
+                <a class="nav-link" href="{% url 'users:manage_businessowners' %}">
+                    <i class="fas fa-users-cog"></i>
+                    <span>Manage Business Owners</span>
+                </a>
             </li>
+
             <!-- Products -->
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'main:backoffice_appointments_list' %}">
+                <a class="nav-link" href="{% url 'users:backoffice_manage_products' %}">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>Manage Products</span></a>
+                    <span>Manage Products</span>
+                </a>
             </li>
             
                         <!-- Nav Item - Tables -->
@@ -193,54 +196,41 @@
                             </div>
                         </li>
 
-                        <!-- Nav Item - Alerts -->
                         <li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
+                                {% if deleted_notifications %}
+                                    <span class="badge badge-danger badge-counter">{{ deleted_notifications|length }}+</span>
+                                {% else %}
+                                    <span class="badge badge-danger badge-counter">0</span>
+                                {% endif %}
                             </a>
-                            <!-- Dropdown - Alerts -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+<div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="alertsDropdown">
                                 <h6 class="dropdown-header">
-                                    Alerts Center
+                                    Centre d'Alertes
                                 </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="fas fa-file-alt text-white"></i>
+                                
+                                {% for user in deleted_notifications %}
+                                    <a class="dropdown-item d-flex align-items-center" href="{% url 'users:modifier_utilisateur' id=user.id %}">
+                                        <div class="mr-3">
+                                            <div class="icon-circle bg-danger"> 
+                                                <i class="fas fa-user-slash text-white"></i>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 12, 2019</div>
-                                        <span class="font-weight-bold">A new monthly report is ready to download!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-success">
-                                            <i class="fas fa-donate text-white"></i>
+                                        <div>
+                                            <div class="small text-danger">{{ user.deletion_date|date:"d M Y" }}</div>
+                                            <span class="font-weight-bold">
+                                                {{ user.nom_complet|default:user.email }} a désactivé son profil.
+                                            </span>
                                         </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 7, 2019</div>
-                                        $290.29 has been deposited into your account!
-                                    </div>
-                                </a>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-warning">
-                                            <i class="fas fa-exclamation-triangle text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">December 2, 2019</div>
-                                        Spending Alert: We've noticed unusually high spending for your account.
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
+                                    </a>
+                                {% empty %}
+                                    <a class="dropdown-item text-center small text-gray-500" href="#">Aucune alerte de suppression récente</a>
+                                {% endfor %}
+
+                                <a class="dropdown-item text-center small text-gray-500" href="#">Voir toutes les Alertes</a>
                             </div>
                         </li>
 
@@ -352,6 +342,23 @@
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
+                    {# Django flash messages (success / error / info) #}
+                    {% if messages %}
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            {% for message in messages %}
+                            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show"
+                                 role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
                     {% block content %}
                     {% endblock %}
 
@@ -418,7 +425,9 @@
     <!-- Page level custom scripts -->
     <script src="{% static 'main/js/demo/chart-area-demo.js' %}"></script>
     <script src="{% static 'main/js/demo/chart-pie-demo.js' %}"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 </body>
 
 </html>

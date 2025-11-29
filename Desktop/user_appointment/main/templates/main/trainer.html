@@ -16,11 +16,13 @@
 </section>
 <section class="trainers-page-section spad overflow-hidden">
     <div class="container">
+        {% if request.user.is_authenticated and request.user.role == 'coach' %}
         <div class="row mb-4">
             <div class="col-12 text-end">
                 <a href="{% url 'users:coach_create' %}" class="btn btn-success me-2">Add New Coach</a>
             </div>
         </div>
+        {% endif %}
         <div class="row">
             {% for coach in coaches %}
             <div class="col-lg-6">
@@ -50,14 +52,23 @@
                             </p>
                             
                             <div class="ti-actions mt-2">
-                                {# Les URLS pointent vers les vues des coachs #}
+                                {# Détail visible pour tout le monde #}
                                 <a href="{% url 'users:coach_detail' coach.pk %}" class="btn btn-outline-dark me-2">View</a>
-                                <a href="{% url 'users:coach_update' coach.pk %}" class="btn btn-primary me-2">Edit</a>
-                                
-                                <form action="{% url 'users:coach_delete' coach.pk %}" method="post" style="display:inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this coach?');">Delete</button>
-                                </form>
+
+                                {# Édition / suppression : seulement pour l'admin ou le coach lui‑même #}
+                                {% if request.user.is_authenticated %}
+                                    {% if request.user.role == 'admin' or request.user.pk == coach.pk %}
+                                        <a href="{% url 'users:coach_update' coach.pk %}" class="btn btn-primary me-2">Edit</a>
+                                        
+                                        <form action="{% url 'users:coach_delete' coach.pk %}" method="post" style="display:inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger"
+                                                    onclick="return confirm('Are you sure you want to delete this coach?');">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
                             </div>
                         </div>
                     </div>

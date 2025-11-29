@@ -50,12 +50,14 @@
                         <td><span class="badge bg-gradient-info text-white">{{ n.speciality }}</span></td>
                         <td>{{ n.experience_years }} ans</td>
                         <td>{{ n.consultation_fee }} DT</td>
+
                         <td>
                             <div class="d-flex justify-content-center gap-2">
-                                <a href="{% url 'users:backoffice_nutritionist_update' n.pk %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Modifier">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button type="button" class="btn btn-sm btn-outline-danger js-open-delete-modal" 
+                        <a href="{% url 'users:backoffice_nutritionist_update' n.pk %}" class="btn btn-info btn-circle btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+
+                                <button type="button" class="btn btn-danger btn-circle btn-sm js-open-delete-modal" 
                                         data-delete-url="{% url 'users:backoffice_nutritionist_delete' n.pk %}" 
                                         data-name="{{ n.nom_complet|escape }}" data-bs-toggle="tooltip" title="Supprimer">
                                     <i class="fas fa-trash"></i>

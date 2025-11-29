@@ -43,6 +43,12 @@ INSTALLED_APPS = [
     'users',
     'appointments',
     'blogapp',
+    'product',
+        # allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'projet_eatandfit.urls'
@@ -60,7 +67,7 @@ ROOT_URLCONF = 'projet_eatandfit.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -134,4 +141,31 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # car pas de champ username
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+# settings.py
 
+# Redirige les utilisateurs non authentifiés vers cette URL
+LOGIN_URL = '/users/auth/'
+SITE_ID = 1
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Django par défaut
+    'allauth.account.auth_backends.AuthenticationBackend',  # allauth
+]
+LOGIN_REDIRECT_URL = '/'  # où rediriger après login réussi
+LOGOUT_REDIRECT_URL = '/'  # après logout
+
+ACCOUNT_ADAPTER = 'users.adapter.CustomUserAccountAdapter'
+
+# settings.py
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "jouiniyoussef200@gmail.com"
+EMAIL_HOST_PASSWORD = "bjbe akgv tqkq xbdu"

@@ -1,5 +1,5 @@
 # users/views.py
-from django.contrib.auth.decorators import login_required
+# ----------------- Django imports -----------------
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -7,11 +7,41 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
-from django.http import JsonResponse, HttpResponseBadRequest
-from django.db.models import Q
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, CustomUserUpdateForm, NutritionistForm , CoachForm
-from .models import CustomUser as User, Nutritionist , Coach
-from .forms import UserForm, CoachForm
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.db.models import Q, Avg, Count
+from django.utils import timezone
+
+# ----------------- Local app imports -----------------
+from .forms import (
+    CustomUserCreationForm,
+    CustomAuthenticationForm,
+    CustomUserUpdateForm,
+    NutritionistForm,
+    CoachForm,
+    UserForm,
+    BusinessOwnerForm
+)
+from .models import CustomUser as User, Nutritionist, Coach, BusinessOwner
+
+from product.models import Product
+from product.forms import ProductForm
+
+# ----------------- Python standard library imports -----------------
+from datetime import datetime, timedelta, timezone
+from io import BytesIO
+import os
+
+# ----------------- ReportLab imports -----------------
+from reportlab.lib.pagesizes import A4, letter
+from reportlab.lib.units import cm, inch
+from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image as RlImage
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import colors
+
+
+
+# Create your views here.
 # Pages principale
 # ----------------------
 
@@ -43,12 +73,13 @@ def auth_view(request):
         signup_form = CustomUserCreationForm(request.POST, request.FILES)
         if signup_form.is_valid():
             user = signup_form.save()
-            login(request, user)
+            login(request, user ,backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Compte créé avec succès ! Bienvenue 👋")
             
             # Redirection selon rôle
             if user.role == "admin":
-                return redirect("main:backoffice_dashboard")
+                # Admin → page principale du backoffice (liste des utilisateurs)
+                return redirect("users:users_list")
             else:
                 return redirect("main:index")
         else:
@@ -65,7 +96,8 @@ def auth_view(request):
             
             # Redirection selon rôle
             if user.role == "admin":
-                return redirect("main:backoffice_dashboard")
+                # Admin → page principale du backoffice (liste des utilisateurs)
+                return redirect("users:users_list")
             else:
                 return redirect("main:index")
         else:
@@ -130,20 +162,67 @@ def logout_view(request):
     return redirect('main:index')
 
 @login_required
-def delete_profile(request):
-    user = request.user
-    if request.method == "POST":
-        user.delete()
-        messages.success(request, "Votre profil a été supprimé avec succès.")
-        return redirect('main:index')  # Redirige vers l'accueil
-    return render(request, 'confirm_delete.html')  # Page de confirmation
+# users/views.py
 
+
+
+
+def delete_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        
+        # 1. Effectuer la désactivation logique
+        user.is_deleted = True
+        user.deletion_date = datetime.now(timezone.utc) # Enregistre l'horodatage
+        user.is_active = False # Désactive l'utilisateur pour qu'il ne puisse plus se connecter
+        user.save()
+        
+        # 2. Déconnecter l'utilisateur
+        logout(request)
+        
+        # 3. Rediriger vers la page d'accueil ou un message de confirmation
+        return redirect('main:index') # Assurez-vous d'avoir une URL 'home' définie
+        
+    # Si la méthode n'est pas POST (pour afficher le formulaire de confirmation)
+    return render(request, 'confirm_delete.html')
 
 User = get_user_model()
 
+
+
+
 def users_list(request):
+    search = request.GET.get('search')
+    role = request.GET.get('role')
+
     users = User.objects.all()
-    return render(request, 'backoffice/tables_user.html', {'users': users})
+    active_users = User.objects.filter(is_deleted=False).order_by('id')
+    
+    # ------------------------------------------------------------------
+    # Récupérer les utilisateurs supprimés dans les 7 derniers jours (Exemple)
+    # ------------------------------------------------------------------
+    seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
+    deleted_users_notifications = User.objects.filter(
+        is_deleted=True,
+        deletion_date__gte=seven_days_ago # Récupère ceux supprimés récemment
+    ).order_by('-deletion_date')
+
+    if role:
+        users = users.filter(role=role)
+
+    if search:
+        users = users.filter(
+            Q(nom_complet__icontains=search) |
+            Q(email__icontains=search)
+        )
+
+    return render(request, 'backoffice/tables_user.html', {
+        'users': users,
+        'deleted_notifications': deleted_users_notifications,
+        'search': search,
+        'role': role,
+    })
+
 
 
 
@@ -247,6 +326,15 @@ def nutritionist_create(request):
 @login_required
 def nutritionist_update(request, pk):
     nutritionist = get_object_or_404(Nutritionist, pk=pk)
+
+    # Autoriser seulement l'admin ou le propriétaire du profil
+    if not (
+        request.user.role == 'admin'
+        or request.user.pk == nutritionist.pk
+    ):
+        messages.error(request, "Vous n'êtes pas autorisé à modifier ce nutritionniste.")
+        return redirect('users:nutritionist_list')
+
     if request.method == 'POST':
         form = NutritionistForm(request.POST, request.FILES, instance=nutritionist, user=request.user)
         if form.is_valid():
@@ -257,10 +345,19 @@ def nutritionist_update(request, pk):
         form = NutritionistForm(instance=nutritionist, user=request.user)
     return render(request, 'main/nutritionist_form.html', {'form': form})
 
+@login_required
 @require_POST
 def nutritionist_delete(request, pk):
     nutritionist = get_object_or_404(Nutritionist, pk=pk)
     try:
+        # Autoriser seulement l'admin ou le propriétaire du profil
+        if not (
+            request.user.role == 'admin'
+            or request.user.pk == nutritionist.pk
+        ):
+            messages.error(request, "Vous n'êtes pas autorisé à supprimer ce nutritionniste.")
+            return redirect('users:nutritionist_list')
+
         nutritionist.delete()
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'status': 'success', 'message': 'Nutritionist deleted successfully.'})
@@ -364,45 +461,98 @@ def coach_list(request):
     return render(request, 'main/trainer.html', context)
 
 # users/views.py - Fonction coach_create (Corrigée et simplifiée)
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-# Assurez-vous d'importer Coach (votre modèle) et CoachForm (votre formulaire)
-from .models import Coach
-from .forms import CoachForm
+
 
 # views.py
 
 @login_required
 def coach_create(request):
+    """
+    Permet à un utilisateur connecté de devenir Coach sans recréer un CustomUser.
+    - On utilise le CustomUser existant (request.user)
+    - On crée ou met à jour l'objet Coach lié (multi-table) avec la même PK
+    """
     user = request.user
-    
-    # 1. LOGIQUE DE REDIRECTION (Vérifie si le profil Coach complet existe)
+
+    # Si l'utilisateur est déjà coach ET qu'un profil Coach existe, on le redirige vers la page d'édition
     if user.role == 'coach':
         try:
-            Coach.objects.get(pk=user.pk) 
+            Coach.objects.get(pk=user.pk)
             messages.info(request, "Vous êtes déjà un Coach. Vous pouvez modifier votre profil.")
             return redirect('users:coach_update', pk=user.pk)
         except Coach.DoesNotExist:
+            # le rôle est 'coach' mais pas encore d'entrée dans la table Coach -> on continue la création
             pass
-            
-    # --- 2. LOGIQUE DE TRAITEMENT POST ---
-    if request.method == 'POST':
-        # 🟢 Utiliser le nom d'argument correct : 'instance'
-        form = CoachForm(request.POST, request.FILES, instance=user)
-        
-        if form.is_valid():
-            form.save() 
-            messages.success(request, 'Félicitations, votre profil Coach est créé !')
-            return redirect('users:coach_list') 
-        
-    # --- 3. LOGIQUE D'AFFICHAGE INITIAL (GET) ---
-    else: 
-        # 🟢 Simplifier et utiliser le nom d'argument correct : 'instance'
-        # On passe l'objet CustomUser. Les champs Coach seront vides, ce qui est normal pour une création.
-        form = CoachForm(instance=request.user)
 
-    # --- 4. RENDU FINAL ---
+    if request.method == 'POST':
+        # On utilise CoachForm seulement pour la validation des champs
+        form = CoachForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            # 1) Promouvoir l'utilisateur au rôle 'coach' sans recréer un CustomUser
+            if user.role != 'coach':
+                user.role = 'coach'
+                # mettre à jour aussi les infos de base si besoin
+                user.nom_complet = form.cleaned_data.get('nom_complet', user.nom_complet)
+                user.num_tel = form.cleaned_data.get('num_tel', user.num_tel)
+                user.ville = form.cleaned_data.get('ville', user.ville)
+                if form.cleaned_data.get('pdp'):
+                    user.pdp = form.cleaned_data['pdp']
+                user.save()
+
+            # 2) Créer ou mettre à jour l'entrée Coach liée à ce CustomUser
+            coach_fields = {
+                'sport_type': form.cleaned_data.get('sport_type'),
+                'experience_years': form.cleaned_data.get('experience_years'),
+                'location': form.cleaned_data.get('location'),
+                'session_price': form.cleaned_data.get('session_price'),
+                'subscription_price': form.cleaned_data.get('subscription_price'),
+                'bio': form.cleaned_data.get('bio'),
+                'certifications': form.cleaned_data.get('certifications'),
+                'is_available': form.cleaned_data.get('is_available'),
+                'show_on_website': form.cleaned_data.get('show_on_website'),
+            }
+
+            # Multi-table inheritance : on crée/maj uniquement la table enfant,
+            # reliée au CustomUser existant via customuser_ptr (même PK).
+            coach, created = Coach.objects.get_or_create(
+                pk=user.pk,
+                defaults=coach_fields,
+            )
+            if not created:
+                for field, value in coach_fields.items():
+                    setattr(coach, field, value)
+                coach.save()
+
+            messages.success(request, 'Félicitations, votre profil Coach est créé !')
+            return redirect('users:coach_list')
+    else:
+        # Pré-remplir le formulaire avec les infos de base de l'utilisateur
+        initial = {
+            'email': user.email,
+            'nom_complet': user.nom_complet,
+            'num_tel': user.num_tel,
+            'ville': user.ville,
+        }
+        # Si un Coach existe déjà sans rôle correctement défini, on peut aussi charger ses champs
+        try:
+            coach = Coach.objects.get(pk=user.pk)
+            initial.update({
+                'sport_type': coach.sport_type,
+                'experience_years': coach.experience_years,
+                'location': coach.location,
+                'session_price': coach.session_price,
+                'subscription_price': coach.subscription_price,
+                'bio': coach.bio,
+                'certifications': coach.certifications,
+                'is_available': coach.is_available,
+                'show_on_website': coach.show_on_website,
+            })
+        except Coach.DoesNotExist:
+            pass
+
+        form = CoachForm(initial=initial)
+
     return render(request, 'main/coach_form.html', {
         'form': form,
         'title': 'Créer votre Profil Coach'
@@ -466,15 +616,27 @@ def manage_coaches(request):
     return render(request, 'backoffice/coaches/manage_coaches.html', {'coaches': coaches})
 
 
+
+
+
+# Récupération du modèle utilisateur personnalisé (doit être CustomUser)
+User = get_user_model()
+
+
+@login_required(login_url='users:auth')
 def add_coach(request):
+    # Sécurité: Vérifier si l'utilisateur est Admin avant de procéder
+    if request.user.role != 'coach': 
+        messages.error(request, "Accès refusé.")
+        return redirect('users:auth') # Rediriger vers un lieu sûr
+        
     if request.method == 'POST':
         try:
-            # --- Data Retrieval ---
+            # --- 1. Récupération des Données ---
             full_name = request.POST.get('full_name')
             email = request.POST.get('email')
             phone_number = request.POST.get('phone_number', '')
             city = request.POST.get('city', '')
-            # Use request.FILES.get() for file uploads (profile_photo)
             profile_photo = request.FILES.get('profile_photo') 
             
             sport_type = request.POST.get('sport_type')
@@ -484,65 +646,72 @@ def add_coach(request):
             subscription_price = request.POST.get('subscription_price')
             bio = request.POST.get('bio', '')
             certifications = request.POST.get('certifications', '')
-            # Checkbox values are 'on' or None
             is_available = request.POST.get('is_available') == 'on'
             show_on_website = request.POST.get('show_on_website') == 'on'
             
-            # --- Validation ---
+            # --- 2. Validation de base ---
             if not all([full_name, email, sport_type, experience_years, location, session_price, subscription_price]):
-                messages.error(request, 'Please fill in all required fields.')
+                messages.error(request, 'Veuillez remplir tous les champs obligatoires.')
                 return redirect('backoffice:manage_coaches')
             
+            # Validation d'unicité de l'email (très important)
             if User.objects.filter(email=email).exists():
-                messages.error(request, 'A user with this email already exists.')
+                messages.error(request, f"Un utilisateur avec l'email {email} existe déjà.")
                 return redirect('backoffice:manage_coaches')
             
-            # --- Processing and Creation ---
+            # Validation de la conversion de type (pour éviter les erreurs d'exécution)
+            try:
+                exp_years_int = int(experience_years)
+                session_price_float = float(session_price)
+                subscription_price_float = float(subscription_price)
+            except ValueError:
+                messages.error(request, "Les champs de prix et d'expérience doivent être des nombres valides.")
+                return redirect('backoffice:manage_coaches')
+
+
+            # --- 3. Création et Hachage ---
             
-            # Generate a random password (Requires import random and string)
-            password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
-            
-            # Create user
-            user = User.objects.create_user(
-                email=email,
-                password=password,
-                full_name=full_name,
-                phone_number=phone_number,
-                city=city,
-                role='coach'
-            )
-            
-            if profile_photo:
-                user.profile_photo = profile_photo
-            
-            user.save()
-            
-            # Create coach profile
+
+            # 💡 CRÉATION DE L'OBJET COACH (qui est aussi un CustomUser)
+            # L'objet est créé en une seule étape.
             coach = Coach.objects.create(
-                user=user,
+                # Champs CustomUser
+                email=email,
+                nom_complet=full_name,
+                num_tel=phone_number,
+                ville=city,
+                pdp=profile_photo,
+                role='Coach',  # Définir le rôle explicitement
+                
+                # Champs Coach
                 sport_type=sport_type,
-                # Convert string inputs to correct types
-                experience_years=int(experience_years), 
-                session_price=float(session_price),
-                subscription_price=float(subscription_price),
+                experience_years=exp_years_int, 
+                session_price=session_price_float,
+                subscription_price=subscription_price_float,
                 location=location,
                 bio=bio,
                 certifications=certifications,
                 is_available=is_available,
                 show_on_website=show_on_website
             )
+
+            # Il est ESSENTIEL d'appeler set_password puis save() après la création
+            coach.set_password(raw_password)
+            coach.save()
             
-            messages.success(request, f'Coach {full_name} was added successfully! A random password has been generated for their account.')
+            # Optionnel: Envoyer l'email au coach avec le raw_password
+            # send_mail(..., raw_password)
+            
+            messages.success(request, f'Coach {full_name} ajouté. Mot de passe généré : {raw_password} (Veuillez lui communiquer en privé).')
             
         except Exception as e:
-            # Catch exceptions like invalid type conversion (float/int)
-            messages.error(request, f'Error adding coach: {str(e)}')
-        
+            messages.error(request, f'Erreur lors de l\'ajout du coach: {str(e)}')
+            
         return redirect('backoffice:manage_coaches')
     
-    # If not POST (or a GET request to this URL), redirect back to coaches page
+    # GET request: Assurez-vous de rediriger vers le bon endroit
+    # ou de rendre un formulaire si vous avez une page d'ajout dédiée
     return redirect('backoffice:manage_coaches')
-
 
 
 def coach_edit(request, pk):
@@ -592,3 +761,399 @@ def coaches_coach_delete(request, pk):
     
     messages.success(request, f'Coach profile "{nom_complet}" has been deleted.')
     return redirect('users:manage_coaches')
+
+
+
+
+
+
+def create_or_edit_business(request):
+
+    # Vérifie que l'utilisateur est connecté ET a un rôle business owner
+    if getattr(request.user, 'role', None) != 'business_owner':
+        return redirect('main:index')
+
+    # Vérifie si le business existe déjà
+    try:
+        business = request.user.businessowner
+        form = BusinessOwnerForm(instance=business)
+    except BusinessOwner.DoesNotExist:
+        business = None
+        form = BusinessOwnerForm()
+
+    if request.method == "POST":
+        form = BusinessOwnerForm(request.POST, request.FILES, instance=business)
+        if form.is_valid():
+            new_business = form.save(commit=False)
+            new_business.user = request.user
+            new_business.save()
+            return redirect('product:product_list')
+
+    return render(request, 'main/businessowner/businessowner.html', {'form': form})
+
+#backoffice buisness owner 
+
+
+def backoffice_manage_businessowners(request):
+    owners = BusinessOwner.objects.all()
+    return render(request, 'backoffice/manage_businessowners.html', {'owners': owners})
+
+
+
+
+def backoffice_add_businessowner(request):
+    if request.method == 'POST':
+        form = BusinessOwnerForm(request.POST, request.FILES)
+        if form.is_valid():
+            business_email = form.cleaned_data['professional_email']
+
+            # Vérifie si l'email existe déjà dans CustomUser
+            if CustomUser.objects.filter(email=business_email).exists():
+                messages.error(request, "Cet email est déjà utilisé par un utilisateur existant.")
+            else:
+                business = form.save(commit=False)
+                # Ici, si nécessaire, tu peux lier à un utilisateur existant
+                # business.user = request.user
+                business.save()
+                messages.success(request, "Business Owner créé avec succès !")
+                return redirect('users:manage_businessowners')
+    else:
+        form = BusinessOwnerForm()
+    
+    return render(request, 'backoffice/form_businessowner.html', {
+        'form': form,
+        'title': 'Add Business Owner'
+    })
+
+def backoffice_edit_businessowner(request, owner_id):
+    owner = get_object_or_404(BusinessOwner, id=owner_id)
+
+    if request.method == 'POST':
+        form = BusinessOwnerForm(request.POST, request.FILES, instance=owner)
+        if form.is_valid():
+            form.save()
+            return redirect('users:manage_businessowners')
+    else:
+        form = BusinessOwnerForm(instance=owner)
+
+    return render(request, 'backoffice/form_businessowner.html', {'form': form, 'title': 'Edit Business Owner'})
+
+
+def backoffice_delete_businessowner(request, owner_id):
+    owner = get_object_or_404(BusinessOwner, id=owner_id)
+    owner.delete()
+    return redirect('users:manage_businessowners')
+
+def backoffice_manage_products(request):
+    products = Product.objects.all().annotate(avg_rating=Avg("ratings__rating"))
+    return render(request, 'backoffice/manage_products.html', {'products': products})
+
+
+def backoffice_add_product(request):
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('users:backoffice_manage_products')
+    else:
+        form = ProductForm()
+
+    return render(request, 'backoffice/form_product.html', {
+        'form': form,
+        'title': 'Add Product'
+    })
+
+
+def backoffice_edit_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('users:backoffice_manage_products')
+    else:
+        form = ProductForm(instance=product)
+
+    return render(request, 'backoffice/form_product.html', {
+        'form': form,
+        'title': 'Edit Product'
+    })
+
+
+def backoffice_delete_product(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    product.delete()
+    return redirect('users:backoffice_manage_products')
+
+
+def backoffice_product_details(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    ratings = product.ratings.all()
+    return render(request, 'backoffice/product_details.html', {
+        'product': product,
+        'ratings': ratings
+    })
+
+
+# Importez votre modèle utilisateur et d'autres dépendances, ex:
+# from django.contrib.auth import get_user_model
+# User = get_user_model() 
+# Si vous utilisez un User par défaut, importez-le :
+# from django.contrib.auth.models import User 
+
+
+
+
+
+def users_pdf(request):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        topMargin=0.5 * inch,
+        bottomMargin=0.5 * inch
+    )
+    styles = getSampleStyleSheet()
+    Story = []
+
+    # --- 2. Titre et Date ---
+    title_text = "Liste Détaillée des Utilisateurs"
+    date_text = datetime.now().strftime("Généré le %d/%m/%Y à %H:%M")
+
+    # Titre centré
+    h1_style = styles['h1']
+    h1_style.alignment = 1 # Center
+    Story.append(Paragraph(f'<b><font size="16">{title_text}</font></b>', h1_style))
+    Story.append(Spacer(1, 0.1 * inch))
+
+    # Date à droite
+    date_style = styles['Normal']
+    date_style.alignment = 2 # Right
+    Story.append(Paragraph(f'<font size="10">{date_text}</font>', date_style))
+    Story.append(Spacer(1, 0.3 * inch))
+
+    # --- 3. Construction des données du tableau ---
+    
+    # 3.1. En-têtes du tableau (6 colonnes)
+    data = [["Photo", "Nom Complet", "Ville", "Tél.", "Email", "Rôle"]]
+    
+    # Récupération des utilisateurs
+    users = User.objects.all()
+    
+    # 3.2. Remplissage des lignes
+    image_size = 0.5 * inch # Taille de la photo de profil
+
+    for user in users:
+        # Initialisation de la cellule d'image
+        img_cell = Paragraph("", styles['Normal']) 
+
+        # Définition des 6 variables de la ligne. Adaptez les noms des champs si besoin.
+        nom = user.nom_complet if hasattr(user, 'nom_complet') and user.nom_complet else "Non défini"
+        ville = getattr(user, 'ville', "Non défini")
+        tel = getattr(user, 'num_tel', "Non défini") # J'ai gardé 'numero_telephone' comme nom de champ
+        email = user.email if user.email else "Non défini"
+        role = getattr(user, "role", "Non défini")
+        
+        # ------------------------------------------------------------------
+        # Logique de chargement de l'image (Champ 'pdp')
+        # ------------------------------------------------------------------
+        if hasattr(user, 'pdp') and user.pdp:
+            try:
+                image_path = user.pdp.path 
+                
+                if image_path and os.path.exists(image_path):
+                    # Redimensionne et insère l'image dans la cellule
+                    img_cell = RlImage(image_path, image_size, image_size, mask='preserve') 
+                else:
+                    img_cell = Paragraph("🚫", styles['Normal']) 
+                    
+            except Exception as e:
+                # Gère les erreurs de chargement d'image (ex: chemin invalide)
+                print(f"Erreur de chargement d'image pour l'utilisateur {user.email}: {e}")
+                img_cell = Paragraph("🚫", styles['Normal']) 
+
+        # Mise à jour de data.append() pour inclure les 6 éléments
+        data.append([img_cell, nom, ville, tel, email, role])
+        
+    # --- 4. Création du tableau ---
+    # Définition des 6 largeurs de colonnes (assurez-vous que la somme est < 7.5 pouces)
+    colWidths = [
+        0.7 * inch,  # Photo (Pdp)
+        1.7 * inch,  # Nom Complet
+        1.0 * inch,  # Ville
+        1.2 * inch,  # Tél.
+        2.2 * inch,  # Email
+        0.7 * inch   # Rôle
+    ] 
+
+    table = Table(data, colWidths=colWidths)
+
+    # 4.1. Définition du style du tableau
+    table_style = TableStyle([
+        # En-têtes (Ligne 0)
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2e6c9a')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#cccccc')), 
+        
+        # Contenu des cellules
+        ('ALIGN', (0, 1), (-1, -1), 'LEFT'), # Alignement général du contenu à gauche
+        ('ALIGN', (0, 1), (0, -1), 'CENTER'), # Sauf la colonne Photo (index 0)
+        ('ALIGN', (3, 1), (3, -1), 'CENTER'), # Sauf la colonne Téléphone (index 3)
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        
+        # Alternance de couleurs (Striping)
+        ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f0f8ff')), # Lignes paires
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.HexColor('#f0f8ff')]), # Alternance
+    ])
+
+    table.setStyle(table_style)
+    Story.append(table)
+    Story.append(Spacer(1, 0.5 * inch))
+
+    # --- 5. Total des utilisateurs ---
+    total_text = f"Total des utilisateurs : {users.count()}" 
+    Story.append(Paragraph(f'<b><font size="12">{total_text}</font></b>', styles['Normal']))
+
+    # --- 6. Génération et retour ---
+    doc.build(Story)
+
+    # Retour de la réponse HTTP
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="liste_utilisateurs_v2.pdf"'
+    response.write(buffer.getvalue())
+    buffer.close()
+    return response
+
+
+
+User = get_user_model()
+
+def users_stats(request):
+    # Compter le nombre d'utilisateurs par rôle
+    stats = User.objects.values('role').annotate(count=Count('id'))
+
+    # Préparer les données pour le graphique
+    labels = [item['role'] for item in stats]
+    counts = [item['count'] for item in stats]
+
+    return render(request, 'backoffice/users_stats.html', {
+        'labels': labels,
+        'counts': counts,
+    })
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth import get_user_model
+from django.shortcuts import render, redirect
+from django.core.mail import send_mail
+from django.contrib import messages
+from .forms import ForgotPasswordForm
+
+User = get_user_model()
+
+def forgot(request):
+    return render(request, 'forgot_password.html')
+
+from django.core.mail import EmailMultiAlternatives
+
+def forgot_password(request):
+    if request.method == "POST":
+        form = ForgotPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                messages.error(request, "Email introuvable.")
+                return redirect('users:forgot')
+
+            token = PasswordResetTokenGenerator().make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            reset_link = request.build_absolute_uri(
+                f"/users/reset/{uid}/{token}/"
+            )
+
+            # ----- EMAIL HTML -----
+            subject = "🔐 Réinitialisation de votre mot de passe"
+            text_message = f"Réinitialisez votre mot de passe : {reset_link}"
+
+            html_message = f"""
+            <div style='font-family:Arial;padding:20px;background:#f7f7f7'>
+                <div style='background:white;padding:25px;border-radius:10px;
+                            max-width:500px;margin:auto;
+                            box-shadow:0 4px 15px rgba(0,0,0,0.1);'>
+
+                    <h2 style='color:#4c84ff;text-align:center;'>
+                        Réinitialisation du mot de passe
+                    </h2>
+
+                    <p style='font-size:15px;color:#333;'>
+                        Bonjour <b>{user.nom_complet}</b>,<br><br>
+                        Vous avez demandé à réinitialiser votre mot de passe.
+                        Cliquez sur le bouton ci-dessous :
+                    </p>
+
+                    <div style='text-align:center;margin:25px 0;'>
+                        <a href='{reset_link}'
+                           style='background:#4c84ff;color:white;padding:12px 20px;
+                                  text-decoration:none;font-weight:bold;border-radius:8px;
+                                  display:inline-block;'>
+                           🔑 Réinitialiser mon mot de passe
+                        </a>
+                    </div>
+
+                    <p style='font-size:14px;color:#888;'>
+                        Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.
+                    </p>
+
+                </div>
+            </div>
+            """
+
+            email_obj = EmailMultiAlternatives(subject, text_message, None, [email])
+            email_obj.attach_alternative(html_message, "text/html")
+            email_obj.send()
+
+            messages.success(request, "📩 Email envoyé ! Vérifiez votre boîte.")
+            return redirect('users:forgot')
+    else:
+        form = ForgotPasswordForm()
+
+    return render(request, "forgot_password.html", {"form": form})
+
+
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_decode
+
+def reset_password(request, uidb64, token):
+    User = get_user_model()
+
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except:
+        user = None
+
+    if user is not None and PasswordResetTokenGenerator().check_token(user, token):
+        if request.method == "POST":
+            new_password = request.POST.get("password")
+            confirm = request.POST.get("confirm")
+            
+            if new_password != confirm:
+                messages.error(request, "Les mots de passe ne correspondent pas.")
+                return redirect(request.path)
+
+            user.set_password(new_password)
+            user.save()
+            messages.success(request, "Mot de passe réinitialisé avec succès.")
+            return redirect('users:auth')
+
+        return render(request, "reset_password.html")
+
+    else:
+        return render(request, "invalid_link.html")

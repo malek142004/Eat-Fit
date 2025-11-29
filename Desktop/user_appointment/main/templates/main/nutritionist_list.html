@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<section class="page-top-section set-bg" data-setbg="{% static 'img/my-hero2.jpg' %}">
+<section class="page-top-section set-bg" data-setbg="{% static 'main/img/my-hero2.jpg' %}">
     <div class="container">
         <div class="row">
             <div class="col-lg-7 m-auto text-white">
@@ -15,6 +15,33 @@
 
 <section class="trainers-page-section spad overflow-hidden">
     <div class="container">
+        {% if messages %}
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-10">
+                {% for message in messages %}
+                <div class="nf-alert-wrap">
+                    <div class="nf-alert-inner nf-{{ message.tags|default:'info' }}">
+                        <div class="nf-alert-icon">
+                            <i class="material-icons">
+                                {% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% else %}info{% endif %}
+                            </i>
+                        </div>
+                        <div class="nf-alert-content">
+                            <span class="nf-alert-title">
+                                {% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% else %}Information{% endif %}
+                            </span>
+                            <p class="nf-alert-text">{{ message }}</p>
+                        </div>
+                        <button type="button" class="nf-alert-close" onclick="this.parentElement.parentElement.remove();">
+                            <i class="material-icons">close</i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         <div class="row">
             <div class="col-lg-12 text-right mb-4">
                 <a href="{% url 'users:nutritionist_create' %}" class="site-btn sb-gradient">Add Nutritionist</a>
@@ -61,15 +88,19 @@
                             <a href="#"><i class="fa fa-linkedin"></i></a>
                         </div>
 
-                        <div class="mt-4">
-                            <a href="{% url 'users:nutritionist_update' nutritionist.pk %}" class="site-btn sb-gradient">Edit</a>
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.role == 'admin' or request.user.pk == nutritionist.pk %}
+                            <div class="mt-4">
+                                <a href="{% url 'users:nutritionist_update' nutritionist.pk %}" class="site-btn sb-gradient">Edit</a>
 
-                            <button type="button" class="site-btn sb-dark open-delete-modal-list"
-                                data-id="{{ nutritionist.pk }}"
-                                data-name="{{ nutritionist.nom_complet }}">
-                                Delete
-                            </button>
-                        </div>
+                                <button type="button" class="site-btn sb-dark open-delete-modal-list"
+                                    data-id="{{ nutritionist.pk }}"
+                                    data-name="{{ nutritionist.nom_complet }}">
+                                    Delete
+                                </button>
+                            </div>
+                            {% endif %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -92,6 +123,65 @@
         </div>
     </div>
 </section>
+
+<style>
+.nf-alert-wrap {
+    margin-bottom: 15px;
+}
+.nf-alert-inner {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    background: #fff;
+}
+.nf-alert-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    color: #fff;
+}
+.nf-alert-content {
+    flex: 1;
+}
+.nf-alert-title {
+    display: block;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+    color: #555;
+}
+.nf-alert-text {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+}
+.nf-alert-close {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    margin-left: 8px;
+}
+.nf-success .nf-alert-icon {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+}
+.nf-error .nf-alert-icon {
+    background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+}
+.nf-info .nf-alert-icon {
+    background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);
+}
+</style>
 
 <!-- Delete Confirmation Modal -->
 <div id="delete-modal-list" class="delete-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1050;">

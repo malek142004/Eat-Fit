@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<section class="page-top-section set-bg" data-setbg="{% static 'front/img/my-hero2.jpg' %}">
+<section class="page-top-section set-bg" data-setbg="{% static 'main/img/my-hero2.jpg' %}">
     <div class="container">
         <div class="row">
             <div class="col-lg-7 m-auto text-white">
@@ -21,10 +21,14 @@
                      
                     <div class="text-center mb-4 position-relative">
                         <div class="profile-photo-wrapper mx-auto mb-3">
-                            {% if form.instance.pdp %}
+                            {# Création : afficher la photo du user connecté si disponible, sinon avatar par défaut #}
+                            {# Édition : afficher la photo du nutritionniste (form.instance.pdp) #}
+                            {% if form.instance.pk and form.instance.pdp %}
                                 <img src="{{ form.instance.pdp.url }}" alt="Profile Picture" class="profile-photo">
+                            {% elif request.user.is_authenticated and request.user.pdp %}
+                                <img src="{{ request.user.pdp.url }}" alt="Profile Picture" class="profile-photo">
                             {% else %}
-                                <img src="{% static 'images/default-avatar.png' %}" alt="Default Avatar" class="profile-photo">
+                                <img src="{% static 'ahana/img/icons/user.png' %}" alt="Default Avatar" class="profile-photo">
                             {% endif %}
                             <label for="id_pdp" class="upload-label" title="Change photo">
                                 <i class="fa fa-camera"></i>

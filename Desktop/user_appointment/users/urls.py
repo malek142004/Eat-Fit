@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-
+from django.contrib.auth import views as auth_views
 app_name = "users"
 
 urlpatterns = [
@@ -24,6 +24,9 @@ urlpatterns = [
     path('login/', views.backoffice_login, name='login'),
     path('logout_back/', views.backoffice_logout, name='logout_back'),
     path('ajouter/', views.ajouter_utilisateur, name='ajouter_utilisateur'),
+    path('backoffice/users-pdf/', views.users_pdf, name='users_pdf'),
+    path('backoffice/users-stats/', views.users_stats, name='users_stats'),
+
     
     # Backoffice CRUD nutritionists
     path('backoffice/tables_nutritionists/', views.backoffice_tables, name='backoffice_nutritionist_list'),
@@ -42,4 +45,23 @@ urlpatterns = [
     path('coaches/add/', views.add_coach, name='add_coach'),
     path('coaches/edit/<int:pk>/', views.coach_edit, name='coach_edit'),
     path('coaches/delete/<int:pk>/', views.coaches_coach_delete, name='coaches_coach_delete'),
+
+    # Business Owners CRUD
+    path('businessowner/businessowner/', views.create_or_edit_business, name='create_business'),
+
+    #business owner backoffice
+    path('manage-business/', views.backoffice_manage_businessowners, name='manage_businessowners'),
+    path('manage-business/add/', views.backoffice_add_businessowner, name='backoffice_add_businessowner'),
+    path('manage-business/edit/<int:owner_id>/', views.backoffice_edit_businessowner, name='backoffice_edit_businessowner'),
+    path('manage-business/delete/<int:owner_id>/', views.backoffice_delete_businessowner, name='backoffice_delete_businessowner'),
+    path('manage-products/', views.backoffice_manage_products, name='backoffice_manage_products'),
+    path('manage-products/add/', views.backoffice_add_product, name='backoffice_add_product'),
+    path('manage-products/edit/<int:product_id>/', views.backoffice_edit_product, name='backoffice_edit_product'),
+    path('manage-products/delete/<int:product_id>/', views.backoffice_delete_product, name='backoffice_delete_product'),
+    path('manage-products/details/<int:product_id>/', views.backoffice_product_details, name='backoffice_product_details'),
+
+    # Password reset paths
+    path('forgot/', views.forgot, name='forgot'),
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
+    path('reset/<uidb64>/<token>/', views.reset_password, name='reset_password'),
 ]

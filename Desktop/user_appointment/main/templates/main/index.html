@@ -4,6 +4,7 @@
 {% block title %}EAt & Fit frontoffice{% endblock %}
 
 {% block content %}
+
 <style>
     .hero-section-dynamic {
         position: relative;
@@ -223,6 +224,64 @@
         text-align: center;
         margin-top: 40px;
     }
+    /* Custom CSS for Blog Cards */
+
+/* Styles pour le hover effect (transition) */
+.blog-item {
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+}
+.blog-item:hover {
+    transform: translateY(-5px); /* Léger mouvement vers le haut */
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25) !important; /* Ombre plus forte */
+}
+.text-shadow {
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+/* Classes pour les couleurs de thème (remplace le style inline) */
+.theme-nutrition {
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+}
+.theme-fitness {
+    background: linear-gradient(135deg, #f65d5d, #fd9b7d);
+}
+.theme-wellness {
+    background: linear-gradient(135deg, #ff8e9d, #ffb3c6);
+}
+.theme-consultation {
+    background: linear-gradient(135deg, #e8ceb8, #D4B69F);
+}
+.theme-ia {
+    background: linear-gradient(135deg, #b8e8ce, #d05ce3);
+}
+.theme-products {
+    background: linear-gradient(135deg, #4caf50, #81c784);
+}
+/* Définissez une classe pour le bouton de lecture */
+.read-more-btn {
+    background: linear-gradient(135deg, #f65d5d, #fd9b7d); 
+    border: none; 
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.read-more-btn:hover {
+    transform: translateY(-2px); 
+    box-shadow: 0 5px 15px rgba(246,93,93,0.4);
+    color: white; /* Conserver la couleur du texte au survol */
+}
+/* Pour limiter le texte (assurez-vous d'avoir cette classe ou utilisez le CSS ci-dessous) */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
     
 </style>
 
@@ -320,56 +379,89 @@
 <div class="section-separator"></div>
 
 <!-- Testimonials Section -->
-<section class="testimonial-section spad">
-    <div class="container">
-        <div class="section-title text-center">
-            <img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
-            <h2>What Our Clients Say</h2>
-        </div>
-        <div class="testimonial-slider custom-owl-carousel">
-            <div class="testimonial-item">
-                <div class="ti-img">
-                    <img src="{% static 'home_img/pdp1.png' %}" alt="Client 1">
+<div class="row" style="row-gap: 3rem;">
+
+    {% for blog in blogs %}
+    <div class="col-lg-4 col-md-6">
+        
+        <div class="blog-item h-100 d-flex flex-column rounded-4 overflow-hidden shadow-lg">
+            
+            <a href="{% url 'blogapp:blog_detail' blog.pk %}" class="d-block" style="height: 300px; overflow: hidden;">
+                {% if blog.cover_image %}
+                    <img src="{{ blog.cover_image.url }}" 
+                         alt="{{ blog.title }}" 
+                         class="img-fluid w-100 h-100 object-fit-cover" 
+                         style="transition: transform 0.5s ease;"
+                         onmouseover="this.style.transform='scale(1.05)'"
+                         onmouseout="this.style.transform='scale(1)'">
+                {% else %}
+                    <div class="position-relative text-white d-flex align-items-center justify-content-center text-center p-5 h-100 
+                                {% comment %} Utilise le nom du thème comme classe CSS {% endcomment %}
+                                theme-{{ blog.theme }}">
+                        <div>
+                            <h2 class="fw-bold fs-1 mb-0 text-shadow">
+                                {{ blog.get_theme_display }}
+                            </h2>
+                            <p class="mt-2 fs-5 opacity-90">EatFit Blog</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </a>
+
+            <div class="bi-text p-4 flex-grow-1 d-flex flex-column bg-white">
+                
+                <h3 class="fs-4 fw-bold mb-3 line-clamp-2">
+                    <a href="{% url 'blogapp:blog_detail' blog.pk %}"
+                       class="text-decoration-none text-dark hover-text-danger">
+                        {{ blog.title|default:"Sans titre" }}
+                    </a>
+                </h3>
+
+                {% if blog.preview %}
+                    <p class="text-muted flex-grow-1 small line-clamp-3">{{ blog.preview }}</p>
+                {% else %}
+                    <p class="text-muted flex-grow-1 small line-clamp-3">{{ blog.content|truncatechars:110 }}</p>
+                {% endif %}
+
+                <div class="mt-3 mb-3">
+                    <a href="{% url 'blogapp:blog_detail' blog.pk %}" 
+                       class="btn btn-sm px-4 py-2 text-white fw-semibold rounded-pill read-more-btn">
+                        Lire la suite <i class="fa fa-arrow-right ms-1"></i>
+                    </a>
                 </div>
-                <p>"Eat&Fit helped me lose 6kg in 2 months! I feel so much healthier and more energetic."</p>
-                <h4>Alice Johnson</h4>
-                <span>Happy Client</span>
-            </div>
-            <div class="testimonial-item">
-                <div class="ti-img">
-                    <img src="{% static 'home_img/pdp2.png' %}" alt="Client 2">
+
+                <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top border-light">
+                    <small class="text-muted">
+                        {{ blog.created_at|date:"d M Y" }} par 
+                        {% if blog.author.nom_complet %}
+                            {{ blog.author.nom_complet }}
+                        {% else %}
+                            {{ blog.author.username }}
+                        {% endif %}
+                    </small>
+                    
+                    <div class="d-flex gap-3">
+                        <span class="text-danger"><i class="fa fa-heart"></i> {{ blog.total_likes }}</span>
+                        <span class="text-muted"><i class="fa fa-comment"></i> {{ blog.comments.count }}</span>
+                    </div>
                 </div>
-                <p>"I really loved the products here, very delicious and perfectly portioned. Highly recommend!"</p>
-                <h4>Ben Smith</h4>
-                <span>Food Enthusiast</span>
-            </div>
-            <div class="testimonial-item">
-                <div class="ti-img">
-                    <img src="{% static 'home_img/pdp3.png' %}" alt="Client 3">
-                </div>
-                <p>"The nutritionists are so kind and supportive. They guided me every step of the way to a better lifestyle."</p>
-                <h4>Clara Lee</h4>
-                <span>Wellness Seeker</span>
-            </div>
-            <div class="testimonial-item">
-                <div class="ti-img">
-                    <img src="{% static 'home_img/pdp4.png' %}" alt="Client 4">
-                </div>
-                <p>"My fitness coach is amazing! I've seen incredible progress and stay motivated thanks to their personalized workouts."</p>
-                <h4>David Green</h4>
-                <span>Fitness Journey</span>
-            </div>
-            <div class="testimonial-item">
-                <div class="ti-img">
-                    <img src="{% static 'home_img/pdp5.png' %}" alt="Client 5">
-                </div>
-                <p>"A unique platform that truly transforms lives. The combination of healthy meals and expert guidance is unbeatable."</p>
-                <h4>Emily White</h4>
-                <span>Life Changer</span>
             </div>
         </div>
     </div>
-</section>
+
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <h3 class="text-muted">Aucun article pour le moment</h3>
+        <p class="lead mb-4">Sois le premier à partager tes conseils !</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'blogapp:blog_create' %}" class="site-btn sb-gradient px-5 py-3">Écrire un article</a>
+        {% else %}
+            <a href="{% url 'users:auth' %}" class="site-btn sb-gradient px-5 py-3">Se connecter</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+</div>
 <!-- Testimonials Section end -->
 
 <div class="section-separator"></div>
@@ -381,25 +473,46 @@
             <img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
             <h2>Featured Healthy Meals</h2>
         </div>
+        
         <div class="meals-slider custom-owl-carousel">
-            <div class="meal-item">
-                <img src="{% static 'home_img/meal1.png' %}" alt="Meal 1">
-                <h4>Grilled Chicken with Veggies</h4>
-            </div>
-            <div class="meal-item">
-                <img src="{% static 'home_img/meal2.png' %}" alt="Meal 2">
-                <h4>Quinoa Salad with Avocado</h4>
-            </div>
-            <div class="meal-item">
-                <img src="{% static 'home_img/meal3.png' %}" alt="Meal 3">
-                <h4>Salmon with Asparagus</h4>
-            </div>
-            <div class="meal-item">
-                <img src="{% static 'home_img/meal4.png' %}" alt="Meal 4">
-                <h4>Vegetarian Buddha Bowl</h4>
-            </div>
+            
+            {% if featured_products %}
+                {% for product in featured_products %}
+                <div class="meal-item">
+                    
+                    <a href="{% url 'product:product_detail' product.pk %}">
+                        {% if product.image_url %}
+                            <img src="{{ product.image_url }}" alt="{{ product.product_name }}">
+                        {% else %}
+                            <img src="{% static 'home_img/meal_default.png' %}" alt="Default Meal Image">
+                        {% endif %}
+                    </a>
+                    
+                    {# Vous pouvez ajouter un lien sur le titre si vous voulez #}
+                    <h4>
+                        <a href="{% url 'product:product_detail' product.pk %}" class="text-dark text-decoration-none">
+                            {{ product.product_name|default:"Meal Name" }}
+                        </a>
+                    </h4>
+                    
+                    {# Optionnel : Afficher le prix #}
+                    {% if product.price %}
+                    <p class="text-danger fw-bold">{{ product.price|floatformat:2 }} TND</p>
+                    {% endif %}
+                    
+                </div>
+                {% endfor %}
+            {% else %}
+                {# Contenu de secours si aucun produit n'est trouvé #}
+                <div class="meal-item text-center p-5">
+                    <i class="fa fa-cutlery fa-3x text-muted mb-3"></i>
+                    <h4>No Meals Available Yet</h4>
+                    <p class="text-muted">Check back soon for new delicious and healthy options!</p>
+                </div>
+            {% endif %}
+
         </div>
-    </div>
+        </div>
 </section>
 <!-- Featured Healthy Meals Section end -->
 
@@ -412,57 +525,47 @@
             <img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
             <h2>Meet Our Coaches</h2>
         </div>
+        
         <div class="row">
-            <div class="col-lg-4 d-flex align-items-stretch">
-                <div class="service-item">
-                    <div class="ci-img">
-                        <img src="{% static 'home_img/coach1.png' %}" alt="Coach John Doe">
+            
+            {% if coaches %}
+                {% for coach in coaches %}
+                <div class="col-lg-4 d-flex align-items-stretch">
+                    <div class="service-item">
+                        <div class="ci-img">
+                            
+                            <a href="{% url 'users:coach_detail' coach.pk %}">
+                                {% if coach.pdp %}
+                                    <img src="{{ coach.pdp.url }}" alt="Coach {{ coach.nom_complet }}">
+                                {% else %}
+                                    <img src="{% static 'home_img/default_coach.png' %}" alt="Coach Default">
+                                {% endif %}
+                            </a>
+
+                        </div>
+                        
+                        {# Nom et prénom du coach #}
+                        <h4>{{ coach.nom_complet }} </h4> 
+                        
+                        {# Spécialité ou courte description. Assurez-vous que le champ existe. #}
+                        <p>{{ coach.get_sport_type_display|default:"Certified Wellness Coach" }}</p>
+                        
+                        {# Lien vers la prise de rendez-vous ou le détail du coach #}
+                        <a href="{% url 'add_appointment'  %}" class="site-btn sb-gradient">
+                            Book Now
+                        </a>
                     </div>
-                    <h4>John Doe</h4>
-                    <p>Specializes in strength training and personalized workout plans.</p>
-                    <a href="#" class="site-btn sb-gradient">Book Now</a>
                 </div>
-            </div>
-            <div class="col-lg-4 d-flex align-items-stretch">
-                <div class="service-item">
-                    <div class="ci-img">
-                        <img src="{% static 'home_img/coach2.png' %}" alt="Coach Jane Smith">
-                    </div>
-                    <h4>Jane Smith</h4>
-                    <p>Expert in yoga and flexibility, focusing on mind-body connection.</p>
-                    <a href="#" class="site-btn sb-gradient">Book Now</a>
+                {% endfor %}
+            {% else %}
+                {# Contenu de secours si aucun coach n'est trouvé #}
+                <div class="col-12 text-center py-5">
+                    <i class="fa fa-users fa-3x text-muted mb-3"></i>
+                    <h4>No Coaches Available Yet</h4>
+                    <p class="text-muted">We are currently recruiting the best fitness experts!</p>
                 </div>
-            </div>
-            <div class="col-lg-4 d-flex align-items-stretch">
-                <div class="service-item">
-                    <div class="ci-img">
-                        <img src="{% static 'home_img/coach3.png' %}" alt="Coach Mike Ross">
-                    </div>
-                    <h4>Mike Ross</h4>
-                    <p>Certified in high-intensity interval training (HIIT) and endurance coaching.</p>
-                    <a href="#" class="site-btn sb-gradient">Book Now</a>
-                </div>
-            </div>
-            <div class="col-lg-4 d-flex align-items-stretch">
-                <div class="service-item">
-                    <div class="ci-img">
-                        <img src="{% static 'home_img/coach4.png' %}" alt="Coach Sarah Connor">
-                    </div>
-                    <h4>Sarah Connor</h4>
-                    <p>Passionate about functional fitness and injury prevention.</p>
-                    <a href="#" class="site-btn sb-gradient">Book Now</a>
-                </div>
-            </div>
-            <div class="col-lg-4 d-flex align-items-stretch">
-                <div class="service-item">
-                    <div class="ci-img">
-                        <img src="{% static 'home_img/coach5.png' %}" alt="Coach Chris Evans">
-                    </div>
-                    <h4>Chris Evans</h4>
-                    <p>Dedicated to helping clients achieve sustainable health and wellness goals.</p>
-                    <a href="#" class="site-btn sb-gradient">Book Now</a>
-                </div>
-            </div>
+            {% endif %}
+            
         </div>
     </div>
 </section>
@@ -477,50 +580,50 @@
             <img src="{% static 'main/img/icons/logo-icon.png' %}" alt="">
             <h2>Meet Our Nutritionists</h2>
         </div>
+        
         <div class="row">
-            <div class="col-lg-4 d-flex align-items-stretch">
-                <div class="service-item">
-                    <div class="ci-img">
-                        <img src="{% static 'home_img/nut1.jpg' %}" alt="Nutritionist Emily Carter">
+            
+            {% if nutritionists %}
+                {% for nutritionist in nutritionists %}
+                <div class="col-lg-4 d-flex align-items-stretch">
+                    <div class="service-item">
+                        <div class="ci-img">
+                            
+                            <a href="{% url 'users:nutritionist_detail' nutritionist.pk %}">
+                                {% if nutritionist.pdp %}
+                                    <img src="{{ nutritionist.pdp.url }}" alt="Nutritionist {{ nutritionist.nom_complet }}">
+                                {% else %}
+                                    <img src="{% static 'home_img/default_nut.png' %}" alt="Nutritionist Default">
+                                {% endif %}
+                            </a>
+
+                        </div>
+                        
+                        {# Nom et prénom du nutritionniste #}
+                        <h4>{{ nutritionist.nom_complet }}</h4> 
+                        
+                        {# Spécialité ou courte description. Assurez-vous que le champ existe (ex: 'bio_short'). #}
+                        <p>{{ nutritionist.speciality|default:"Nutritionist" }}</p>
+                        
+                        {# Lien vers la prise de rendez-vous ou le détail #}
+                        <a href="{% url 'add_appointment'  %}" class="site-btn sb-gradient">
+                            Book Now
+                        </a>
                     </div>
-                    <h4>Emily Carter</h4>
-                    <p>Expert in clinical nutrition and weight management programs.</p>
-                    <a href="#" class="site-btn sb-gradient">Book Now</a>
                 </div>
-            </div>
-            <div class="col-lg-4 d-flex align-items-stretch">
-                <div class="service-item">
-                    <div class="ci-img">
-                        <img src="{% static 'home_img/nut2.jpg' %}" alt="Nutritionist Ben Miles">
-                    </div>
-                    <h4>Ben Miles</h4>
-                    <p>Specializes in sports nutrition and performance-enhancing diets.</p>
-                    <a href="#" class="site-btn sb-gradient">Book Now</a>
+                {% endfor %}
+            {% else %}
+                {# Contenu de secours si aucun nutritionniste n'est trouvé #}
+                <div class="col-12 text-center py-5">
+                    <i class="fa fa-stethoscope fa-3x text-muted mb-3"></i>
+                    <h4>No Nutritionists Available Yet</h4>
+                    <p class="text-muted">Contactez-nous pour être le premier à prendre rendez-vous avec un expert en nutrition!</p>
                 </div>
-            </div>
-            <div class="col-lg-4 d-flex align-items-stretch">
-                <div class="service-item">
-                    <div class="ci-img">
-                        <img src="{% static 'home_img/nut3.webp' %}" alt="Nutritionist Olivia Chen">
-                    </div>
-                    <h4>Olivia Chen</h4>
-                    <p>Focuses on holistic nutrition and creating balanced meal plans.</p>
-                    <a href="#" class="site-btn sb-gradient">Book Now</a>
-                </div>
-            </div>
-            <div class="col-lg-4 d-flex align-items-stretch">
-                <div class="service-item">
-                    <div class="ci-img">
-                        <img src="{% static 'home_img/nut4.jpg' %}" alt="Nutritionist David Wilson">
-                    </div>
-                    <h4>David Wilson</h4>
-                    <p>Passionate about pediatric nutrition and family health.</p>
-                    <a href="#" class="site-btn sb-gradient">Book Now</a>
-                </div>
-            </div>
+            {% endif %}
+            
         </div>
     </div>
-</section>
+</section>  
 <!-- Meet Our Nutritionists Section end -->
 
 <div class="section-separator"></div>

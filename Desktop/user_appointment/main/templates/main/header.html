@@ -172,8 +172,8 @@ if (dropdownToggle) {
 				<div class="container">
 				<ul class="main-menu">
 					<li class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}"><a href="{% url 'main:index' %}">Home</a></li>
-					<li class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}"><a href="{% url 'main:about' %}">About</a></li>
-					<li class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}"><a href="{% url 'main:contact' %}">Contact</a></li>
+				<li><a href="{% url 'product:product_list' %}" class="{% if request.resolver_match.url_name == 'product_list' or request.resolver_match.url_name == 'product_detail' %}active{% endif %}">Shop</a></li>
+					<li><a href="{% url 'users:create_business' %}">My Business</a></li>
 					
 					{% with request.resolver_match.url_name as url_name %}
 					<li><a href="{% url 'users:coach_list' %}" {% if request.resolver_match.url_name == 'trainers' %}class="active"{% endif %}>Coaches</a></li>

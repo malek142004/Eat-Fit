@@ -20,6 +20,9 @@
 	<link rel="stylesheet" href="{% static 'main/css/style.css' %}"/>
 
 	{% block extra_head %}{% endblock %}
+	<!-- dans le <head> de base.html -->
+	{% block extra_css %}{% endblock %}
+
 	
 
 	<!--[if lt IE 9]>
@@ -114,7 +117,6 @@
 		</div>
 	</div>
 	<!-- Infor Model end -->
-
 
 	{% block content %}
 	<!-- Hero Section -->

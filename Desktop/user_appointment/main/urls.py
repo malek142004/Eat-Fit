@@ -18,7 +18,8 @@ urlpatterns = [
     path('single-blog/', views.single_blog, name='single-blog'),
     path('trainer-details/', views.trainer_details, name='trainer-details'),
     path('trainer/', views.trainer, name='trainer'),
-    path('backoffice/', views.backoffice_dashboard, name='backoffice_dashboard'),
+    # Route racine du backoffice : redirige vers la page de login backoffice
+    path('backoffice/', views.backoffice_dashboard, name='backoffice_root'),
     path('backoffice/blank/', views.backoffice_blank, name='backoffice_blank'),
     path('backoffice/cards/', views.backoffice_cards, name='backoffice_cards'),
     path('backoffice/charts/', views.backoffice_charts, name='backoffice_charts'),

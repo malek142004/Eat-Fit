@@ -158,15 +158,13 @@
                         </td>
                         <td>
                             <div class="btn-group" role="group">
-                                <a href="{% url 'users:coach_edit' coach.id %}" class="btn btn-sm btn-primary shadow-sm">
-                                     <i class="fas fa-edit fa-sm"></i>
-                                </a>
-                                    
-                                <a href="{% url 'users:coaches_coach_delete' coach.id %}" 
-                                   class="btn btn-sm btn-danger"
-                                   title="Delete Coach">
-                                    <i class="fas fa-trash"></i>
-                                </a>
+                            <a href="{% url 'users:coach_edit' coach.id %}" class="btn btn-info btn-circle btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            
+                            <a href="{% url 'users:coaches_coach_delete' coach.id %}" class="btn btn-danger btn-circle btn-sm" >  
+                                <i class="fas fa-trash"></i>
+                            </a>
                                 <button type="button" 
                                         class="btn btn-sm btn-info" 
                                         title="View Details"

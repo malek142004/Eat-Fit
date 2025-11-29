@@ -110,13 +110,17 @@
                     </div>
                     
                     <div class="action-buttons" style="display: flex; gap: 15px; flex-wrap: wrap;">
-                        <a href="{% url 'users:nutritionist_update' nutritionist.pk %}" class="site-btn sb-gradient px-5 py-2" style="text-decoration: none;">
-                            <i class="fa fa-edit" style="margin-right: 8px;"></i>Edit Profile
-                        </a>
-                        <!-- Delete button triggers modal confirmation without leaving the page -->
-                        <button id="open-delete-modal" type="button" class="site-btn open-delete-modal" style="background:#e74c3c; color:#fff; border:none; padding:10px 20px; border-radius:6px;">
-                            <i class="fa fa-trash" style="margin-right:8px;"></i>Delete
-                        </button>
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.role == 'admin' or request.user.pk == nutritionist.pk %}
+                            <a href="{% url 'users:nutritionist_update' nutritionist.pk %}" class="site-btn sb-gradient px-5 py-2" style="text-decoration: none;">
+                                <i class="fa fa-edit" style="margin-right: 8px;"></i>Edit Profile
+                            </a>
+                            <!-- Delete button triggers modal confirmation without leaving the page -->
+                            <button id="open-delete-modal" type="button" class="site-btn open-delete-modal" style="background:#e74c3c; color:#fff; border:none; padding:10px 20px; border-radius:6px;">
+                                <i class="fa fa-trash" style="margin-right:8px;"></i>Delete
+                            </button>
+                            {% endif %}
+                        {% endif %}
                         <a href="{% url 'users:nutritionist_list' %}" class="site-btn sb-line-gradient px-5 py-2" style="text-decoration: none;">
                             <i class="fa fa-arrow-left" style="margin-right: 8px;"></i>Back to List
                         </a>
@@ -163,20 +167,28 @@
                             </div>
                         </div>
                     </div>
-                    <div style="text-align:center; margin-top:18px;">
-                        <button type="button" class="open-delete-modal site-btn" style="background:#e74c3c; color:#fff; border:none; padding:8px 14px; border-radius:6px;">Supprimer</button>
-                    </div>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.role == 'admin' or request.user.pk == nutritionist.pk %}
+                        <div style="text-align:center; margin-top:18px;">
+                            <button type="button" class="open-delete-modal site-btn" style="background:#e74c3c; color:#fff; border:none; padding:8px 14px; border-radius:6px;">Supprimer</button>
+                        </div>
+                        {% endif %}
+                    {% endif %}
                 </div>
                 
                 <div class="contact-cta-card" style="background: linear-gradient(145deg, #fdb07d 0%, #f65d5d 100%); padding: 25px; border-radius: 15px; color: #fff; text-align: center;">
                     <h4 class="fw-bold mb-2" style="font-size: 18px;">Ready to Get Started?</h4>
                     <p style="margin-bottom: 15px; font-size: 13px; opacity: 0.95;">Contact this nutritionist for a consultation.</p>
-                    <a href="mailto:{{ nutritionist.email }}" class="btn btn-light px-4 py-2 fw-bold" style="text-decoration: none; border-radius: 25px; display: inline-block; font-size: 13px;">
+                    <a href="mailto:{% if nutritionist.email %}{{ nutritionist.email }}{% endif %}" class="btn btn-light px-4 py-2 fw-bold" style="text-decoration: none; border-radius: 25px; display: inline-block; font-size: 13px;">
                         <i class="fa fa-envelope" style="margin-right: 6px;"></i>Contact Now
                     </a>
-                    <div style="margin-top:12px;">
-                        <button type="button" class="open-delete-modal site-btn sb-line-gradient" style="background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.25); padding:8px 14px; border-radius:20px;">Supprimer le profil</button>
-                    </div>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.role == 'admin' or request.user.pk == nutritionist.pk %}
+                        <div style="margin-top:12px;">
+                            <button type="button" class="open-delete-modal site-btn sb-line-gradient" style="background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.25); padding:8px 14px; border-radius:20px;">Supprimer le profil</button>
+                        </div>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>

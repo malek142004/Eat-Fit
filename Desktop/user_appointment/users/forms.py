@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import CustomUser, Nutritionist, Coach # Assurez-vous d'importer Nutritionist
+from .models import CustomUser, Nutritionist, Coach, BusinessOwner
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
@@ -25,6 +25,28 @@ class CustomUserCreationForm(UserCreationForm):
         except ValidationError as e:
             self.add_error('password1', e)
         return password
+    
+    def clean_pdp(self):
+        image = self.cleaned_data.get("pdp")
+        if not image:
+            return image
+
+        import tempfile, os
+        temp_path = os.path.join(tempfile.gettempdir(), image.name)
+
+        with open(temp_path, "wb+") as temp_file:
+            for chunk in image.chunks():
+                temp_file.write(chunk)
+
+        from .utils.face_validation import is_valid_profile_image
+
+        if not is_valid_profile_image(temp_path):
+            raise ValidationError(
+                "La photo doit contenir une seule personne (pas d'animaux, pas de groupe, pas d'objets)."
+            )
+
+        return image
+
 
 class CustomUserUpdateForm(forms.ModelForm):
     # ... (Le reste de la classe est inchangé)
@@ -88,14 +110,15 @@ class NutritionistForm(forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
+        # On garde une référence à l'utilisateur connecté pour pouvoir réutiliser sa photo de profil
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        if user:
-            self.fields['nom_complet'].initial = user.nom_complet
-            self.fields['email'].initial = user.email
-            self.fields['ville'].initial = user.ville
-            self.fields['num_tel'].initial = user.num_tel
-            self.fields['pdp'].initial = user.pdp
+        if self.user:
+            self.fields['nom_complet'].initial = self.user.nom_complet
+            self.fields['email'].initial = self.user.email
+            self.fields['ville'].initial = self.user.ville
+            self.fields['num_tel'].initial = self.user.num_tel
+            # Initial visuel, mais surtout on va réutiliser self.user.pdp dans save() si aucun fichier n'est uploadé
             self.fields['password'].initial = ''  # vide par défaut
 
     def save(self, commit=True):
@@ -103,6 +126,11 @@ class NutritionistForm(forms.ModelForm):
         password = self.cleaned_data.get('password')
         if password:
             instance.set_password(password)
+
+        # Si aucune photo n'est envoyée dans le formulaire, on réutilise la photo de profil de l'utilisateur connecté
+        if not instance.pdp and getattr(self, 'user', None) is not None:
+            if getattr(self.user, 'pdp', None):
+                instance.pdp = self.user.pdp
 
         # ⚡️ Forcer le rôle à 'nutritionist'
         instance.role = 'nutritionist'
@@ -189,3 +217,29 @@ class CoachForm(forms.ModelForm):
             coach_obj.save() 
             
         return coach_obj
+    
+
+from django import forms
+from .models import BusinessOwner
+
+class BusinessOwnerForm(forms.ModelForm):
+    class Meta:
+        model = BusinessOwner
+        fields = ['business_name', 'business_description', 'address',
+                  'professional_email', 'professional_phone',
+                  'social_media_account', 'business_logo']
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)  # récupère l'utilisateur connecté
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.user:
+            instance.user = self.user  # assigne automatiquement l'utilisateur
+        if commit:
+            instance.save()
+        return instance
+
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField()

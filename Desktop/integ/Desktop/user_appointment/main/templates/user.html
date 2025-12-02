@@ -1,0 +1,167 @@
+{% load static %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Authentication</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'users/user.css' %}">
+</head>
+<body>
+
+<div class="container" id="container">
+    <!-- Sign Up -->
+    <div class="form-container sign-up-container">
+        <form method="POST" enctype="multipart/form-data" action="">
+            {% csrf_token %}
+            <h1>Create Account</h1>
+            <a href="{% provider_login_url 'google' %}" class="btn btn-danger">
+                <i class="fab fa-google"></i> Se connecter avec Google
+            </a>
+
+
+            {% if signup_form.non_field_errors %}
+                <div class="errors">
+                    {{ signup_form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- Rôle -->
+            <div class="input-group">
+                <label for="role">Role</label>
+                <div class="select-wrapper">
+                    {{ signup_form.role }}
+                </div>
+                {% if signup_form.role.errors %}
+                    <p class="error-msg">{{ signup_form.role.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Nom complet -->
+            <label for="nom_complet">Full Name</label>
+            {{ signup_form.nom_complet }}
+            {% if signup_form.nom_complet.errors %}
+                <p class="error-msg">{{ signup_form.nom_complet.errors.0 }}</p>
+            {% endif %}
+
+            <!-- Email -->
+            <label for="email">Email</label>
+            {{ signup_form.email }}
+            {% if signup_form.email.errors %}
+                <p class="error-msg">{{ signup_form.email.errors.0 }}</p>
+            {% endif %}
+
+            <!-- Mot de passe -->
+            <label for="password1">Password</label>
+            <div class="password-wrapper">
+                {{ signup_form.password1 }}
+                <span class="toggle-password" onclick="togglePassword('id_password1')">👁️</span>
+            </div>
+            {% if signup_form.password1.errors %}
+                <p class="error-msg">{{ signup_form.password1.errors.0 }}</p>
+            {% endif %}
+
+            <label for="password2">Confirm Password</label>
+            <div class="password-wrapper">
+                {{ signup_form.password2 }}
+                <span class="toggle-password" onclick="togglePassword('id_password2')">👁️</span>
+            </div>
+            {% if signup_form.password2.errors %}
+                <p class="error-msg">{{ signup_form.password2.errors.0 }}</p>
+            {% endif %}
+
+            <!-- Numéro de téléphone -->
+            <label for="num_tel">Phone Number</label>
+            {{ signup_form.num_tel }}
+            {% if signup_form.num_tel.errors %}
+                <p class="error-msg">{{ signup_form.num_tel.errors.0 }}</p>
+            {% endif %}
+
+            <!-- Ville -->
+            <label for="ville">City</label>
+            {{ signup_form.ville }}
+            {% if signup_form.ville.errors %}
+                <p class="error-msg">{{ signup_form.ville.errors.0 }}</p>
+            {% endif %}
+
+            <!-- Photo -->
+            <div class="file-upload-wrapper">
+                <label for="id_pdp" class="file-label">Profile Picture</label>
+
+                <div class="custom-file-input-container">
+                    {{ signup_form.pdp }}
+
+                    <button type="button" class="custom-file-button" onclick="document.getElementById('id_pdp').click()">
+                        <i class="fa fa-upload"></i> Choose File
+                    </button>
+                    <span class="file-name-display" id="file-name-display">No file chosen</span>
+                </div>
+
+                {% if signup_form.pdp.errors %}
+                    <p class="error-msg">{{ signup_form.pdp.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <button type="submit" name="signup">Sign Up</button>
+        </form>
+    </div>
+
+    <!-- Sign In -->
+    <div class="form-container sign-in-container">
+        <form method="POST" action="">
+            {% csrf_token %}
+            <h1>Sign In</h1>
+
+            {% if login_form.non_field_errors %}
+                <div class="errors">
+                    {{ login_form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <label for="login_email">Email</label>
+            {{ login_form.username }}
+            {% if login_form.username.errors %}
+                <p class="error-msg">{{ login_form.username.errors.0 }}</p>
+            {% endif %}
+
+            <label for="login_password">Password</label>
+            <div class="password-wrapper">
+                {{ login_form.password }}
+                <span class="toggle-password" onclick="togglePassword('id_password')">👁️</span>
+            </div>
+            {% if login_form.password.errors %}
+                <p class="error-msg">{{ login_form.password.errors.0 }}</p>
+            {% endif %}
+
+            <a href="{% url 'users:forgot_password' %}">Forgot your password?</a>
+            <button type="submit" name="signin">Sign In</button>
+        </form>
+    </div>
+
+    <!-- Overlay -->
+<div class="overlay-container">
+    <div class="overlay">
+        
+        <div class="overlay-panel overlay-left">
+            <h1>Client Access</h1>
+            <p>Log in and keep exploring to achieve your goals!</p>
+            <button class="ghost" id="signIn">Sign In</button>
+        </div>
+        
+        <div class="overlay-panel overlay-right">
+            <h1>Join Us!</h1>
+            <p>Create your account and unlock a world of possibilities!</p>
+            <button class="ghost" id="signUp">Sign Up</button>
+        </div>
+        
+    </div>
+</div>
+
+<!-- JS -->
+<script src="{% static 'users/user.js' %}"></script>
+
+</body>
+</html>

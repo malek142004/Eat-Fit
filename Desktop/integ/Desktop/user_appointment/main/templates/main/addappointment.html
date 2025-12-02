@@ -1,0 +1,167 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Add Appointment{% endblock %}
+
+{% block page_title %}Add Appointment{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .contact-section.spad {
+            padding-top: 80px;
+            padding-bottom: 80px;
+        }
+        .contact-form {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #f65d5d;
+        }
+        .contact-form h4 {
+            text-align: center;
+            font-family: "Playfair Display", serif;
+            font-size: 28px;
+            margin-bottom: 35px;
+            background: linear-gradient(145deg, #f65d5d 0%, #fdb07d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        .contact-form form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .form-field-container {
+            width: 48%; /* Two columns with a gap */
+            margin-bottom: 20px;
+        }
+        .form-field-container label {
+            display: block;
+            margin-bottom: 8px; /* More space */
+            color: #555; /* Dark grey for readability */
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .form-control-custom {
+            width: 100%;
+            height: 50px;
+            padding: 0 25px;
+            font-size: 16px;
+            color: #333; /* Darker text for readability */
+            background-color: #f9f9f9; /* Light grey background */
+            border: 2px solid #e5e5e5;
+            border-radius: 50px;
+            transition: all 0.4s;
+        }
+        .form-control-custom:focus {
+            border-color: #f65d5d;
+            background-color: #fff;
+            outline: none;
+            box-shadow: 0 0 10px rgba(246, 93, 93, 0.2);
+        }
+        select.form-control-custom {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            padding-right: 2.5rem;
+        }
+        .validation-message {
+            font-size: 14px;
+            margin-top: 5px;
+            padding-left: 25px; /* Align with input padding */
+            font-weight: bold;
+            height: 18px; /* Reserve space to prevent layout shifts */
+        }
+        .valid-message {
+            color: #28a745; /* Green */
+        }
+        .invalid-message {
+            color: #dc3545; /* Red */
+        }
+        .valid-field {
+            border-color: #28a745 !important;
+        }
+        .invalid-field {
+            border-color: #dc3545 !important;
+        }
+        #submit-button {
+            width: 100%;
+            margin-top: 10px; /* Space above the button */
+        }
+        #submit-button:disabled {
+            background-color: #aaa;
+            border-color: #aaa;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .hidden-fields {
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<section class="contact-section spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <div class="contact-form">
+                    <h4>Add a New Appointment</h4>
+                    {% if professional %}
+                        <p class="text-center">Booking an appointment with: <strong>{{ professional.nom_complet }} ({{ professional.get_role_display }})</strong></p>
+                    {% endif %}
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="form-field-container">
+                            {{ form.nom_complet.label_tag }}
+                            {{ form.nom_complet }}
+                            <div class="validation-message" id="validation-{{ form.nom_complet.auto_id }}"></div>
+                        </div>
+
+                        <div class="form-field-container">
+                            {{ form.email.label_tag }}
+                            {{ form.email }}
+                            <div class="validation-message" id="validation-{{ form.email.auto_id }}"></div>
+                        </div>
+                        <div class="form-field-container">
+                            {{ form.num_tel.label_tag }}
+                            {{ form.num_tel }}
+                            <div class="validation-message" id="validation-{{ form.num_tel.auto_id }}"></div>
+                        </div>
+                        <div class="form-field-container">
+                            {{ form.ville.label_tag }}
+                            {{ form.ville }}
+                            <div class="validation-message" id="validation-{{ form.ville.auto_id }}"></div>
+                        </div>
+
+                        {% for field in form %}
+                            {% if field.name != 'nom_complet' and field.name != 'email' and field.name != 'num_tel' and field.name != 'ville' %}
+                                <div class="form-field-container">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    <div class="validation-message" id="validation-{{ field.auto_id }}"></div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        <button type="submit" id="submit-button" class="site-btn sb-gradient">Save Appointment</button>
+                        <a href="{% url 'appointments:appointment_list' %}" class="site-btn sb-line-gradient" style="margin-top: 15px; display: block; text-align: center;">View Appointment List</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'appointments/appointment_validation.js' %}"></script>
+{% endblock %}

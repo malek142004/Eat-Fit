@@ -1,0 +1,78 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0">Ajouter un Utilisateur / Admin</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        
+                        <div class="mb-3">
+                            <label for="id_nom_complet" class="form-label">Nom complet</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                                {{ form.nom_complet }}
+                            </div>
+                            <div class="text-danger small">{{ form.nom_complet.errors }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                                {{ form.email}}
+                            </div>
+                            <div class="text-danger small">{{ form.email.errors }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_ville" class="form-label">Ville</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
+                                {{ form.ville }}
+                            </div>
+                            <div class="text-danger small">{{ form.ville.errors }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_num_tel" class="form-label">Numéro de téléphone</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+                                {{ form.num_tel }}
+                            </div>
+                            <div class="text-danger small">{{ form.num_tel.errors }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_role" class="form-label">Rôle</label>
+                            {{ form.role }}
+                            <div class="text-danger small">{{ form.role.errors }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_pdp" class="form-label">Photo de profil</label>
+                            <input type="file" name="pdp" class="form-control" id="id_pdp">
+                            <div class="text-danger small">{{ form.pdp.errors }}</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-success"><i class="bi bi-plus-circle-fill"></i> Ajouter</button>
+                            <a href="{% url 'users:users_list' %}" class="btn btn-secondary"><i class="bi bi-x-circle-fill"></i> Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+{% endblock %}

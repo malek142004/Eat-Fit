@@ -1,0 +1,45 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="h3 mb-2 text-gray-800">{% if blog %}Modifier le blog{% else %}Créer un blog{% endif %}</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">{% if blog %}Modifier{% else %}Créer{% endif %} un article</h6>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            
+            <div class="mb-3">
+                {{ form.title.label_tag }}
+                {{ form.title }}
+                {{ form.title.errors }}
+            </div>
+
+            <div class="mb-3">
+                {{ form.theme.label_tag }}
+                {{ form.theme }}
+                {{ form.theme.errors }}
+            </div>
+
+            <div class="mb-3">
+                {{ form.preview.label_tag }}
+                {{ form.preview }}
+                {{ form.preview.errors }}
+            </div>
+
+            <div class="mb-3">
+                {{ form.content.label_tag }}
+                {{ form.content }}
+                {{ form.content.errors }}
+            </div>
+
+            <button type="submit" class="btn btn-success">{% if blog %}Mettre à jour{% else %}Créer{% endif %}</button>
+            <a href="{% url 'blogapp:blogs_list' %}" class="btn btn-secondary">Annuler</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

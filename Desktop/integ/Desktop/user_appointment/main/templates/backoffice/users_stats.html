@@ -1,0 +1,85 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Statistiques des utilisateurs par rôle</h1>
+
+    <div class="row">
+        <!-- Colonne gauche : Pie Chart -->
+        <div class="col-md-6">
+            <h5 class="text-center">Répartition par rôle (Pie Chart)</h5>
+            <div style="height: 300px;">
+                <canvas id="rolesPieChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Colonne droite : Bar Chart -->
+        <div class="col-md-6">
+            <h5 class="text-center">Nombre d'utilisateurs par rôle (Bar Chart)</h5>
+            <div style="height: 300px;">
+                <canvas id="rolesBarChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const labels = {{ labels|safe }};
+    const counts = {{ counts|safe }};
+
+    // Couleurs dynamiques pour Pie Chart
+    const backgroundColors = labels.map((_, i) => `hsl(${i * 60 % 360}, 70%, 60%)`);
+
+    // Pie Chart
+    const ctxPie = document.getElementById('rolesPieChart').getContext('2d');
+    const rolesPieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: backgroundColors,
+                borderColor: 'white',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right', labels: { boxWidth: 15, font: { size: 12 } } },
+                title: { display: true, text: 'Répartition des utilisateurs', font: { size: 14, weight: 'bold' } }
+            }
+        }
+    });
+
+    // Bar Chart
+    const ctxBar = document.getElementById('rolesBarChart').getContext('2d');
+    const rolesBarChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Nombre d\'utilisateurs',
+                data: counts,
+                backgroundColor: backgroundColors,
+                borderColor: 'black',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y', // bar chart horizontale
+            plugins: {
+                legend: { display: false },
+                title: { display: true, text: 'Nombre d\'utilisateurs par rôle', font: { size: 14, weight: 'bold' } }
+            },
+            scales: {
+                x: { beginAtZero: true, precision: 0 },
+                y: { ticks: { font: { size: 12 } } }
+            }
+        }
+    });
+</script>
+{% endblock %}

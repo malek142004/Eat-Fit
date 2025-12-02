@@ -1,0 +1,374 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Dashboard Appointments</h1>
+</div>
+
+<!-- Content Row -->
+<div class="row">
+
+    <!-- Appointments per Month Chart -->
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Appointments per Month</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="appointmentsByMonthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments per Type Chart -->
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Appointments by Type</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                    <canvas id="appointmentsByTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Appointments per City Chart -->
+    <div class="col-lg-12 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Appointments by City</h6>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-primary active" id="cityBarChartBtn">Bar</button>
+                    <button type="button" class="btn btn-primary" id="cityPieChartBtn">Pie</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                    <canvas id="appointmentsByCityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Total Paid vs Unpaid Chart -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Total Paid vs Unpaid Appointments</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                    <canvas id="totalPaidUnpaidChart"></canvas>
+                </div>
+                <div class="mt-4 text-center small">
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-success"></i> Paid
+                    </span>
+                    <span class="mr-2">
+                        <i class="fas fa-circle text-danger"></i> Unpaid
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paid vs Unpaid per Month Chart -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow h-100">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Paid vs Unpaid Appointments per Month</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="paidUnpaidPerMonthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Data from Django context
+    var monthLabels = JSON.parse('{{ month_labels|safe }}');
+    var monthData = JSON.parse('{{ month_data|safe }}');
+    var cityLabels = JSON.parse('{{ city_labels|safe }}');
+    var cityData = JSON.parse('{{ city_data|safe }}');
+    var typeLabels = JSON.parse('{{ type_labels|safe }}');
+    var typeData = JSON.parse('{{ type_data|safe }}');
+
+    // New data for Paid vs Unpaid
+    var totalPaid = {{ total_paid }};
+    var totalUnpaid = {{ total_unpaid }};
+    var paidMonthlyData = JSON.parse('{{ paid_monthly_data|safe }}');
+    var unpaidMonthlyData = JSON.parse('{{ unpaid_monthly_data|safe }}');
+    var monthlyLabels = JSON.parse('{{ monthly_labels|safe }}');
+
+
+    // --- Appointments by Month Chart ---
+    var ctxMonth = document.getElementById("appointmentsByMonthChart").getContext('2d');
+    var appointmentsByMonthChart = new Chart(ctxMonth, {
+        type: 'bar',
+        data: {
+            labels: monthLabels,
+            datasets: [{
+                label: "Number of Appointments",
+                backgroundColor: "#4e73df",
+                hoverBackgroundColor: "#2e59d9",
+                borderColor: "#4e73df",
+                data: monthData,
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        // Ensure ticks are integers
+                        callback: function(value) { if (Number.isInteger(value)) { return value; } },
+                    }
+                }]
+            },
+            legend: { display: false },
+        }
+    });
+
+    // --- Appointments by Type Chart ---
+    var ctxType = document.getElementById("appointmentsByTypeChart").getContext('2d');
+    var appointmentsByTypeChart = new Chart(ctxType, {
+        type: 'doughnut',
+        data: {
+            labels: typeLabels,
+            datasets: [{
+                data: typeData,
+                backgroundColor: ['#1cc88a', '#36b9cc'], // Green for face-to-face, blue for visio
+                hoverBackgroundColor: ['#17a673', '#2c9faf'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                caretPadding: 10,
+            },
+            legend: {
+                display: true,
+                position: 'bottom'
+            },
+            cutoutPercentage: 80,
+        },
+    });
+
+    // --- Appointments by City Chart ---
+    var ctxCity = document.getElementById("appointmentsByCityChart").getContext('2d');
+    var cityChart;
+
+    var pieConfig = {
+        type: 'doughnut',
+        data: {
+            labels: cityLabels,
+            datasets: [{
+                data: cityData,
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
+                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60626f'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                caretPadding: 10,
+            },
+            legend: {
+                display: true,
+                position: 'bottom'
+            },
+            cutoutPercentage: 80,
+        },
+    };
+
+    var barConfig = {
+        type: 'horizontalBar',
+        data: {
+            labels: cityLabels,
+            datasets: [{
+                label: 'Number of Appointments',
+                data: cityData,
+                backgroundColor: '#4e73df',
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        // Ensure ticks are integers
+                        callback: function(value) { if (Number.isInteger(value)) { return value; } },
+                    }
+                }]
+            },
+            legend: { display: false },
+        }
+    };
+
+    // Function to create chart
+    function createChart(config) {
+        if (cityChart) {
+            cityChart.destroy();
+        }
+        cityChart = new Chart(ctxCity, config);
+    }
+
+    // Initial chart (default to bar chart)
+    createChart(barConfig);
+
+    // Button listeners
+    var cityBarChartBtn = document.getElementById('cityBarChartBtn');
+    var cityPieChartBtn = document.getElementById('cityPieChartBtn');
+
+    cityBarChartBtn.addEventListener('click', function() {
+        createChart(barConfig);
+        cityBarChartBtn.classList.add('active');
+        cityPieChartBtn.classList.remove('active');
+    });
+
+    cityPieChartBtn.addEventListener('click', function() {
+        createChart(pieConfig);
+        cityPieChartBtn.classList.add('active');
+        cityBarChartBtn.classList.remove('active');
+    });
+
+    // --- New: Total Paid vs Unpaid Chart ---
+    var ctxTotalPaidUnpaid = document.getElementById("totalPaidUnpaidChart").getContext('2d');
+    new Chart(ctxTotalPaidUnpaid, {
+        type: 'doughnut',
+        data: {
+            labels: ["Paid", "Unpaid"],
+            datasets: [{
+                data: [totalPaid, totalUnpaid],
+                backgroundColor: ['#1cc88a', '#e74a3b'], // Green for Paid, Red for Unpaid
+                hoverBackgroundColor: ['#17a673', '#be2617'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                caretPadding: 10,
+            },
+            legend: {
+                display: false
+            },
+            cutoutPercentage: 80,
+        },
+    });
+
+    // --- New: Paid vs Unpaid per Month Chart ---
+    var ctxPaidUnpaidPerMonth = document.getElementById("paidUnpaidPerMonthChart").getContext('2d');
+    new Chart(ctxPaidUnpaidPerMonth, {
+        type: 'bar',
+        data: {
+            labels: monthlyLabels,
+            datasets: [
+                {
+                    label: "Paid",
+                    backgroundColor: "#1cc88a", // Green
+                    hoverBackgroundColor: "#17a673",
+                    borderColor: "#1cc88a",
+                    data: paidMonthlyData,
+                },
+                {
+                    label: "Unpaid",
+                    backgroundColor: "#e74a3b", // Red
+                    hoverBackgroundColor: "#be2617",
+                    borderColor: "#e74a3b",
+                    data: unpaidMonthlyData,
+                }
+            ],
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                xAxes: [{
+                    stacked: true,
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 12
+                    }
+                }],
+                yAxes: [{
+                    stacked: true,
+                    ticks: {
+                        beginAtZero: true,
+                        callback: function(value) { if (Number.isInteger(value)) { return value; } },
+                    },
+                    gridLines: {
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        drawBorder: false,
+                        borderDash: [2],
+                        zeroLineBorderDash: [2]
+                    }
+                }],
+            },
+            legend: {
+                display: true,
+                position: 'bottom'
+            },
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                titleMarginBottom: 10,
+                titleFontColor: '#6e707e',
+                titleFontSize: 14,
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                caretPadding: 10,
+                mode: 'index',
+                intersect: false
+            },
+        }
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% load static %}
+<!-- templates/blogapp/header.html -->
+<header class="header-section">
+    <div class="header-top">
+        <div class="row m-0">
+            <div class="col-md-6 d-none d-md-block p-0">
+                <div class="header-info">
+                    <i class="material-icons">map</i>
+                    <p>184 Main Collins Street</p>
+                </div>
+                <div class="header-info">
+                    <i class="material-icons">phone</i>
+                    <p>(965) 436 3274</p>
+                </div>
+            </div>
+            <div class="col-md-6 text-left text-md-right p-0">
+                <div class="header-info d-none d-md-inline-flex">
+                    <i class="material-icons">alarm_on</i>
+                    <p>Mon - Fri:  6:30am - 07:45pm</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="header-bottom">
+        <a href="{% url 'blogapp:blog_list' %}" class="site-logo">
+            <img src="{% static 'img/logo.png' %}" alt="Logo">
+        </a>
+        <div class="hb-right">
+            <div class="hb-switch" id="search-switch">
+                <img src="{% static 'img/icons/search.png' %}" alt="">
+            </div>
+            <div class="hb-switch" id="infor-switch">
+                <img src="{% static 'img/icons/bars.png' %}" alt="">
+            </div>
+        </div>
+        <div class="container">
+            <ul class="main-menu">
+                <li><a href="{% url 'blogapp:blog_list' %}">Accueil</a></li>
+                <li><a href="#">À propos</a></li>
+                <li><a href="#">Catégories</a></li>
+                <li><a href="{% url 'blogapp:blog_list' %}" class="active">Blog</a></li>
+                <li><a href="#">Contact</a></li>
+                
+                <!-- Si utilisateur connecté -->
+                {% if user.is_authenticated %}
+                    <li class="dropdown">
+                        <a href="#">{{ user.username }} <i class="fa fa-caret-down"></i></a>
+                        <ul class="sub-menu">
+                            <li><a href="{% url 'blogapp:blog_create' %}">Nouvel article</a></li>
+                            
+                        </ul>
+                    </li>
+                {% else %}
+                    <li>Connexion</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</header>

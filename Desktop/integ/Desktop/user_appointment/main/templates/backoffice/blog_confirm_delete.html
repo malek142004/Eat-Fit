@@ -1,0 +1,21 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="h3 mb-2 text-gray-800">Supprimer un blog</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-danger">Confirmation de suppression</h6>
+    </div>
+    <div class="card-body">
+        <p>Êtes-vous sûr de vouloir supprimer le blog intitulé :</p>
+        <h5>{{ blog.title }}</h5>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+            <a href="{% url 'blogapp:blogs_list' %}" class="btn btn-secondary">Annuler</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

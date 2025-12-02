@@ -1,0 +1,118 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">📊 Statistiques des Nutritionnistes par Ville</h1>
+
+    <div class="row">
+        <!-- CARTE GRAPHIQUE DONUT -->
+        <div class="col-xl-4 col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 bg-primary text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-chart-pie"></i> Distribution par Ville
+                    </h6>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    {% if city_stats %}
+                        <div class="chart-pie flex-grow-1">
+                            <canvas id="cityPieChart"></canvas>
+                        </div>
+                        {{ city_stats|json_script:"city_stats_data" }}
+                        <div class="mt-3 text-center small text-muted">
+                            Survolez pour voir les détails
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted mt-4">Aucune donnée disponible.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- CARTE TABLEAU DÉTAILLÉ -->
+        <div class="col-xl-4 col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 bg-success text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-table"></i> Détail par Ville
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ville</th>
+                                    <th class="text-center">Nombre</th>
+                                    <th class="text-center">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in city_stats %}
+                                <tr>
+                                    <td>{{ stat.city|default:"(Non spécifiée)" }}</td>
+                                    <td class="text-center"><span class="badge bg-primary">{{ stat.count }}</span></td>
+                                    <td class="text-center">{{ stat.percentage|floatformat:1 }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <span class="badge bg-info fs-6">Total: {{ total_nutritionists }} nutritionnistes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARTE GRAPHIQUE BARRE HORIZONTALE -->
+        <div class="col-xl-4 col-lg-12 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 bg-warning text-dark">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-chart-bar"></i> Vue d'ensemble
+                    </h6>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <canvas id="horizontalChart" class="flex-grow-1"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JAVASCRIPT : CHARTS -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    if (typeof Chart === 'undefined') {
+        console.error("Chart.js n’est pas chargé.");
+        return;
+    }
+
+    const cityStats = JSON.parse(document.getElementById("city_stats_data").textContent);
+
+    const labels = cityStats.map(s => s.city || "(Non spécifiée)");
+    const values = cityStats.map(s => s.count);
+
+    const colors = ['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b','#858796'];
+
+    // Doughnut
+    new Chart(document.getElementById("cityPieChart"), {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: values, backgroundColor: colors }] },
+        options: { legend: { position: 'bottom' }, cutout: "70%" }
+    });
+
+    // Horizontal Bar
+    new Chart(document.getElementById("horizontalChart"), {
+        type: 'bar',
+        data: { labels, datasets: [{ label: "Nombre", data: values, backgroundColor: '#1cc88a' }] },
+        options: { indexAxis: 'y', scales: { x: { beginAtZero: true } } }
+    });
+
+});
+</script>
+
+{% endblock %}

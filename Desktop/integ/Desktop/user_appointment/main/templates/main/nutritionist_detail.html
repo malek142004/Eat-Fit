@@ -1,0 +1,382 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+{% if nutritionist %}
+<section class="nutritionist-hero spad" style="background: linear-gradient(145deg, #fdb07d 0%, #f65d5d 100%); padding: 80px 0; position: relative;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-5 text-center mb-4 mb-lg-0">
+                <div class="profile-hero-wrapper" style="display: inline-block; position: relative;">
+                    {% if nutritionist.pdp %}
+                        <img src="{{ nutritionist.pdp.url }}" alt="{{ nutritionist.nom_complet }}" class="hero-profile-img">
+                    {% else %}
+                        <div class="hero-profile-placeholder">
+                            <i class="fa fa-user" style="font-size: 100px; color: #fff;"></i>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-lg-7">
+                <div style="color: #fff;">
+                    <h1 class="fw-bold" style="font-size: 48px; margin-bottom: 10px; font-family: 'Playfair Display', serif;">
+                        {{ nutritionist.nom_complet|default:"Nom du Nutritionniste" }}
+                    </h1>
+                    <h3 class="fw-light" style="font-size: 24px; margin-bottom: 20px; opacity: 0.95;">
+                        {{ nutritionist.speciality|default:"Spécialité non définie" }}
+                    </h3>
+                    <p style="font-size: 18px; line-height: 1.8; margin-bottom: 25px; opacity: 0.9;">
+                        Expert nutritionniste avec {{ nutritionist.experience_years|default:"0" }} années d'expérience professionnelle. Dédié à aider les clients à atteindre leurs objectifs de santé et de bien-être grâce à des conseils nutritionnels personnalisés.
+                    </p>
+                    
+                    <div class="quick-info" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px;">
+                        <div class="info-pill" style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 25px; font-size: 14px; backdrop-filter: blur(10px);">
+                            <i class="fa fa-map-marker" style="margin-right: 8px;"></i>{{ nutritionist.ville|default:"Ville inconnue" }}
+                        </div>
+                        <div class="info-pill" style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 25px; font-size: 14px; backdrop-filter: blur(10px);">
+                            <i class="fa fa-phone" style="margin-right: 8px;"></i>{{ nutritionist.num_tel|default:"Non fourni" }}
+                        </div>
+                        <div class="info-pill" style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 25px; font-size: 14px; backdrop-filter: blur(10px);">
+                            <i class="fa fa-dollar" style="margin-right: 8px;"></i>${{ nutritionist.consultation_fee|default:"N/A" }}
+                        </div>
+                    </div>
+                    
+                    <div class="social-links" style="display: flex; gap: 15px;">
+                        <a href="mailto:{{ nutritionist.email }}" class="social-icon" style="display: inline-flex; align-items: center; justify-content: center; width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 50%; color: #fff; transition: all 0.3s ease;" title="Email">
+                            <i class="fa fa-envelope" style="font-size: 18px;"></i>
+                        </a>
+                        <a href="#" class="social-icon" style="display: inline-flex; align-items: center; justify-content: center; width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 50%; color: #fff; transition: all 0.3s ease;" title="Facebook">
+                            <i class="fa fa-facebook" style="font-size: 18px;"></i>
+                        </a>
+                        <a href="#" class="social-icon" style="display: inline-flex; align-items: center; justify-content: center; width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 50%; color: #fff; transition: all 0.3s ease;" title="Instagram">
+                            <i class="fa fa-instagram" style="font-size: 18px;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="nutritionist-details spad" style="background: #f9f9f9; padding: 40px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="details-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08);">
+                    
+                    <div class="details-section" style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 2px solid #f0f0f0;">
+                        <h3 class="section-title fw-bold" style="font-size: 20px; margin-bottom: 15px; color: #2c3e50;">
+                            <i class="fa fa-info-circle" style="color: #f65d5d; margin-right: 10px;"></i>Contact Information
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <p style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Email</p>
+                                <p style="font-size: 14px; color: #2c3e50; font-weight: 500; margin: 0;">{{ nutritionist.email|default:"Non fourni" }}</p>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <p style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Phone</p>
+                                <p style="font-size: 14px; color: #2c3e50; font-weight: 500; margin: 0;">{{ nutritionist.num_tel|default:"Non fourni" }}</p>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <p style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">City</p>
+                                <p style="font-size: 14px; color: #2c3e50; font-weight: 500; margin: 0;">{{ nutritionist.ville|default:"Non fourni" }}</p>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <p style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Office Address</p>
+                                <p style="font-size: 14px; color: #2c3e50; font-weight: 500; margin: 0;">{{ nutritionist.office_address|default:"Non fourni" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="details-section" style="margin-bottom: 25px; padding-bottom: 25px; border-bottom: 2px solid #f0f0f0;">
+                        <h3 class="section-title fw-bold" style="font-size: 20px; margin-bottom: 15px; color: #2c3e50;">
+                            <i class="fa fa-briefcase" style="color: #f65d5d; margin-right: 10px;"></i>Professional Details
+                        </h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <p style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Experience</p>
+                                <p style="font-size: 14px; color: #2c3e50; font-weight: 500; margin: 0;">{{ nutritionist.experience_years|default:"0" }} years</p>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <p style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Consultation Fee</p>
+                                <p style="font-size: 14px; color: #2c3e50; font-weight: 500; margin: 0;">${{ nutritionist.consultation_fee|default:"0" }}</p>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <p style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">Availability</p>
+                                <p style="font-size: 14px; color: #2c3e50; font-weight: 500; margin: 0;">{{ nutritionist.availability|default:"Non spécifiée" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons" style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.role == 'admin' or request.user.pk == nutritionist.pk %}
+                            <a href="{% url 'users:nutritionist_update' nutritionist.pk %}" class="site-btn sb-gradient px-5 py-2" style="text-decoration: none;">
+                                <i class="fa fa-edit" style="margin-right: 8px;"></i>Edit Profile
+                            </a>
+                            <!-- Delete button triggers modal confirmation without leaving the page -->
+                            <button id="open-delete-modal" type="button" class="site-btn open-delete-modal" style="background:#e74c3c; color:#fff; border:none; padding:10px 20px; border-radius:6px;">
+                                <i class="fa fa-trash" style="margin-right:8px;"></i>Delete
+                            </button>
+                            {% endif %}
+                        {% endif %}
+                        <a href="{% url 'users:nutritionist_list' %}" class="site-btn sb-line-gradient px-5 py-2" style="text-decoration: none;">
+                            <i class="fa fa-arrow-left" style="margin-right: 8px;"></i>Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="stats-card" style="background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); margin-bottom: 25px;">
+                    <h4 class="fw-bold mb-3" style="font-size: 16px; color: #2c3e50;">Quick Stats</h4>
+                    
+                    <div class="stat-item" style="margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #f0f0f0;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(145deg, #fdb07d 0%, #f65d5d 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                                <i class="fa fa-star" style="color: #fff; font-size: 18px;"></i>
+                            </div>
+                            <div>
+                                <p style="color: #666; font-size: 11px; margin: 0; text-transform: uppercase;">Experience</p>
+                                <p style="color: #2c3e50; font-size: 18px; font-weight: bold; margin: 0;">{{ nutritionist.experience_years|default:"0" }}+</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item" style="margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #f0f0f0;">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(145deg, #fdb07d 0%, #f65d5d 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                                <i class="fa fa-dollar" style="color: #fff; font-size: 18px;"></i>
+                            </div>
+                            <div>
+                                <p style="color: #666; font-size: 11px; margin: 0; text-transform: uppercase;">Fee</p>
+                                <p style="color: #2c3e50; font-size: 18px; font-weight: bold; margin: 0;">${{ nutritionist.consultation_fee|default:"0" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(145deg, #fdb07d 0%, #f65d5d 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0;">
+                                <i class="fa fa-map-marker" style="color: #fff; font-size: 18px;"></i>
+                            </div>
+                            <div>
+                                <p style="color: #666; font-size: 11px; margin: 0; text-transform: uppercase;">Location</p>
+                                <p style="color: #2c3e50; font-size: 16px; font-weight: bold; margin: 0;">{{ nutritionist.ville|default:"Non spécifiée" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.role == 'admin' or request.user.pk == nutritionist.pk %}
+                        <div style="text-align:center; margin-top:18px;">
+                            <button type="button" class="open-delete-modal site-btn" style="background:#e74c3c; color:#fff; border:none; padding:8px 14px; border-radius:6px;">Supprimer</button>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                
+                <div class="contact-cta-card" style="background: linear-gradient(145deg, #fdb07d 0%, #f65d5d 100%); padding: 25px; border-radius: 15px; color: #fff; text-align: center;">
+                    <h4 class="fw-bold mb-2" style="font-size: 18px;">Ready to Get Started?</h4>
+                    <p style="margin-bottom: 15px; font-size: 13px; opacity: 0.95;">Contact this nutritionist for a consultation.</p>
+                    <a href="mailto:{% if nutritionist.email %}{{ nutritionist.email }}{% endif %}" class="btn btn-light px-4 py-2 fw-bold" style="text-decoration: none; border-radius: 25px; display: inline-block; font-size: 13px;">
+                        <i class="fa fa-envelope" style="margin-right: 6px;"></i>Contact Now
+                    </a>
+                    {% if request.user.is_authenticated %}
+                        {% if request.user.role == 'admin' or request.user.pk == nutritionist.pk %}
+                        <div style="margin-top:12px;">
+                            <button type="button" class="open-delete-modal site-btn sb-line-gradient" style="background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.25); padding:8px 14px; border-radius:20px;">Supprimer le profil</button>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Delete Confirmation Modal (in-page, avoids navigation) -->
+<div id="delete-modal" class="delete-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1050;">
+    <div class="delete-modal-card" style="background:#fff; width:90%; max-width:480px; border-radius:10px; padding:20px; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+        <h4 style="margin-top:0; color:#2c3e50;">Confirmer la suppression</h4>
+        <p style="color:#666;">Vous êtes sur le point de supprimer ce nutritionniste. Cette action est irréversible. Voulez-vous continuer ?</p>
+        <form id="delete-form" method="post" action="{% url 'users:nutritionist_delete' nutritionist.pk %}">
+            {% csrf_token %}
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
+                <button type="button" id="cancel-delete" class="site-btn sb-line-gradient" style="background:#fff; border:1px solid #ddd; color:#333; padding:8px 16px;">Annuler</button>
+                <button type="submit" id="confirm-delete" class="site-btn" style="background:#e74c3c; color:#fff; border:none; padding:8px 16px;">Supprimer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Ensure hero sits below header: CSS variable fallback */
+.nutritionist-hero {
+    margin-top: var(--hero-offset, 0px);
+}
+/* Hero Profile Image */
+.hero-profile-img {
+    width: 350px;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 20px;
+    border: 6px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.profile-hero-wrapper:hover .hero-profile-img {
+    transform: translateY(-10px);
+}
+
+.hero-profile-placeholder {
+    width: 350px;
+    height: 350px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 6px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Social Icon Hover */
+.social-icon:hover {
+    background: rgba(255, 255, 255, 0.4) !important;
+    transform: translateY(-3px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-profile-img,
+    .hero-profile-placeholder {
+        width: 250px;
+        height: 250px;
+    }
+    
+    h1 {
+        font-size: 32px !important;
+    }
+    
+    .quick-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+</style>
+<script>
+// Measure header and set a CSS variable so the hero is pushed below the navbar.
+document.addEventListener('DOMContentLoaded', function () {
+    const headerSelectors = ['.header-section', 'header', '.header-top', '.header-bottom', '.navbar'];
+    const hero = document.querySelector('.nutritionist-hero');
+    if (!hero) return;
+
+    function findHeader() {
+        for (const sel of headerSelectors) {
+            const el = document.querySelector(sel);
+            if (el) return el;
+        }
+        return null;
+    }
+
+    const header = findHeader();
+    function adjustHeroOffset() {
+        if (!header) {
+            // clear custom offset if header not found
+            document.documentElement.style.setProperty('--hero-offset', '0px');
+            return;
+        }
+
+        // header may use margins/borders; use getBoundingClientRect
+        const h = Math.ceil(header.getBoundingClientRect().height || 0);
+        // add a small gap so navbar and hero content don't touch
+        const gap = 20;
+        document.documentElement.style.setProperty('--hero-offset', (h + gap) + 'px');
+    }
+
+    adjustHeroOffset();
+    window.addEventListener('resize', adjustHeroOffset);
+    // also adjust when fonts/images load that could change header height
+    window.addEventListener('load', adjustHeroOffset);
+});
+
+// Delete modal behavior: open, cancel, submit via AJAX
+document.addEventListener('DOMContentLoaded', function () {
+    const openBtns = document.querySelectorAll('.open-delete-modal');
+    const modal = document.getElementById('delete-modal');
+    const cancelBtn = document.getElementById('cancel-delete');
+    const deleteForm = document.getElementById('delete-form');
+
+    if (!openBtns.length || !modal || !deleteForm) return;
+
+    function showModal() {
+        modal.style.display = 'flex';
+        // trap focus briefly
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideModal() {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    openBtns.forEach(function(btn){ btn.addEventListener('click', function(){ showModal(); }); });
+
+    cancelBtn && cancelBtn.addEventListener('click', function () {
+        hideModal();
+    });
+
+    // close when clicking outside the card
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) hideModal();
+    });
+
+    // Submit via fetch to avoid leaving the page immediately
+    deleteForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const url = deleteForm.action;
+        const formData = new FormData(deleteForm);
+
+        // show simple loading state
+        const submitBtn = document.getElementById('confirm-delete');
+        const originalText = submitBtn ? submitBtn.innerHTML : null;
+        if (submitBtn) submitBtn.innerHTML = 'Suppression...';
+
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(function (resp) {
+            if (resp.ok) {
+                // Redirect to list after success
+                window.location.href = "{% url 'users:nutritionist_list' %}";
+                return;
+            }
+            return resp.text().then(function (text) {
+                // show server response or generic error
+                alert('Erreur lors de la suppression: ' + (text || resp.statusText));
+            });
+        }).catch(function (err) {
+            alert('Erreur réseau lors de la suppression.');
+            console.error(err);
+        }).finally(function () {
+            if (submitBtn) submitBtn.innerHTML = originalText;
+            hideModal();
+        });
+    });
+});
+</script>
+{% else %}
+<div class="container" style="padding: 50px;">
+    <h2 class="text-center text-danger">Erreur: Aucune information de nutritionniste n'a été trouvée.</h2>
+    <p class="text-center">Veuillez vérifier si l'objet 'nutritionist' est correctement passé dans le contexte de la vue Django.</p>
+    <div class="text-center mt-4">
+        <a href="{% url 'users:nutritionist_list' %}" class="btn btn-primary">Retour à la liste</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

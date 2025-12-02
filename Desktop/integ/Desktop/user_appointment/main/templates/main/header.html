@@ -1,0 +1,325 @@
+{% load static %}
+<!-- Top Bar -->
+<div class="topbar">
+    <div class="container">
+        <div class="row align-items-center">
+
+            <!-- Left -->
+            <div class="col-md-6 d-flex align-items-center top-left">
+                <div class="top-info">
+                    <i class="material-icons">map</i>
+                    <span>184 Main Collins Street</span>
+                </div>
+                <div class="top-info">
+                    <i class="material-icons">phone</i>
+                    <span>(965) 436 3274</span>
+                </div>
+            </div>
+
+            <!-- Right -->
+            <div class="col-md-6 d-flex justify-content-end align-items-center top-right">
+                <div class="top-info">
+                    <i class="material-icons">access_time</i>
+                    <span>Mon - Fri: 6:30am - 07:45pm</span>
+                </div>
+
+                <div class="top-info">
+                    <i class="material-icons">language</i>
+                    <span>Language</span>
+                </div>
+
+                <!-- LOGIN ICON -->
+                <div class="login-icon" style="position: relative;">
+                    {% if request.user.is_authenticated %}
+
+                        <img src="{% if request.user.pdp %}{{ request.user.pdp.url }}{% else %}{% static 'ahana/img/icons/user.png' %}{% endif %}"
+                             alt="Profil"
+                             id="userDropdown"
+                             class="dropdown-toggle user-bubble">
+
+                        <ul class="dropdown-menu" id="dropdownMenu" style="display:none;">
+                            <li><a href="{% url 'users:profile' %}">Profil</a></li>
+                            <li><a href="{% url 'users:logout' %}">Logout</a></li>
+                        </ul>
+
+                    {% else %}
+                        <a href="{% url 'users:auth' %}">
+                            <img src="{% static 'ahana/img/icons/user.png' %}" class="user-bubble">
+                        </a>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- CSS -->
+<style>
+/* Topbar */
+.topbar {
+    background: white;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.top-info {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    color: #444;
+}
+
+.top-info i {
+    font-size: 18px;
+    color: #ff6655;
+    margin-right: 5px;
+}
+
+/* Main Header */
+.main-header {
+    background: linear-gradient(90deg, #f8896e, #f66056);
+    padding: 20px 0;
+    color: white;
+}
+
+.nav-menu ul {
+    list-style: none;
+    display: flex;
+    gap: 35px;
+}
+
+.nav-menu a {
+    color: white;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.header-icons i {
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* User bubble */
+.user-bubble {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    position: absolute;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    list-style: none;
+    padding: 5px 0;
+    margin: 0;
+    border-radius: 5px;
+    min-width: 120px;
+    z-index: 1000;
+}
+.dropdown-menu li {
+    padding: 5px 20px;
+}
+.dropdown-menu li a {
+    text-decoration: none;
+    color: black;
+    display: block;
+}
+.dropdown-menu li a:hover {
+    background-color: #f2f2f2;
+}
+</style>
+
+<!-- JS -->
+<script>
+const dropdownToggle = document.getElementById('userDropdown');
+const dropdownMenu = document.getElementById('dropdownMenu');
+
+if (dropdownToggle) {
+    dropdownToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Fermer le menu si clic à l'extérieur
+    document.addEventListener('click', function(e) {
+        if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.style.display = 'none';
+        }
+    });
+}
+</script>
+		<div class="header-bottom bg-g-1">
+			<a href="{% url 'main:index' %}" class="site-logo">
+				<img src="{% static 'main/img/logo_eatfit.png' %}" alt="Eat & Fit Logo">
+			</a>
+			<div class="hb-right">
+				<div class="hb-switch" id="search-switch">
+					<img src="{% static 'main/img/icons/search.png' %}" alt="">
+				</div>
+				<div class="hb-switch" id="infor-switch">
+					<img src="{% static 'main/img/icons/bars.png' %}" alt="">
+				</div>
+			</div>
+			<div class="container">
+				<div class="container">
+				<ul class="main-menu">
+					<li class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}"><a href="{% url 'main:index' %}">Home</a></li>
+				<li><a href="{% url 'product:product_list' %}" class="{% if request.resolver_match.url_name == 'product_list' or request.resolver_match.url_name == 'product_detail' %}active{% endif %}">Shop</a></li>
+					<li><a href="{% url 'users:create_business' %}">My Business</a></li>
+					
+					{% with request.resolver_match.url_name as url_name %}
+					<li><a href="{% url 'users:coach_list' %}" {% if request.resolver_match.url_name == 'trainers' %}class="active"{% endif %}>Coaches</a></li>
+
+					<li><a href="{% url 'users:nutritionist_list' %}">Nutritionists</a></li>
+
+					<li class="menu-item-has-children {% if url_name == 'blog' or url_name == 'single-blog' %}active{% endif %}">
+						<a href="{% url 'blogapp:blog_list' %}">Blog</a>
+
+					</li>
+					{% endwith %}
+					
+					<li class="menu-item-has-children {% if request.resolver_match.app_name == 'appointments' %}active{% endif %}">
+						<a href="#" onclick="checkRoleAndRedirect('{% url 'appointments:appointment_list' %}')">
+							Appointments
+						</a>
+						<ul class="sub-menu improved-submenu">
+							<li>
+								<a href="#" onclick="checkRoleAndRedirect('{% url 'appointments:appointment_list' %}')">
+									List Appointments
+								</a>
+							</li>
+							<li>
+								<a href="#" onclick="checkRoleAndRedirect('{% url 'appointments:add_appointment' %}')">
+									Add Appointment
+								</a>
+							</li>
+						</ul>
+					</li>
+					<style>
+												/* Style submenu modernisé */
+						.improved-submenu {
+							background: #ffffff;
+							border-radius: 10px;
+							padding: 12px 0;
+							min-width: 180px;
+							box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+							border: 1px solid #eaeaea;
+							transform: translateY(5px);
+						}
+
+						/* Items */
+						.improved-submenu li {
+							padding: 0;
+						}
+
+						.improved-submenu li a {
+							display: block;
+							padding: 10px 18px;
+							color: #333 !important;
+							font-weight: 500;
+							font-size: 15px;
+							transition: all 0.25s ease;
+						}
+
+						/* Hover effet doux */
+						.improved-submenu li a:hover {
+							background: #f7f7f7;
+							padding-left: 24px;
+							color: #2b9bff !important;
+						}
+
+						/* Parent menu hover */
+						.menu-item-has-children > a {
+							position: relative;
+						}
+
+						.menu-item-has-children:hover > a,
+						.main-menu > .menu-item-has-children.active > a {
+							color: #2b9bff !important;
+						}
+
+						/* Styles for Home Page Header */
+						.page-top-section.home-header {
+							text-align: center;
+						}
+						.page-top-section.home-header::after {
+							content: "";
+							position: absolute;
+							left: 0;
+							top: 0;
+							width: 100%;
+							height: 100%;
+							background: linear-gradient(145deg, #f65d5d 0%, #fdb07d 100%);
+							z-index: -2;
+						}
+						.page-top-section .intro-text {
+							font-size: 18px;
+							color: #fff;
+							margin-top: 15px;
+							opacity: 0.9;
+						}
+
+						/* Logo Styles */
+						.site-logo img {
+							height: 50px; /* Slightly smaller */
+							width: 50px;
+							border-radius: 50%;
+							border: 2px solid white;
+							box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+							object-fit: cover;
+						}
+
+						/* Header Layout Fix */
+						.header-bottom {
+							padding: 15px 80px !important; /* Symmetrical vertical padding */
+						}
+						.header-bottom::after {
+							content: "";
+							display: table;
+							clear: both;
+						}
+					</style>
+
+
+
+				</ul>
+				</div>
+			</div>
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+		<script>
+		function checkRoleAndRedirect(url) {
+
+			const userRole = "{{ request.user.role|default:'anonymous' }}";
+			const allowedRoles = ["admin", "client"];
+
+			if (!allowedRoles.includes(userRole)) {
+
+				Swal.fire({
+					icon: "error",
+					title: "Accès refusé",
+					text: "Vous n'avez pas l'autorisation d'accéder à cette section.",
+					confirmButtonColor: "#e63946",
+					width: "380px",
+					backdrop: "rgba(0,0,0,0.4)"
+				});
+
+				return;
+			}
+
+			window.location.href = url;
+		}
+		</script>
+
+
+	</header>
+	<!-- Header Section end -->

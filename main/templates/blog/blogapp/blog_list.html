@@ -7,18 +7,79 @@
 
 <!-- Hero principal -->
 <section class="page-top-section set-bg" data-setbg="{% static 'blog/img/page-top-bg.jpg' %}">
-    <div class="container text-white text-center py-5">
-        <a href="{% url 'blogapp:blog_create' %}" class="site-btn sb-gradient px-5 py-3">Écrire un article</a>
+    
+    <div class="container text-white ">
+        
         <h1 class="display-3 fw-bold mb-3">EatFit Blog</h1>
         <p class="lead fs-3">Nutrition • Fitness • Bien-être • Lifestyle • IA</p>
         
     </div>
 </section>
 
-<section class="events-page-section spad">
+
+<section class="container text-white text-center py-5">
     <div class="container">
         <!-- Augmentation de l'espacement entre les blogs : g-5 remplacé par row-gap et column-gap personnalisés -->
-         
+         <a href="{% url 'blogapp:blog_create' %}" class="site-btn sb-gradient px-5 py-3" style="margin-bottom:3rem ;">Écrire un article</a>
+         <!-- FORMULAIRE DE RECHERCHE & FILTRES -->
+<form method="GET" class="mb-5">
+    <div class="row g-3 align-items-end justify-content-center">
+
+        <!-- Champ recherche -->
+        <div class="col-lg-4 col-md-6">
+            <label class="form-label text-white fw-semibold">Recherche</label>
+            <div class="input-group">
+                <input type="text" name="q" value="{{ request.GET.q }}"
+                       placeholder="Titre, mots-clés, contenu..."
+                       class="form-control rounded-pill border-0 shadow-sm">
+                <span class="input-group-text bg-white border-0 rounded-pill ms-n5">
+                    <i class="fa fa-search text-muted"></i>
+                </span>
+            </div>
+        </div>
+
+        <!-- Filtre Thème -->
+        <div class="col-lg-3 col-md-4">
+            <label class="form-label text-white fw-semibold">Thème</label>
+            <select name="theme" class="form-select rounded-pill shadow-sm">
+                <option value="all">Tous les thèmes</option>
+                {% for t in themes %}
+                    <option value="{{ t }}" {% if request.GET.theme == t %}selected{% endif %}>
+                        {{ t|title }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Tri -->
+        <div class="col-lg-3 col-md-4">
+            <label class="form-label text-white fw-semibold">Trier par</label>
+            <select name="sort" class="form-select rounded-pill shadow-sm">
+                <option value="">Aucun tri</option>
+                <option value="likes" {% if request.GET.sort == "likes" %}selected{% endif %}>Les plus aimés</option>
+                <option value="comments" {% if request.GET.sort == "comments" %}selected{% endif %}>Les plus commentés</option>
+                <option value="newest" {% if request.GET.sort == "newest" %}selected{% endif %}>Plus récents</option>
+                <option value="oldest" {% if request.GET.sort == "oldest" %}selected{% endif %}>Plus anciens</option>
+            </select>
+        </div>
+
+        <!-- Bouton appliquer -->
+        <div class="col-lg-2 col-md-4">
+            <button type="submit"
+                    class="btn w-100 rounded-pill fw-semibold px-4 py-2 text-white"
+                    style="background: linear-gradient(135deg, #f65d5d, #fd9b7d); 
+                           border:none; box-shadow: 0 5px 15px rgba(246,93,93,0.3);
+                           transition: transform 0.2s ease, box-shadow 0.2s ease;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(246,93,93,0.4)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(246,93,93,0.3)';">
+                Filtrer <i class="fa fa-filter ms-1"></i>
+            </button>
+        </div>
+
+    </div>
+</form>
+
+
         <div class="row" style="row-gap: 3rem; ">
 
             {% for blog in blogs %}
@@ -91,31 +152,88 @@
             {% empty %}
             <div class="col-12 text-center py-5">
                 <h3 class="text-muted">Aucun article pour le moment</h3>
-                <p class="lead mb-4">Sois le premier à partager tes conseils !</p>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'blogapp:blog_create' %}" class="site-btn sb-gradient px-5 py-3">Écrire un article</a>
-                {% else %}
-                    <a href="{% url 'users:auth' %}" class="site-btn sb-gradient px-5 py-3">Se connecter</a>
-                {% endif %}
+                         
             </div>
             {% endfor %}
 
         </div>
 
-        <!-- Pagination -->
-        {% if is_paginated %}
-        <div class="text-center mt-5">
-            <div class="site-pagination">
-                {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}" class="mx-1">&laquo;</a>
+       <!-- Pagination -->
+<!-- Pagination -->
+{% if is_paginated %}
+<div class="text-center mt-5">
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center gap-2">
+
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" 
+                   href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.theme %}&theme={{ request.GET.theme }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                   aria-label="Previous">&laquo;</a>
+            </li>
+            {% endif %}
+
+            {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-2' and num < page_obj.number|add:'2' %}
+                    <li class="page-item">
+                        <a class="page-link" 
+                           href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.theme %}&theme={{ request.GET.theme }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                            {{ num }}
+                        </a>
+                    </li>
                 {% endif %}
-                <span class="mx-3 fw-bold">Page {{ page_obj.number }} / {{ paginator.num_pages }}</span>
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}" class="mx-1">&raquo;</a>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" 
+                   href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.theme %}&theme={{ request.GET.theme }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" 
+                   aria-label="Next">&raquo;</a>
+            </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+</div>
+
+<style>
+/* Pagination moderne et classe */
+.pagination {
+    display: inline-flex;
+    gap: 0.5rem;
+}
+.pagination .page-item .page-link {
+    display: inline-block;
+    padding: 0.5rem 0.9rem;
+    border-radius: 50px; /* pillule */
+    border: 1px solid #ddd;
+    color: #555;
+    background: #fff;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    min-width: 40px;
+    text-align: center;
+}
+.pagination .page-item .page-link:hover {
+    background: #f8f8f8;
+    color: #f65d5d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(246,93,93,0.15);
+}
+.pagination .page-item.active .page-link {
+    background: #f65d5d;
+    color: #fff;
+    border-color: #f65d5d;
+    cursor: default;
+    box-shadow: 0 4px 12px rgba(246,93,93,0.3);
+}
+</style>
+{% endif %}
+
 
     </div>
 </section>
@@ -127,5 +245,6 @@
     box-shadow: 0 15px 40px rgba(0,0,0,0.25) !important;
 }
 </style>
+
 
 {% endblock %}

@@ -5,15 +5,70 @@ from .models import Blog, Comment
 from django.contrib import messages
 from django.db.models import Count
 from django.utils import timezone
-
+from django.db.models import Q, Count
 from django.http import HttpResponseForbidden
 from .forms import BlogForm
 from blogapp.forms import BlogForm,CommentForm
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+import requests
+from huggingface_hub import InferenceClient
+
+from django.core.paginator import Paginator
+from django.db.models import Count, Q
+from django.shortcuts import render
+from .models import Blog
 
 def blog_list(request):
-    # option : afficher les plus aimés / paginer etc.
-    blogs = Blog.objects.annotate(num_likes=Count('likes')).all()
-    return render(request, 'blog/blogapp/blog_list.html', {'blogs': blogs})
+    blogs = Blog.objects.annotate(
+        num_likes=Count('likes'),
+        num_comments=Count('comments')
+    )
+
+    # 🔍 RECHERCHE
+    search_query = request.GET.get("q", "").strip()
+    if search_query:
+        blogs = blogs.filter(
+            Q(title__icontains=search_query) |
+            Q(content__icontains=search_query) |
+            Q(preview__icontains=search_query)
+        )
+
+    # 🎨 FILTRE PAR THÈME
+    theme = request.GET.get("theme")
+    if theme and theme != "all":
+        blogs = blogs.filter(theme=theme)
+
+    # ❤️ TRI
+    sort = request.GET.get("sort")
+    if sort == "likes":
+        blogs = blogs.order_by("-num_likes")
+    elif sort == "comments":
+        blogs = blogs.order_by("-num_comments")
+    elif sort == "newest":
+        blogs = blogs.order_by("-created_at")
+    elif sort == "oldest":
+        blogs = blogs.order_by("created_at")
+
+    # Pagination
+    paginator = Paginator(blogs, 6)  # 6 articles par page
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    # Toutes les catégories disponibles
+    themes = dict(Blog.THEMES)
+
+    return render(request, 'blog/blogapp/blog_list.html', {
+        'blogs': page_obj.object_list,
+        'themes': themes,
+        'search_query': search_query,
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'is_paginated': page_obj.has_other_pages(),
+    })
+
+
 
 def blog_detail(request, pk):
     blog = get_object_or_404(Blog, pk=pk)
@@ -215,3 +270,59 @@ def backoffice_comment_delete(request, pk):
         comment.delete()
         return redirect('blogapp:backoffice_detail', pk=blog_pk)
     return render(request, 'backoffice/comment_confirm_delete.html', {'comment': comment})
+
+
+
+
+def blog_to_pdf(request, pk):
+    blog = Blog.objects.get(pk=pk)
+    html = render_to_string('blog/blogapp/pdf_template.html', {'blog': blog})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{blog.title}.pdf"'
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+
+    if pisa_status.err:
+        return HttpResponse('Erreur lors de la génération du PDF')
+    return response
+
+
+
+HF_TOKEN = "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"
+client = InferenceClient(
+    provider="hf-inference",
+    api_key=HF_TOKEN,  # Assure-toi que HF_TOKEN est défini
+)
+
+def summarize_blog(request, pk):
+    blog = get_object_or_404(Blog, pk=pk)
+
+    try:
+        text_to_summarize = blog.content
+
+        # Appel API pour résumé
+        result = client.summarization(
+            text_to_summarize,
+            model="facebook/bart-large-cnn"
+        )
+
+        # Vérification robuste de la réponse
+        if result:
+            if isinstance(result, list):
+                first_item = result[0]
+                summary = first_item.get("summary_text") or first_item.get("generated_text") or "Résumé introuvable."
+            elif isinstance(result, dict):
+                summary = result.get("summary_text") or result.get("generated_text") or "Résumé introuvable."
+            else:
+                summary = "Format de réponse inconnu."
+        else:
+            summary = "Aucun résultat retourné par le modèle."
+
+    except Exception as e:
+        summary = f"Erreur lors du résumé : {e}"
+
+    return render(request, "blog/blogapp/blog_summary.html", {
+        "blog": blog,
+        "summary": summary
+    })

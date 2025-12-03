@@ -288,8 +288,6 @@ def blog_to_pdf(request, pk):
     return response
 
 
-
-HF_TOKEN = "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"
 client = InferenceClient(
     provider="hf-inference",
     api_key=HF_TOKEN,  # Assure-toi que HF_TOKEN est défini

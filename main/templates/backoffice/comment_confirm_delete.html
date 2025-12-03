@@ -1,0 +1,17 @@
+{% extends 'backoffice/base_backoffice.html' %}
+
+{% block content %}
+<h1 class="h3 mb-2 text-gray-800">Supprimer un commentaire</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <p>Êtes-vous sûr de vouloir supprimer ce commentaire :</p>
+        <blockquote class="border p-3">{{ comment.content }}</blockquote>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+            <a href="{% url 'blogapp:backoffice_detail' comment.blog.pk %}" class="btn btn-secondary">Annuler</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

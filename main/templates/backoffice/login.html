@@ -1,0 +1,223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Backoffice</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #333;
+        }
+
+        .login-header p {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 0.75rem 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper label {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #fff;
+            padding: 0 4px;
+            color: #999;
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: 0.3s ease all;
+        }
+
+        .input-wrapper input:focus + label,
+        .input-wrapper input:not(:placeholder-shown) + label {
+            top: -8px;
+            left: 8px;
+            font-size: 0.75rem;
+            color: #007bff;
+        }
+
+        .password-wrapper {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: #0056b3;
+        }
+
+        .error-message {
+            font-size: 0.8rem;
+            color: red;
+            margin-top: 0.25rem;
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #d4edda;
+            color: #155724;
+            margin-top: 1rem;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .signup-link {
+            text-align: center;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+
+        .signup-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Backoffice Login</h2>
+                <p>Enter your admin credentials</p>
+            </div>
+
+            <form class="login-form" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <input type="email" id="email" name="username" placeholder=" " required>
+                        <label for="email">Email</label>
+                    </div>
+                    <span class="error-message" id="emailError"></span>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-wrapper password-wrapper">
+                        <input type="password" id="password" name="password" placeholder=" " required>
+                        <label for="password">Password</label>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+                    </div>
+                    <span class="error-message" id="passwordError"></span>
+                </div>
+
+                <button type="submit" class="login-btn">Sign In</button>
+            </form>
+
+            <div class="signup-link">
+                <p>Don't have an account? <a href="#">Contact Admin</a></p>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="success-message show">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            if(passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+            } else {
+                passwordInput.type = 'password';
+            }
+        }
+    </script>
+</body>
+</html>

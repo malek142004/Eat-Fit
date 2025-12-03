@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Lien invalide</title>
+    <style>
+        body {
+            background: #f3f4f6;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .error-card {
+            background: white;
+            width: 380px;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            animation: fade .4s ease;
+        }
+
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-size: 22px;
+            color: #b91c1c;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        a {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #4c84ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            background: #3566e6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="error-card">
+    <h2>❌ Lien invalide ou expiré</h2>
+    <p>Le lien de réinitialisation n'est plus valide.</p>
+
+    <a href="{% url 'users:forgot_password' %}">Demander un nouveau lien</a>
+</div>
+
+</body>
+</html>

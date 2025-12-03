@@ -1,0 +1,560 @@
+{% extends 'main/base.html' %}
+{% load static %}
+{% load appointment_tags %}
+
+{% block title %}Appointment List{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .contact-form {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #f65d5d;
+            margin-bottom: 20px; /* Add margin between forms/sections */
+        }
+        .contact-form h4 {
+            margin-bottom: 25px; /* More space below titles */
+        }
+        .form-group {
+            margin-bottom: 15px; /* Space between form elements */
+        }
+        .table-custom {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+        .table-custom th {
+            background: linear-gradient(145deg, #f65d5d 0%, #fdb07d 100%);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 16px;
+        }
+        .table-custom td {
+            padding: 15px 20px;
+            border: none;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
+            vertical-align: middle;
+        }
+        .table-custom tbody tr {
+            transition: background-color 0.3s ease;
+        }
+        .table-custom tbody tr:hover {
+            background-color: #f9f2f0;
+        }
+        .table-custom tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .action-btn {
+            padding: 8px 15px;
+            font-size: 14px;
+            min-width: auto;
+            margin-right: 5px;
+        }
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap; /* Allow items to wrap */
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .action-bar > div {
+            margin-bottom: 15px; /* Space between wrapped items */
+        }
+        .sort-buttons .site-btn {
+            margin-left: 10px;
+        }
+        #recommendationsResults .site-btn {
+            margin: 5px;
+            display: inline-block;
+        }
+        /* Specific spacing for the recommendation panel */
+        .col-lg-4 .contact-form {
+            margin-left: 20px; /* Add space between table and recommendations */
+        }
+        /* Adjust search form layout */
+        .contact-form form.mb-4 .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px; /* Space between search form elements */
+        }
+        .contact-form form.mb-4 .col-md-4,
+        .contact-form form.mb-4 .col-md-2 {
+            flex: 1 1 auto; /* Allow columns to grow and shrink */
+            min-width: 120px; /* Minimum width for smaller columns */
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Page Top Section -->
+<div class="page-top-section set-bg" data-setbg="{% static 'main/img/appointment.jpg' %}">
+    <div class="container">
+        <h2>Plan Appointment</h2>
+        <p>Organize your meetings and keep track of all your appointments easily.</p>
+    </div>
+</div>
+
+<section class="spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12"> {# Existing table column #}
+                <div class="contact-form">
+                    
+                    <div class="action-bar">
+                        <div>
+                            <a href="{% url 'appointments:add_appointment' %}" class="site-btn sb-line-gradient">Add New Appointment</a>
+                            <a href="{% url 'appointments:generate_pdf_report' %}?date={{ date_query|default:'' }}&email={{ email_query|default:'' }}&sort={{ current_sort|default:'' }}" class="site-btn sb-gradient" style="margin-left: 10px;">Generate Report</a>
+                        </div>
+                        <div class="sort-buttons">
+                            <span>Sort by date:</span>
+                            <a href="?sort=asc&date={{ date_query|default:'' }}&email={{ email_query|default:'' }}" class="site-btn sb-white action-btn">Ascending</a>
+                            <a href="?sort=desc&date={{ date_query|default:'' }}&email={{ email_query|default:'' }}" class="site-btn sb-white action-btn">Descending</a>
+                        </div>
+                    </div>
+
+                    <!-- Search Form -->
+                    <form method="get" action="{% url 'appointments:appointment_list' %}" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="date" name="date" class="form-control" value="{{ date_query|default:'' }}" placeholder="Search by Date">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="email" class="form-control" value="{{ email_query|default:'' }}" placeholder="Search by Client Email">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="site-btn sb-gradient" style="width: 100%;">Search</button>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="{% url 'appointments:appointment_list' %}" class="site-btn sb-line-gradient" style="width: 100%;">Reset</a>
+                            </div>
+                        </div>
+                    </form>
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Date</th>
+                                <th>Time Remaining</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Mode</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in appointments %}
+                            <tr>
+                                <td>{{ app.client.email }}</td>
+                                <td>{{ app.appointment_date }}</td>
+                                <td>{{ app.appointment_date|time_until }}</td>
+                                <td>{{ app.start_time }}</td>
+                                <td>{{ app.end_time }}</td>
+                                <td>{{ app.mode }}</td>
+                                <td>
+                                    <a href="{% url 'appointments:appointment_update' app.pk %}" class="site-btn sb-gradient action-btn">Modify</a>
+                                    <a href="{% url 'appointments:appointment_delete' app.pk %}" class="site-btn sb-white action-btn delete-link">Delete</a>
+                                    {% if not app.is_paid %}
+                                        <button type="button" class="site-btn sb-gradient action-btn pay-button" data-appointment-id="{{ app.pk }}">Payer</button>
+                                    {% else %}
+                                        <span class="badge badge-success">Payé</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8">No appointments found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4"> {# New row for recommendation interface #}
+            <div class="col-lg-12"> {# Recommendation Interface Column #}
+                <div class="contact-form">
+                    <h4>Recommandations de Rendez-vous</h4>
+                    <p>Sélectionnez une date pour voir les créneaux disponibles.</p>
+                    <div class="form-group">
+                        <label for="weekPicker">Date de la semaine</label>
+                        <input type="date" id="weekPicker" class="form-control-custom">
+                    </div>
+                    <button type="button" id="showRecommendationsBtn" class="site-btn sb-gradient">Afficher les recommandations</button>
+                    
+                    <div id="recommendationsResults" class="mt-4">
+                        <!-- Recommendations will be loaded here -->
+                        <p class="text-muted" id="noRecommendationsMessage" style="display: none;">Aucun créneau disponible pour cette semaine.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Paiement du Rendez-vous</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="card-details-form">
+                    <p>Veuillez entrer vos informations de carte bancaire (simulation).</p>
+                    <div class="form-group">
+                        <label for="cardNumber">Numéro de carte</label>
+                        <input type="text" id="cardNumber" class="form-control" placeholder="XXXX XXXX XXXX XXXX" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardExpiry">Date d'expiration</label>
+                        <input type="text" id="cardExpiry" class="form-control" placeholder="MM/AA" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardCvc">CVC</label>
+                        <input type="text" id="cardCvc" class="form-control" placeholder="XXX" required>
+                    </div>
+                    <button type="button" id="confirmPaymentBtn" class="site-btn sb-gradient">Confirmer Paiement</button>
+                </div>
+                <div id="code-entry-form" style="display: none;">
+                    <p>Un code de confirmation à 4 chiffres a été envoyé à votre adresse e-mail.</p>
+                    <div class="form-group">
+                        <label for="confirmationCode">Code de confirmation</label>
+                        <input type="text" id="confirmationCode" class="form-control" placeholder="XXXX" required>
+                    </div>
+                    <button type="button" id="verifyCodeBtn" class="site-btn sb-gradient">Vérifier le code</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const deleteLinks = document.querySelectorAll('.delete-link');
+
+    deleteLinks.forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const deleteUrl = this.href;
+
+            Swal.fire({
+                title: 'Êtes-vous sûr ?',
+                text: "Cette action est irréversible !",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e63946',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Oui, supprimer !',
+                cancelButtonText: 'Annuler',
+                width: '380px',
+                backdrop: 'rgba(0,0,0,0.4)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = deleteUrl;
+
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrfmiddlewaretoken';
+                    csrfInput.value = getCookie('csrftoken');
+                    form.appendChild(csrfInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        });
+    });
+
+    // Payment Modal Logic
+    const paymentModalElement = document.getElementById('paymentModal');
+    const paymentModal = new bootstrap.Modal(paymentModalElement);
+    let currentAppointmentId = null;
+
+    document.querySelectorAll('.pay-button').forEach(button => {
+        button.addEventListener('click', function() {
+            currentAppointmentId = this.dataset.appointmentId;
+            document.getElementById('card-details-form').style.display = 'block';
+            document.getElementById('code-entry-form').style.display = 'none';
+            paymentModal.show();
+        });
+    });
+
+    document.getElementById('confirmPaymentBtn').addEventListener('click', function() {
+        // Simulate card details validation
+        const cardNumber = document.getElementById('cardNumber').value;
+        const cardExpiry = document.getElementById('cardExpiry').value;
+        const cardCvc = document.getElementById('cardCvc').value;
+
+        if (!cardNumber || !cardExpiry || !cardCvc) {
+            Swal.fire('Erreur', 'Veuillez remplir tous les champs de la carte.', 'error');
+            return;
+        }
+
+        // Call Django view to initiate payment and send code
+        fetch(`/appointments/initiate_payment/${currentAppointmentId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({}) // No actual card data sent for simulation
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire('Succès', data.message, 'success');
+                document.getElementById('card-details-form').style.display = 'none';
+                document.getElementById('code-entry-form').style.display = 'block';
+            } else {
+                Swal.fire('Erreur', data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Erreur', 'Une erreur est survenue lors de l\'initiation du paiement.', 'error');
+        });
+    });
+
+    document.getElementById('verifyCodeBtn').addEventListener('click', function() {
+        const confirmationCode = document.getElementById('confirmationCode').value;
+
+        if (!confirmationCode) {
+            Swal.fire('Erreur', 'Veuillez entrer le code de confirmation.', 'error');
+            return;
+        }
+
+        // Call Django view to confirm payment with code
+        fetch(`/appointments/confirm_payment/${currentAppointmentId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ code: confirmationCode })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                Swal.fire('Succès', data.message, 'success');
+                paymentModal.hide();
+                // Optionally, refresh the page or update the appointment status visually
+                location.reload(); 
+            } else {
+                Swal.fire('Erreur', data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Erreur', 'Une erreur est survenue lors de la vérification du code.', 'error');
+        });
+    });
+
+    // Recommendation Interface Logic
+    const weekPicker = document.getElementById('weekPicker');
+    const showRecommendationsBtn = document.getElementById('showRecommendationsBtn');
+    const recommendationsResults = document.getElementById('recommendationsResults');
+    const noRecommendationsMessage = document.getElementById('noRecommendationsMessage');
+
+    showRecommendationsBtn.addEventListener('click', function() {
+        const selectedDate = weekPicker.value;
+        if (!selectedDate) {
+            Swal.fire('Erreur', 'Veuillez sélectionner une date.', 'error');
+            return;
+        }
+
+        fetch(`/appointments/api/available_slots/?start_date=${selectedDate}`)
+            .then(response => response.json())
+            .then(data => {
+                recommendationsResults.innerHTML = ''; // Clear previous results
+                if (data.status === 'success' && data.available_slots.length > 0) {
+                    noRecommendationsMessage.style.display = 'none';
+                    data.available_slots.forEach(slot => {
+                        const slotElement = document.createElement('button');
+                        slotElement.classList.add('site-btn', 'sb-line-gradient', 'action-btn', 'm-1');
+                        slotElement.textContent = `${slot.date} ${slot.time}`;
+                        slotElement.title = `Book ${slot.date} at ${slot.time}`;
+                        slotElement.addEventListener('click', function() {
+                            // Redirect to add appointment page with pre-filled data
+                            const addAppointmentUrl = `/appointments/add/?date=${slot.date}&start_time=${slot.time}`;
+                            window.location.href = addAppointmentUrl;
+                        });
+                        recommendationsResults.appendChild(slotElement);
+                    });
+                } else {
+                    noRecommendationsMessage.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching recommendations:', error);
+                Swal.fire('Erreur', 'Une erreur est survenue lors de la récupération des recommandations.', 'error');
+            });
+    });
+});
+</script>
+{% endblock %}<!-- Page Top Section end -->
+
+<section class="spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8"> {# Existing table column #}
+                <div class="contact-form">
+                    
+                    <div class="action-bar">
+                        <div>
+                            <a href="{% url 'appointments:add_appointment' %}" class="site-btn sb-line-gradient">Add New Appointment</a>
+                            <a href="{% url 'appointments:generate_pdf_report' %}?date={{ date_query|default:'' }}&email={{ email_query|default:'' }}&sort={{ current_sort|default:'' }}" class="site-btn sb-gradient" style="margin-left: 10px;">Generate Report</a>
+                        </div>
+                        <div class="sort-buttons">
+                            <span>Sort by date:</span>
+                            <a href="?sort=asc&date={{ date_query|default:'' }}&email={{ email_query|default:'' }}" class="site-btn sb-white action-btn">Ascending</a>
+                            <a href="?sort=desc&date={{ date_query|default:'' }}&email={{ email_query|default:'' }}" class="site-btn sb-white action-btn">Descending</a>
+                        </div>
+                    </div>
+
+                    <!-- Search Form -->
+                    <form method="get" action="{% url 'appointments:appointment_list' %}" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <input type="date" name="date" class="form-control" value="{{ date_query|default:'' }}" placeholder="Search by Date">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="email" class="form-control" value="{{ email_query|default:'' }}" placeholder="Search by Client Email">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="site-btn sb-gradient" style="width: 100%;">Search</button>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="{% url 'appointments:appointment_list' %}" class="site-btn sb-line-gradient" style="width: 100%;">Reset</a>
+                            </div>
+                        </div>
+                    </form>
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Client</th>
+                                <th>Date</th>
+                                <th>Time Remaining</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Mode</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in appointments %}
+                            <tr>
+                                <td>{{ app.client.email }}</td>
+                                <td>{{ app.appointment_date }}</td>
+                                <td>{{ app.appointment_date|time_until }}</td>
+                                <td>{{ app.start_time }}</td>
+                                <td>{{ app.end_time }}</td>
+                                <td>{{ app.mode }}</td>
+                                <td>
+                                    <a href="{% url 'appointments:appointment_update' app.pk %}" class="site-btn sb-gradient action-btn">Modify</a>
+                                    <a href="{% url 'appointments:appointment_delete' app.pk %}" class="site-btn sb-white action-btn delete-link">Delete</a>
+                                    {% if not app.is_paid %}
+                                        <button type="button" class="site-btn sb-gradient action-btn pay-button" data-appointment-id="{{ app.pk }}">Payer</button>
+                                    {% else %}
+                                        <span class="badge badge-success">Payé</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8">No appointments found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-4"> {# Recommendation Interface Column #}
+                <div class="contact-form">
+                    <h4>Recommandations de Rendez-vous</h4>
+                    <p>Sélectionnez une date pour voir les créneaux disponibles.</p>
+                    <div class="form-group">
+                        <label for="weekPicker">Date de la semaine</label>
+                        <input type="date" id="weekPicker" class="form-control-custom">
+                    </div>
+                    <button type="button" id="showRecommendationsBtn" class="site-btn sb-gradient">Afficher les recommandations</button>
+                    
+                    <div id="recommendationsResults" class="mt-4">
+                        <!-- Recommendations will be loaded here -->
+                        <p class="text-muted" id="noRecommendationsMessage" style="display: none;">Aucun créneau disponible pour cette semaine.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Paiement du Rendez-vous</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="card-details-form">
+                    <p>Veuillez entrer vos informations de carte bancaire (simulation).</p>
+                    <div class="form-group">
+                        <label for="cardNumber">Numéro de carte</label>
+                        <input type="text" id="cardNumber" class="form-control" placeholder="XXXX XXXX XXXX XXXX" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardExpiry">Date d'expiration</label>
+                        <input type="text" id="cardExpiry" class="form-control" placeholder="MM/AA" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardCvc">CVC</label>
+                        <input type="text" id="cardCvc" class="form-control" placeholder="XXX" required>
+                    </div>
+                    <button type="button" id="confirmPaymentBtn" class="site-btn sb-gradient">Confirmer Paiement</button>
+                </div>
+                <div id="code-entry-form" style="display: none;">
+                    <p>Un code de confirmation à 4 chiffres a été envoyé à votre adresse e-mail.</p>
+                    <div class="form-group">
+                        <label for="confirmationCode">Code de confirmation</label>
+                        <input type="text" id="confirmationCode" class="form-control" placeholder="XXXX" required>
+                    </div>
+                    <button type="button" id="verifyCodeBtn" class="site-btn sb-gradient">Vérifier le code</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,85 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Our Coaches | Eat and Fit{% endblock %}
+
+{% block content %}
+<section class="page-top-section set-bg" data-setbg="{% static 'img/page-top-bg.jpg' %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 m-auto text-white">
+                <h2>Our Coaches</h2>
+                <p>Our coaches are dedicated mentors who guide every step of your journey, helping you grow, improve, and unlock your full potential.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="trainers-page-section spad overflow-hidden">
+    <div class="container">
+        {% if request.user.is_authenticated and request.user.role == 'coach' %}
+        <div class="row mb-4">
+            <div class="col-12 text-end">
+                <a href="{% url 'users:coach_create' %}" class="btn btn-success me-2">Add New Coach</a>
+            </div>
+        </div>
+        {% endif %}
+        <div class="row">
+            {% for coach in coaches %}
+            <div class="col-lg-6">
+                <div class="{% if forloop.counter > 2 %}ts-item{% endif %}">
+                    <div class="trainer-item">
+                        <div class="ti-img">
+                            {# Vérifie si le champ 'pdp' (Photo De Profil) de CustomUser est renseigné #}
+                            {% if coach.pdp %}
+                                <img src="{{ coach.pdp.url }}" alt="{{ coach.nom_complet }}" class="img-fluid rounded" />
+                            {% else %}
+                                <img src="{% static 'img/trainer/default.png' %}" alt="{{ coach.nom_complet }}" class="img-fluid rounded" />
+                            {% endif %}
+                        </div>
+                        <div class="ti-text">
+                            {# Utilisation de nom_complet au lieu de full_name #}
+                            <h4>{{ coach.nom_complet }}</h4>
+                            
+                            {# coach.get_sport_type_display fonctionne car coach est une instance de Coach qui hérite de CustomUser #}
+                            <h6>{{ coach.get_sport_type_display }} Trainer</h6>
+                            
+                            <p>
+                                {% if coach.certifications %}
+                                    {{ coach.certifications }}
+                                {% else %}
+                                    {{ coach.experience_years }} years of experience in {{ coach.get_sport_type_display }}
+                                {% endif %}
+                            </p>
+                            
+                            <div class="ti-actions mt-2">
+                                {# Détail visible pour tout le monde #}
+                                <a href="{% url 'users:coach_detail' coach.pk %}" class="btn btn-outline-dark me-2">View</a>
+
+                                {# Édition / suppression : seulement pour l'admin ou le coach lui‑même #}
+                                {% if request.user.is_authenticated %}
+                                    {% if request.user.role == 'admin' or request.user.pk == coach.pk %}
+                                        <a href="{% url 'users:coach_update' coach.pk %}" class="btn btn-primary me-2">Edit</a>
+                                        
+                                        <form action="{% url 'users:coach_delete' coach.pk %}" method="post" style="display:inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger"
+                                                    onclick="return confirm('Are you sure you want to delete this coach?');">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-center">No coaches available at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

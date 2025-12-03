@@ -1,0 +1,546 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Manage Coaches</h1>
+    <button type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" 
+            data-toggle="modal" data-target="#addCoachModal">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Add New Coach
+    </button>
+</div>
+
+<!-- Display Messages -->
+{% if messages %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Filters and Search -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="form-inline">
+                    <!-- Search -->
+                    <div class="form-group mr-3 mb-2">
+                        <input type="text" class="form-control" name="search" 
+                               placeholder="Search coaches..." value="{{ search_query }}">
+                    </div>
+                    
+                    <!-- Sport Type Filter -->
+                    <div class="form-group mr-3 mb-2">
+                        <select class="form-control" name="sport_type">
+                            <option value="">All Sports</option>
+                            {% for sport_key, sport_name in sport_types %}
+                            <option value="{{ sport_key }}" 
+                                    {% if sport_type_filter == sport_key %}selected{% endif %}>
+                                {{ sport_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Availability Filter -->
+                    <div class="form-group mr-3 mb-2">
+                        <select class="form-control" name="availability">
+                            <option value="">All Status</option>
+                            <option value="available" {% if availability_filter == 'available' %}selected{% endif %}>
+                                Available
+                            </option>
+                            <option value="not_available" {% if availability_filter == 'not_available' %}selected{% endif %}>
+                                Not Available
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary mb-2">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+                    <a href="{% url 'users:manage_coaches' %}" class="btn btn-secondary mb-2 ml-2">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Coaches List</h6>
+        <span class="badge badge-primary">{{ coaches.count }} coach{{ coaches.count|pluralize:"es" }}</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Coach</th>
+                        <th>Contact Info</th>
+                        <th>Sport Type</th>
+                        <th>Experience</th>
+                        <th>Location</th>
+                        <th>Pricing</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for coach in coaches %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if coach.user.pdp %}
+                                    <img src="{{ coach.user.pdp.url }}" 
+                                         class="rounded-circle mr-3" 
+                                         width="40" height="40" 
+                                         alt="{{ coach.user.nom_complet }}">
+                                {% else %}
+                                    <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mr-3" 
+                                         style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <strong>{{ coach.user.nom_complet }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        {% if coach.show_on_website %}
+                                            <i class="fas fa-eye text-success"></i> Visible on website
+                                        {% else %}
+                                            <i class="fas fa-eye-slash text-secondary"></i> Hidden
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <i class="fas fa-envelope mr-1"></i> {{ coach.user.email }}<br>
+                                {% if coach.user.num_tel %}
+                                    <i class="fas fa-phone mr-1"></i> {{ coach.user.num_tel }}<br>
+                                {% endif %}
+                                {% if coach.user.ville %}
+                                    <i class="fas fa-map-marker-alt mr-1"></i> {{ coach.user.ville }}
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-info">{{ coach.get_sport_type_display }}</span>
+                        </td>
+                        <td>
+                            {{ coach.experience_years }} year{{ coach.experience_years|pluralize }}
+                        </td>
+                        <td>{{ coach.location }}</td>
+                        <td>
+                            <strong>${{ coach.session_price }}</strong> / session<br>
+                            <strong>${{ coach.subscription_price }}</strong> / month
+                        </td>
+                        <td>
+                            {% if coach.is_available %}
+                                <span class="badge badge-success">Available</span>
+                            {% else %}
+                                <span class="badge badge-danger">Not Available</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                            <a href="{% url 'users:coach_edit' coach.id %}" class="btn btn-info btn-circle btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            
+                            <a href="{% url 'users:coaches_coach_delete' coach.id %}" class="btn btn-danger btn-circle btn-sm" >  
+                                <i class="fas fa-trash"></i>
+                            </a>
+                                <button type="button" 
+                                        class="btn btn-sm btn-info" 
+                                        title="View Details"
+                                        data-toggle="modal" 
+                                        data-target="#coachModal{{ coach.id }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Coach Details Modal -->
+                    <div class="modal fade" id="coachModal{{ coach.id }}" tabindex="-1" role="dialog" 
+                         aria-labelledby="coachModalLabel{{ coach.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="coachModalLabel{{ coach.id }}">
+                                        {{ coach.user.nom_complet}} - Coach Details
+                                    </h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-4 text-center">
+                                            {% if coach.user.pdp %}
+                                                <img src="{{ coach.user.pdp.url }}" 
+                                                     class="rounded-circle mb-3" 
+                                                     width="120" height="120" 
+                                                     alt="{{ coach.user.nom_complet }}">
+                                            {% else %}
+                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3" 
+                                                     style="width: 120px; height: 120px;">
+                                                    <i class="fas fa-user text-white fa-3x"></i>
+                                                </div>
+                                            {% endif %}
+                                            <h5>{{ coach.user.nom_complet }}</h5>
+                                            <p class="text-muted">{{ coach.get_sport_type_display }} Coach</p>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <h6>Contact Information</h6>
+                                            <p>
+                                                <i class="fas fa-envelope mr-2"></i> {{ coach.user.email }}<br>
+                                                {% if coach.user.num_tel %}
+                                                    <i class="fas fa-phone mr-2"></i> {{ coach.user.num_tel }}<br>
+                                                {% endif %}
+                                                {% if coach.user.ville %}
+                                                    <i class="fas fa-map-marker-alt mr-2"></i> {{ coach.user.ville }}
+                                                {% endif %}
+                                            </p>
+                                            
+                                            <h6>Professional Details</h6>
+                                            <p>
+                                                <strong>Experience:</strong> {{ coach.experience_years }} years<br>
+                                                <strong>Location:</strong> {{ coach.location }}<br>
+                                                <strong>Session Price:</strong> ${{ coach.session_price }}<br>
+                                                <strong>Subscription Price:</strong> ${{ coach.subscription_price }}/month
+                                            </p>
+                                            
+                                            {% if coach.bio %}
+                                                <h6>Bio</h6>
+                                                <p>{{ coach.bio }}</p>
+                                            {% endif %}
+                                            
+                                            {% if coach.certifications %}
+                                                <h6>Certifications</h6>
+                                                <p>{{ coach.certifications|linebreaks }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <a href="{% url 'users:coach_edit' coach.id %}" class="btn btn-primary">
+                                        <i class="fas fa-edit"></i> Edit Coach
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No coaches found</h5>
+                            <p class="text-muted">No coaches match your search criteria.</p>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCoachModal">
+                                <i class="fas fa-plus"></i> Add Your First Coach
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Coach Modal -->
+<div class="modal fade" id="addCoachModal" tabindex="-1" role="dialog" 
+     aria-labelledby="addCoachModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCoachModalLabel">Add New Coach</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'users:add_coach' %}" enctype="multipart/form-data" id="addCoachForm">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary"><i class="fas fa-user mr-2"></i>Personal Information</h6>
+                            <div class="form-group">
+                                <label for="full_name" class="font-weight-bold">Full Name *</label>
+                                <input type="text" class="form-control" id="full_name" name="full_name" 
+                                       placeholder="Enter full name" required>
+                                <small class="form-text text-muted">Coach's complete name</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="font-weight-bold">Email Address *</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       placeholder="Enter email address" required>
+                                <small class="form-text text-muted">This will be used for login</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone_number">Phone Number</label>
+                                <input type="text" class="form-control" id="phone_number" name="phone_number" 
+                                       placeholder="Enter phone number">
+                            </div>
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" class="form-control" id="city" name="city" 
+                                       placeholder="Enter city">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile_photo">Profile Photo</label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="profile_photo" name="profile_photo" accept="image/*">
+                                    <label class="custom-file-label" for="profile_photo">Choose file...</label>
+                                </div>
+                                <small class="form-text text-muted">Recommended: Square image, max 2MB</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary"><i class="fas fa-dumbbell mr-2"></i>Professional Information</h6>
+                            <div class="form-group">
+                                <label for="sport_type" class="font-weight-bold">Sport Type *</label>
+                                <select class="form-control" id="sport_type" name="sport_type" required>
+                                    <option value="">Select Sport Type</option>
+                                    <option value="fitness">Fitness</option>
+                                    <option value="yoga">Yoga</option>
+                                    <option value="cardio">Cardio</option>
+                                    <option value="musculation">Musculation</option>
+                                    <option value="crossfit">CrossFit</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="experience_years" class="font-weight-bold">Experience (Years) *</label>
+                                <input type="number" class="form-control" id="experience_years" name="experience_years" 
+                                       min="0" max="50" placeholder="Enter years of experience" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="location" class="font-weight-bold">Location *</label>
+                                <input type="text" class="form-control" id="location" name="location" 
+                                       placeholder="Enter training location" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="session_price" class="font-weight-bold">Session Price ($) *</label>
+                                <input type="number" class="form-control" id="session_price" name="session_price" 
+                                       step="0.01" min="0" placeholder="0.00" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="subscription_price" class="font-weight-bold">Monthly Subscription Price ($) *</label>
+                                <input type="number" class="form-control" id="subscription_price" name="subscription_price" 
+                                       step="0.01" min="0" placeholder="0.00" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="text-primary"><i class="fas fa-file-alt mr-2"></i>Additional Information</h6>
+                            <div class="form-group">
+                                <label for="bio">Bio</label>
+                                <textarea class="form-control" id="bio" name="bio" rows="3" 
+                                          placeholder="Tell us about the coach's background, expertise, training philosophy..."></textarea>
+                                <small class="form-text text-muted">This will be displayed on the coach's public profile</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="certifications">Certifications & Credentials</label>
+                                <textarea class="form-control" id="certifications" name="certifications" rows="2" 
+                                          placeholder="List any certifications, degrees, or special credentials..."></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mt-2">
+                                        <input type="checkbox" class="form-check-input" id="is_available" name="is_available" checked>
+                                        <label class="form-check-label font-weight-bold" for="is_available">
+                                            <i class="fas fa-check-circle text-success mr-1"></i>Available for sessions
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mt-2">
+                                        <input type="checkbox" class="form-check-input" id="show_on_website" name="show_on_website" checked>
+                                        <label class="form-check-label font-weight-bold" for="show_on_website">
+                                            <i class="fas fa-eye text-info mr-1"></i>Show on website
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-1"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus mr-1"></i>Add Coach
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- EDIT COACH MODAL -->
+<div class="modal fade" id="editCoachModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-gradient-primary text-white">
+                <h5 class="modal-title">Edit Coach</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                    <p class="mt-3">Loading form...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<script>
+$(document).ready(function() {
+
+    // OPEN EDIT MODAL — 100% RELIABLE URL BUILDING
+    $(document).on('click', '.edit-coach-btn', function(e) {
+        e.preventDefault();
+        const url = $(this).data('url');
+        const coachId = $(this).data('coach-id');
+        const $modal = $('#editCoachModal');
+
+        $modal.modal('show');
+        $modal.find('.modal-body').html(`
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                <p class="mt-3">Loading coach data...</p>
+            </div>
+        `);
+
+        $.get(url)
+            .done(function(res) {
+                $modal.find('.modal-body').html(res.html_content);
+                $modal.find('.modal-title').text('Edit Coach');
+            })
+            .fail(function(xhr) {
+                console.error("AJAX error:", xhr.responseText);
+                $modal.find('.modal-body').html(`
+                    <div class="alert alert-danger">
+                        <strong>Error loading form</strong><br>
+                        Status: ${xhr.status} ${xhr.statusText}
+                    </div>
+                `);
+            });
+    });
+
+    // SUBMIT FORM
+    $('#editCoachModal').on('submit', 'form', function(e) {
+        e.preventDefault();
+        const $form = $(this);
+        const $btn = $form.find('button[type="submit"]') || $form.find('input[type="submit"]');
+        $btn.prop('disabled', true).html('Saving...');
+
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'POST',
+            data: new FormData(this),
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                if (res.success) {
+                    $('#editCoachModal').modal('hide');
+                    alert('Coach updated successfully!');
+                    location.reload();
+                } else {
+                    $modal.find('.modal-body').html(res.html_content);
+                }
+            },
+            error: function() {
+                alert('Server error. Please try again.');
+            },
+            complete: function() {
+                $btn.prop('disabled', false).html('Update Coach');
+            }
+        });
+    });
+
+});
+</script>
+
+<style>
+.custom-file-label::after {
+    content: "Browse";
+}
+
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+/* ... rest of your CSS ... */
+.form-check-label {
+    cursor: pointer;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+}
+
+.modal-header .close {
+    color: white;
+    text-shadow: none;
+    opacity: 0.8;
+}
+
+.modal-header .close:hover {
+    opacity: 1;
+}
+.custom-file-label::after {
+    content: "Browse";
+}
+
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.form-check-label {
+    cursor: pointer;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: none;
+}
+
+.modal-header .close {
+    color: white;
+    text-shadow: none;
+    opacity: 0.8;
+}
+
+.modal-header .close:hover {
+    opacity: 1;
+}
+</style>

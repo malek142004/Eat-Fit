@@ -1,0 +1,46 @@
+{% extends "main/base.html" %}
+
+{% block title %}Coaches List{% endblock %}
+
+{% block content %}
+<h1>Coaches Management</h1>
+
+<div class="mb-3">
+    <a href="{% url 'coach_create' %}" class="btn btn-success">Add New Coach</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Sport Type</th>
+            <th>Experience</th>
+            <th>Session Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for coach in coaches %}
+        <tr>
+            <td>{{ coach.id }}</td>
+            <td>{{ coach.user.full_name }}</td>
+            <td>{{ coach.user.email }}</td>
+            <td>{{ coach.sport_type }}</td>
+            <td>{{ coach.experience_years }} years</td>
+            <td>${{ coach.session_price }}</td>
+            <td>
+                <a href="{% url 'coach_detail' coach.id %}" class="btn btn-info btn-sm">View</a>
+                <a href="{% url 'coach_update' coach.id %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'coach_delete' coach.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7" class="text-center">No coaches found. <a href="{% url 'coach_create' %}">Add the first coach</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

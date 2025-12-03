@@ -1,0 +1,200 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<style>
+.results-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.nutrition-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.nutrition-card h2 {
+    margin-bottom: 10px;
+    font-size: 2.5em;
+}
+
+.health-score {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    font-weight: bold;
+    margin: 20px auto;
+}
+
+.health-score.high { background: linear-gradient(45deg, #4CAF50, #45a049); }
+.health-score.medium { background: linear-gradient(45deg, #FF9800, #f57c00); }
+.health-score.low { background: linear-gradient(45deg, #f44336, #d32f2f); }
+
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.nutrient-item {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.nutrient-item h4 {
+    margin-bottom: 10px;
+    color: #495057;
+    font-size: 1.1em;
+}
+
+.nutrient-value {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.recommendations {
+    background: #e8f5e8;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 5px solid #4CAF50;
+}
+
+.recommendations h4 {
+    color: #2e7d32;
+    margin-bottom: 15px;
+}
+
+.recommendations ul {
+    list-style: none;
+    padding: 0;
+}
+
+.recommendations li {
+    padding: 5px 0;
+    color: #388e3c;
+}
+
+.btn-back {
+    background: linear-gradient(45deg, #ff4e50, #f9d423);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 20px;
+    transition: transform 0.2s;
+}
+
+.btn-back:hover {
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-top-section set-bg" data-setbg="{% static 'front/img/my-hero2.jpg' %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 m-auto text-white">
+                <h2>Résultats de l'Analyse</h2>
+                <p>Voici l'analyse nutritionnelle de votre image</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="results-section spad">
+    <div class="container">
+        <div class="results-container">
+            {% if nutritional_info %}
+                <div class="nutrition-card">
+                    <h2>Analyse Nutritionnelle</h2>
+                    <p>Estimation pour 100g de nourriture</p>
+
+                    <div class="health-score {% if nutritional_info.score_sante >= 8 %}high{% elif nutritional_info.score_sante >= 5 %}medium{% else %}low{% endif %}">
+                        {{ nutritional_info.score_sante }}/10
+                    </div>
+                    <p>Score de santé</p>
+                </div>
+
+                <div class="nutrition-grid">
+                    <div class="nutrient-item">
+                        <h4>Calories</h4>
+                        <div class="nutrient-value">{{ nutritional_info.calories }}</div>
+                        <small>kcal</small>
+                    </div>
+                    <div class="nutrient-item">
+                        <h4>Protéines</h4>
+                        <div class="nutrient-value">{{ nutritional_info.proteines }}</div>
+                        <small>g</small>
+                    </div>
+                    <div class="nutrient-item">
+                        <h4>Lipides</h4>
+                        <div class="nutrient-value">{{ nutritional_info.lipides }}</div>
+                        <small>g</small>
+                    </div>
+                    <div class="nutrient-item">
+                        <h4>Glucides</h4>
+                        <div class="nutrient-value">{{ nutritional_info.glucides }}</div>
+                        <small>g</small>
+                    </div>
+                    {% if nutritional_info.fibres %}
+                    <div class="nutrient-item">
+                        <h4>Fibres</h4>
+                        <div class="nutrient-value">{{ nutritional_info.fibres }}</div>
+                        <small>g</small>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if nutritional_info.recommandations %}
+                <div class="recommendations">
+                    <h4>💡 Recommandations</h4>
+                    <ul>
+                        {% for rec in nutritional_info.recommandations %}
+                        <li>• {{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div style="text-align: center;">
+                    <a href="{% url 'analyze_food_image' %}" class="btn-back">
+                        <i class="fa fa-camera"></i> Analyser une autre image
+                    </a>
+                    <a href="{% url 'nutritionist_list' %}" class="btn-back" style="margin-left: 10px; background: linear-gradient(45deg, #6c757d, #495057);">
+                        <i class="fa fa-list"></i> Retour à la liste
+                    </a>
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    <h4>Erreur d'analyse</h4>
+                    <p>Impossible d'analyser l'image. Veuillez réessayer avec une autre image.</p>
+                    <a href="{% url 'analyze_food_image' %}" class="btn-back">Réessayer</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

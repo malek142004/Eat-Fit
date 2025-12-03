@@ -1,0 +1,680 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<style>
+.upload-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: #fafafa;
+}
+
+.upload-area:hover {
+    border-color: #ff4e50;
+    background: #fff5f5;
+}
+
+.upload-area.dragover {
+    border-color: #ff4e50;
+    background: #fff5f5;
+}
+
+.upload-icon {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.upload-text {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.upload-subtext {
+    font-size: 14px;
+    color: #999;
+}
+
+.file-input {
+    display: none;
+}
+
+.btn-analyze {
+    background: linear-gradient(45deg, #ff4e50, #f9d423);
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 78, 80, 0.3);
+    animation: pulse 2s infinite;
+}
+
+.btn-analyze:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 78, 80, 0.4);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 4px 15px rgba(255, 78, 80, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 25px rgba(255, 78, 80, 0.5);
+    }
+    100% {
+        box-shadow: 0 4px 15px rgba(255, 78, 80, 0.3);
+    }
+}
+
+.btn-analyze-floating {
+    position: fixed;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(45deg, #ff4e50, #f9d423);
+    border: none;
+    padding: 20px 15px;
+    border-radius: 50px;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 78, 80, 0.3);
+    animation: pulse 2s infinite;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    z-index: 1000;
+}
+
+.btn-analyze-floating:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 78, 80, 0.4);
+}
+
+.btn-analyze-floating .btn-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
+}
+
+.preview-image {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 10px;
+    margin-top: 20px;
+    display: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.preview-image.scanning::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ff4e50, transparent);
+    animation: scan 2s ease-in-out infinite;
+}
+
+@keyframes scan {
+    0% { top: 0; }
+    50% { top: 50%; }
+    100% { top: 100%; }
+}
+
+.loading {
+    text-align: center;
+    padding: 50px;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #ff4e50;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.results-container {
+    max-width: 100%;
+}
+
+.nutrition-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.nutrition-card h2 {
+    margin-bottom: 10px;
+    font-size: 2.5em;
+}
+
+.health-score {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    font-weight: bold;
+    margin: 20px auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.health-score::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,255,0.3) 360deg);
+    animation: rotate 2s linear infinite;
+}
+
+.health-score.high { background: linear-gradient(45deg, #4CAF50, #45a049); }
+.health-score.medium { background: linear-gradient(45deg, #FF9800, #f57c00); }
+.health-score.low { background: linear-gradient(45deg, #f44336, #d32f2f); }
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.nutrient-item {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.nutrient-item h4 {
+    margin-bottom: 10px;
+    color: #495057;
+    font-size: 1.1em;
+}
+
+.nutrient-value {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.recommendations {
+    background: #e8f5e8;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 5px solid #4CAF50;
+}
+
+.recommendations h4 {
+    color: #2e7d32;
+    margin-bottom: 15px;
+}
+
+.recommendations ul {
+    list-style: none;
+    padding: 0;
+}
+
+.recommendations li {
+    padding: 5px 0;
+    color: #388e3c;
+}
+
+.btn-close-modal {
+    background: linear-gradient(45deg, #6c757d, #495057);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto 0;
+    transition: transform 0.2s;
+}
+
+.btn-close-modal:hover {
+    transform: translateY(-2px);
+}
+
+.btn-download {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: transform 0.2s;
+}
+
+.btn-download:hover {
+    transform: translateY(-2px);
+}
+
+.error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    border-left: 5px solid #f44336;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 10px;
+}
+
+.modal-header {
+    padding: 20px;
+    background: linear-gradient(45deg, #ff4e50, #f9d423);
+    color: white;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+}
+
+.modal-body {
+    padding: 20px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-top-section set-bg" data-setbg="{% static 'front/img/my-hero2.jpg' %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 m-auto text-white">
+                <h2>Analyse Nutritionnelle IA</h2>
+                <p>Prenez une photo de votre repas et découvrez ses valeurs nutritionnelles estimées</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="upload-section spad">
+    <div class="container">
+        <div class="upload-container">
+            <form method="post" enctype="multipart/form-data" id="upload-form">
+                {% csrf_token %}
+
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">
+                        <i class="fa fa-camera"></i>
+                    </div>
+                    <div class="upload-text">
+                        Cliquez ici ou glissez une image de nourriture
+                    </div>
+                    <div class="upload-subtext">
+                        Formats acceptés: JPG, PNG, JPEG (max 10MB)
+                    </div>
+                    <input type="file" name="food_image" accept="image/*" class="file-input" id="file-input" required>
+                </div>
+
+                <!-- Floating Analyze Button -->
+                <button class="btn-analyze-floating" id="analyze-btn">
+                    <img src="{% static 'front/img/icons/up-arrow.png' %}" alt="Up Arrow" style="width: 24px; height: 24px;">
+                    <span class="btn-text">Analyser l'image</span>
+                </button>
+
+                <img id="preview-image" class="preview-image" alt="Aperçu">
+            </form>
+
+            <!-- Modal for results -->
+            <div id="results-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Résultats de l'Analyse</h2>
+                        <span class="close" id="close-modal">&times;</span>
+                    </div>
+                    <div class="modal-body" id="modal-body">
+                        <!-- Modal content will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-input');
+    const previewImage = document.getElementById('preview-image');
+    const uploadForm = document.getElementById('upload-form');
+    const modal = document.getElementById('results-modal');
+    const closeModal = document.getElementById('close-modal');
+    const analyzeBtn = document.getElementById('analyze-btn');
+
+    let isDialogOpen = false;
+
+    // Gestionnaire de clic sur la zone d'upload
+    uploadArea.addEventListener('click', function(e) {
+        // Prevent triggering if clicking on the button
+        if (e.target !== analyzeBtn && !analyzeBtn.contains(e.target) && !isDialogOpen) {
+            isDialogOpen = true;
+            fileInput.click();
+        }
+    });
+
+    // Gestionnaire de clic sur le bouton analyser
+    analyzeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (fileInput.files.length > 0) {
+            handleFileSelect(fileInput.files[0]);
+        } else {
+            alert('Veuillez d\'abord sélectionner une image.');
+        }
+    });
+
+    // Gestionnaire de changement de fichier
+    fileInput.addEventListener('change', function(e) {
+        isDialogOpen = false; // Reset flag when file is selected
+        handleFileSelect(e.target.files[0]);
+    });
+
+    // Gestion du drag & drop
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect(files[0]);
+        }
+    });
+
+    function handleFileSelect(file) {
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+                previewImage.classList.add('scanning');
+
+                // Start automatic analysis after scanning animation
+                setTimeout(() => {
+                    previewImage.classList.remove('scanning');
+                    // Automatically submit the form
+                    uploadForm.dispatchEvent(new Event('submit'));
+                }, 2000);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Gestionnaire de soumission du formulaire
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Show loading in modal
+        showLoadingInModal();
+
+        // Créer FormData pour l'envoi AJAX
+        const formData = new FormData(uploadForm);
+
+        // Envoyer la requête AJAX
+        fetch('{% url "users:analyze_food_image" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayResultsInModal(data.nutritional_info);
+            } else {
+                displayErrorInModal(data.error);
+            }
+        })
+        .catch(error => {
+            displayErrorInModal('Erreur lors de la communication avec le serveur.');
+        });
+    });
+
+    // Modal functions
+    function showLoadingInModal() {
+        const modalBody = document.getElementById('modal-body');
+        modalBody.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <h3>Analyse en cours...</h3>
+                <p>Veuillez patienter pendant que nous analysons votre image.</p>
+            </div>
+        `;
+        modal.style.display = 'block';
+    }
+
+    function displayResultsInModal(nutritionalInfo) {
+        const modalBody = document.getElementById('modal-body');
+        const healthScoreClass = nutritionalInfo.score_sante >= 8 ? 'high' : nutritionalInfo.score_sante >= 5 ? 'medium' : 'low';
+
+        let recommendationsHtml = '';
+        if (nutritionalInfo.recommandations && nutritionalInfo.recommandations.length > 0) {
+            recommendationsHtml = `
+                <div class="recommendations">
+                    <h4>💡 Recommandations</h4>
+                    <ul>
+                        ${nutritionalInfo.recommandations.map(rec => `<li>• ${rec}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        modalBody.innerHTML = `
+            <div class="results-container">
+                <div class="nutrition-card">
+                    <h2>Analyse Nutritionnelle</h2>
+                    <p>Estimation pour 100g de nourriture</p>
+
+                    <div class="health-score ${healthScoreClass}">
+                        ${nutritionalInfo.score_sante}/10
+                    </div>
+                    <p>Score de santé</p>
+                </div>
+
+                <div class="nutrition-grid">
+                    <div class="nutrient-item">
+                        <h4><i class="fa fa-fire"></i> Calories</h4>
+                        <div class="nutrient-value">${nutritionalInfo.calories}</div>
+                        <small>kcal</small>
+                    </div>
+                    <div class="nutrient-item">
+                        <h4><i class="fa fa-dumbbell"></i> Protéines</h4>
+                        <div class="nutrient-value">${nutritionalInfo.proteines}</div>
+                        <small>g</small>
+                    </div>
+                    <div class="nutrient-item">
+                        <h4><i class="fa fa-tint"></i> Lipides</h4>
+                        <div class="nutrient-value">${nutritionalInfo.lipides}</div>
+                        <small>g</small>
+                    </div>
+                    <div class="nutrient-item">
+                        <h4><i class="fa fa-bread-slice"></i> Glucides</h4>
+                        <div class="nutrient-value">${nutritionalInfo.glucides}</div>
+                        <small>g</small>
+                    </div>
+                    ${nutritionalInfo.fibres ? `
+                    <div class="nutrient-item">
+                        <h4><i class="fa fa-leaf"></i> Fibres</h4>
+                        <div class="nutrient-value">${nutritionalInfo.fibres}</div>
+                        <small>g</small>
+                    </div>
+                    ` : ''}
+                </div>
+
+                ${recommendationsHtml}
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn-download" onclick="downloadResults(this, '${JSON.stringify(nutritionalInfo).replace(/'/g, "\\'")}')">
+                        <i class="fa fa-download"></i> Télécharger les résultats
+                    </button>
+                    <button class="btn-close-modal" onclick="closeModalFunction()">Fermer</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function displayErrorInModal(errorMessage) {
+        const modalBody = document.getElementById('modal-body');
+        modalBody.innerHTML = `
+            <div class="error-message">
+                <h4>Erreur d'analyse</h4>
+                <p>${errorMessage}</p>
+                <button class="btn-close-modal" onclick="closeModalFunction()">Fermer</button>
+            </div>
+        `;
+    }
+
+    function closeModalFunction() {
+        modal.style.display = 'none';
+    }
+
+    // Close modal when clicking on close button
+    closeModal.addEventListener('click', closeModalFunction);
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeModalFunction();
+        }
+    });
+
+    // Fonction pour télécharger les résultats en PDF
+    window.downloadResults = function(buttonElement) {
+        try {
+            const nutritionalInfoJson = buttonElement.getAttribute('data-nutrition');
+            const nutritionalInfo = JSON.parse(nutritionalInfoJson);
+
+            // Créer un formulaire temporaire pour envoyer les données en POST
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "users:generate_nutrition_pdf" %}';
+            form.style.display = 'none';
+
+            // Ajouter le token CSRF
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken.value;
+                form.appendChild(csrfInput);
+            }
+
+            // Ajouter les données nutritionnelles
+            const dataInput = document.createElement('input');
+            dataInput.type = 'hidden';
+            dataInput.name = 'nutritional_data';
+            dataInput.value = nutritionalInfoJson;
+            form.appendChild(dataInput);
+
+            // Ajouter le formulaire au document et le soumettre
+            document.body.appendChild(form);
+            form.submit();
+
+            // Nettoyer
+            document.body.removeChild(form);
+        } catch (error) {
+            alert('Erreur lors du téléchargement du PDF.');
+        }
+    };
+});
+</script>
+{% endblock %}
+
+{% endblock %}

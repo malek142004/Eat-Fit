@@ -1,0 +1,156 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Modify Appointment{% endblock %}
+
+{% block page_title %}Modify Appointment{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .contact-section.spad {
+            padding-top: 80px;
+            padding-bottom: 80px;
+        }
+        .contact-form {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #f65d5d;
+        }
+        .contact-form h4 {
+            text-align: center;
+            font-family: "Playfair Display", serif;
+            font-size: 28px;
+            margin-bottom: 35px;
+            background: linear-gradient(145deg, #f65d5d 0%, #fdb07d 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        .contact-form h5 {
+            width: 100%;
+            font-family: "Playfair Display", serif;
+            color: #333;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .contact-form form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .form-field-container {
+            width: 48%; /* Two columns with a gap */
+            margin-bottom: 20px;
+        }
+        .form-field-container label {
+            display: block;
+            margin-bottom: 8px; /* More space */
+            color: #555; /* Dark grey for readability */
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .form-control-custom {
+            width: 100%;
+            height: 50px;
+            padding: 0 25px;
+            font-size: 16px;
+            color: #333; /* Darker text for readability */
+            background-color: #f9f9f9; /* Light grey background */
+            border: 2px solid #e5e5e5;
+            border-radius: 50px;
+            transition: all 0.4s;
+        }
+        .form-control-custom:focus {
+            border-color: #f65d5d;
+            background-color: #fff;
+            outline: none;
+            box-shadow: 0 0 10px rgba(246, 93, 93, 0.2);
+        }
+        select.form-control-custom {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            padding-right: 2.5rem;
+        }
+        .validation-message {
+            font-size: 14px;
+            margin-top: 5px;
+            padding-left: 25px; /* Align with input padding */
+            font-weight: bold;
+            height: 18px; /* Reserve space to prevent layout shifts */
+        }
+        .valid-message {
+            color: #28a745; /* Green */
+        }
+        .invalid-message {
+            color: #dc3545; /* Red */
+        }
+        .valid-field {
+            border-color: #28a745 !important;
+        }
+        .invalid-field {
+            border-color: #dc3545 !important;
+        }
+        #submit-button {
+            width: 100%;
+            margin-top: 10px; /* Space above the button */
+        }
+        #submit-button:disabled {
+            background-color: #aaa;
+            border-color: #aaa;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<section class="contact-section spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <div class="contact-form">
+                    <h4>Modify Appointment</h4>
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <h5>Client Information</h5>
+                        {% for field in client_form %}
+                            <div class="form-field-container">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                <div class="validation-message" id="validation-{{ field.auto_id }}"></div>
+                            </div>
+                        {% endfor %}
+
+                        <h5>Appointment Details</h5>
+                        {% for field in appointment_form %}
+                            <div class="form-field-container">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                <div class="validation-message" id="validation-{{ field.auto_id }}"></div>
+                            </div>
+                        {% endfor %}
+
+                        <button type="submit" id="submit-button" class="site-btn sb-gradient">Save Changes</button>
+                        <a href="{% url 'appointments:appointment_list' %}" class="site-btn sb-line-gradient" style="margin-top: 15px; display: block; text-align: center;">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'main/js/appointment_validation.js' %}"></script>
+{% endblock %}

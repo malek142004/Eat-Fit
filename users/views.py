@@ -437,24 +437,46 @@ def coach_list(request):
     coaches = Coach.objects.filter(
         show_on_website=True,
         is_active=True
-    ).select_related('customuser_ptr') 
+    ).select_related('customuser_ptr')
 
-    # 2. LOGIQUE DE FILTRAGE SUPPLÉMENTAIRE PAR TYPE DE SPORT
+    # Check for recent appointments (last 24 hours)
+    from appointments.models import Appointment
+    from django.utils import timezone
+    from datetime import timedelta
+
+    recent_appointments_cutoff = timezone.now() - timedelta(hours=24)
+    recent_appointment_professionals = Appointment.objects.filter(
+        professional__in=coaches,
+        created_at__gte=recent_appointments_cutoff
+    ).values_list('professional_id', flat=True).distinct()
+
+    # 2. SEARCH BAR LOGIC
+    search_query = request.GET.get('search')
+    if search_query:
+        coaches = coaches.filter(
+            Q(nom_complet__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+
+    # 3. LOGIQUE DE FILTRAGE SUPPLÉMENTAIRE PAR TYPE DE SPORT
     sport_type = request.GET.get('sport') 
-    
     if sport_type:
         coaches = coaches.filter(sport_type__iexact=sport_type)
 
-    # 3. FILTRAGE PAR LOCALISATION
+    # 4. FILTRAGE PAR LOCALISATION
     location = request.GET.get('location')
     if location:
         coaches = coaches.filter(location__iexact=location)
 
-    # 4. LOGIQUE DE TRI (ORDRE)
-    sort_by = request.GET.get('sort', 'id') 
+    # 5. LOGIQUE DE TRI (ORDRE)
+    sort_by = request.GET.get('sort', 'id')
+    order = request.GET.get('order', 'asc')
+
     valid_sort_fields = ['session_price', 'subscription_price', 'experience_years', 'id']
     if sort_by not in valid_sort_fields:
         sort_by = 'id'  # Default sorting
+    if order == 'desc':
+        sort_by = f'-{sort_by}'    
 
     coaches = coaches.order_by(sort_by)
 
@@ -1253,8 +1275,13 @@ def nutritionist_list(request):
     """
     Affiche la liste des nutritionnistes avec gestion de la recherche (q) et du tri (sort, order).
     """
+    # Add test messages to demonstrate notifications
+    messages.info(request, "Bienvenue sur la page des nutritionnistes !")
+    messages.success(request, "Liste des nutritionnistes chargée avec succès.")
+    messages.warning(request, "Certains nutritionnistes peuvent ne pas être disponibles.")
+
     search_query = request.GET.get('q', '')
-    sort_by = request.GET.get('sort', 'name') 
+    sort_by = request.GET.get('sort', 'name')
     order = request.GET.get('order', 'asc')
 
     # 1. Filtrage (Recherche)

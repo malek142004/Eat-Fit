@@ -36,7 +36,6 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse, FileResponse
 from .models import Feedback
 from .serializers import FeedbackSerializer
-import weasyprint
 import io
 from reportlab.pdfgen import canvas
 

@@ -17,45 +17,51 @@
 <section class="trainers-page-section spad overflow-hidden">
     <div class="container">
         <div class="row mb-4">
-            <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-3">
-                <div class="d-flex gap-2">
-                    <a href="{% url 'users:coach_create' %}" class="btn btn-lg fw-bold shadow-sm" style="background: linear-gradient(90deg,#43ea7c 0%,#1abc9c 100%); color:#fff; border-radius:18px; padding:12px 32px; font-size:1.1rem; border:none;">Add New Coach</a>
-                    {% if user.is_authenticated and user.role == 'coach' %}
-                        <a href="{% url 'appointments:training_program_create' %}" class="btn btn-lg fw-bold shadow-sm" style="background: linear-gradient(90deg,#2980ff 0%,#ff6b35 100%); color:#fff; border-radius:18px; padding:12px 32px; font-size:1.1rem; border:none;">Create Training Program</a>
-                    {% endif %}
+            <div class="col-12">
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4 w-100">
+                            <div class="d-flex gap-3 flex-wrap w-100" style="justify-content:space-between;">
+                                <a href="{% url 'users:coach_create' %}" class="btn btn-lg fw-bold shadow-sm" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; border-radius:24px; padding:12px 32px; font-size:1.1rem; border:none;">Add New Coach</a>
+                                {% if user.is_authenticated and user.role == 'coach' %}
+                                    <a href="{% url 'appointments:training_program_create' %}" class="btn btn-lg fw-bold shadow-sm ms-auto" style="background: linear-gradient(90deg,#e74c3c 0%,#ffb347 100%); color:#fff; border-radius:24px; padding:12px 32px; font-size:1.1rem; border:none; float:right;">Create Training Program</a>
+                                {% endif %}
+
+                            </div>
+                        </div>
                 </div>
-                <div class="d-flex gap-2 align-items-center flex-wrap">
-                    <form method="get" class="d-flex gap-2 align-items-center flex-wrap" style="background:#fff6f0; border-radius:16px; box-shadow:0 2px 8px rgba(255,107,53,0.08); padding:10px 18px;">
-                        <input type="text" name="search" class="form-control" style="border-radius:12px; border:1.5px solid #ffb347; font-size:1.08rem; width:180px;" placeholder="Search coaches..." value="{{ search_query }}">
-                        <select name="sport" class="form-select" style="border-radius:12px; border:1.5px solid #ffb347; font-size:1.08rem;">
-                            <option value="">All Sports</option>
-                            {% for sport_tuple in all_sport_types %}
-                                <option value="{{ sport_tuple.0 }}" {% if current_sport == sport_tuple.0 %}selected{% endif %}>{{ sport_tuple.1 }}</option>
-                            {% endfor %}
-                        </select>
-                        <select name="location" class="form-select" style="border-radius:12px; border:1.5px solid #ffb347; font-size:1.08rem;">
-                            <option value="">All Locations</option>
-                            {% for loc in locations %}
-                                <option value="{{ loc }}" {% if location == loc %}selected{% endif %}>{{ loc }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit" class="btn fw-bold" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; border-radius:14px; padding:8px 24px; font-size:1.08rem; border:none; box-shadow:0 2px 8px rgba(255,107,53,0.08);">Filter</button>
-                        <a href="?" class="btn fw-bold" style="background: linear-gradient(90deg,#bdbdbd 0%,#ffe0c3 100%); color:#333; border-radius:14px; padding:8px 24px; font-size:1.08rem; border:none; box-shadow:0 2px 8px rgba(189,189,189,0.08);">Clear</a>
-                    </form>
-                    <div class="d-flex gap-2 align-items-center ms-2">
-                        <label for="sort" class="fw-bold" style="color:#ff6b35; font-size:1.08rem;">Sort by:</label>
-                        <select id="sort" name="sort" class="form-select" style="border-radius:12px; border:1.5px solid #ffb347; font-size:1.08rem; width:140px; display:inline-block;" onchange="window.location.href='?search={{ search_query }}&sport={{ current_sport }}&location={{ location }}&sort=' + this.value + '&order=' + document.getElementById('order').value">
-                            <option value="id" {% if current_sort == 'id' %}selected{% endif %}>Default</option>
-                            <option value="experience_years" {% if current_sort == 'experience_years' %}selected{% endif %}>Experience</option>
-                            <option value="session_price" {% if current_sort == 'session_price' %}selected{% endif %}>Session Price</option>
-                            <option value="subscription_price" {% if current_sort == 'subscription_price' %}selected{% endif %}>Subscription Price</option>
-                        </select>
-                        <select id="order" name="order" class="form-select ms-2" style="border-radius:12px; border:1.5px solid #ffb347; font-size:1.08rem; width:120px; display:inline-block;" onchange="window.location.href='?search={{ search_query }}&sport={{ current_sport }}&location={{ location }}&sort=' + document.getElementById('sort').value + '&order=' + this.value">
-                            <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Ascending</option>
-                            <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Descending</option>
-                        </select>
-                    </div>
                 </div>
+        <div style="height:14px;"></div>
+        <div class="row mb-4">
+            <div class="col-12">
+                <form method="get" class="d-flex gap-4 align-items-center flex-nowrap justify-content-center w-100" style="background:#fff6f0; border-radius:24px; box-shadow:0 2px 8px rgba(255,107,53,0.08); padding:18px 32px; width:100%; max-width:1200px; margin:auto;">
+                    <input type="text" name="search" class="form-control" style="border-radius:16px; border:1.5px solid #ffb347; font-size:1.15rem; width:220px;" placeholder="Search coaches..." value="{{ search_query }}">
+                    <select name="sport" class="form-select" style="border-radius:16px; border:1.5px solid #ffb347; font-size:1.15rem; width:180px;">
+                        <option value="">All Sports</option>
+                        {% for sport_tuple in all_sport_types %}
+                            <option value="{{ sport_tuple.0 }}" {% if current_sport == sport_tuple.0 %}selected{% endif %}>{{ sport_tuple.1 }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="location" class="form-select" style="border-radius:16px; border:1.5px solid #ffb347; font-size:1.15rem; width:180px;">
+                        <option value="">All Locations</option>
+                        {% for loc in locations %}
+                            <option value="{{ loc }}" {% if location == loc %}selected{% endif %}>{{ loc }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="sort" class="fw-bold ms-2" style="color:#ff6b35; font-size:1.15rem;">Sort by:</label>
+                    <select id="sort" name="sort" class="form-select" style="border-radius:16px; border:1.5px solid #ffb347; font-size:1.15rem; width:160px; display:inline-block;">
+                        <option value="id" {% if current_sort == 'id' %}selected{% endif %}>Default</option>
+                        <option value="experience_years" {% if current_sort == 'experience_years' %}selected{% endif %}>Experience</option>
+                        <option value="session_price" {% if current_sort == 'session_price' %}selected{% endif %}>Session Price</option>
+                        <option value="subscription_price" {% if current_sort == 'subscription_price' %}selected{% endif %}>Subscription Price</option>
+                    </select>
+                    <select id="order" name="order" class="form-select ms-2" style="border-radius:16px; border:1.5px solid #ffb347; font-size:1.15rem; width:140px; display:inline-block;">
+                        <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Ascending</option>
+                        <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Descending</option>
+                    </select>
+                    <button type="submit" class="btn fw-bold" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; border-radius:18px; padding:10px 32px; font-size:1.15rem; border:none; box-shadow:0 2px 8px rgba(255,107,53,0.08);">Filter</button>
+                    <a href="?" class="btn fw-bold" style="background: linear-gradient(90deg,#bdbdbd 0%,#ffe0c3 100%); color:#333; border-radius:18px; padding:10px 32px; font-size:1.15rem; border:none; box-shadow:0 2px 8px rgba(189,189,189,0.08); white-space:nowrap;">Clear</a>
+                </form>
             </div>
         </div>
         <div class="row">

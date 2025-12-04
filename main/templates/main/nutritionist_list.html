@@ -420,6 +420,130 @@
     opacity: 0.9;
     margin: 0;
 }
+
+/* Enhanced Notification Styles */
+.notification-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px 0;
+    margin-bottom: 20px;
+}
+
+.notification-card {
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 50px 20px 20px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    animation: fadeInUp 0.6s ease-out;
+    border-left: 5px solid #ff4e50;
+    transition: all 0.3s ease;
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+}
+
+.notification-card.success {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    border-left-color: #28a745;
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+}
+
+.notification-card.error {
+    background: linear-gradient(135deg, #ff4e50 0%, #f9d423 100%);
+    border-left-color: #dc3545;
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+}
+
+.notification-card.warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-left-color: #ffc107;
+    box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+}
+
+.notification-card.info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-left-color: #17a2b8;
+    box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+}
+
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.notification-icon {
+    font-size: 24px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.notification-text h5 {
+    margin: 0 0 8px 0;
+    font-weight: 600;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.notification-text p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    opacity: 0.95;
+}
+
+.notification-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 16px;
+}
+
+.notification-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.notification-close:active {
+    transform: scale(0.95);
+}
+
+.notification-close .fa-times {
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* Notification fade out animation */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+.notification-card.fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+}
 </style>
 {% endblock %}
 
@@ -437,6 +561,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initSortControls();
     initDeleteModal();
     initNutritionistMap();
+    initNotificationClose();
 });
 
 function initSortControls() {
@@ -706,6 +831,19 @@ function initNutritionistMap() {
         }
     }, 2000);
 }
+
+function initNotificationClose() {
+    const closeButtons = document.querySelectorAll('.notification-close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const notificationCard = this.closest('.notification-card');
+            notificationCard.classList.add('fade-out');
+            setTimeout(() => {
+                notificationCard.remove();
+            }, 300);
+        });
+    });
+}
 </script>
 {% endblock %}
 
@@ -720,6 +858,32 @@ function initNutritionistMap() {
         </div>
     </div>
 </section>
+
+<!-- Notification Section -->
+{% if messages %}
+<section class="notification-section spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                {% for message in messages %}
+                <div class="notification-card {% if message.tags %}notification-{{ message.tags }}{% endif %}">
+                    <button type="button" class="notification-close" aria-label="Fermer la notification">
+                        <i class="fa fa-times"></i>
+                    </button>
+                    <div class="notification-content">
+                        <i class="fa fa-bell notification-icon"></i>
+                        <div class="notification-text">
+                            <h5>Notification</h5>
+                            <p>{{ message }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
 <section class="trainers-page-section spad overflow-hidden">
     <div class="container">
         <div class="row">

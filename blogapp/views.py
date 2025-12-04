@@ -287,7 +287,7 @@ def blog_to_pdf(request, pk):
         return HttpResponse('Erreur lors de la génération du PDF')
     return response
 
-HF_TOKEN = "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"
+HF_TOKEN = "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"
 client = InferenceClient(
     provider="hf-inference",
     api_key=HF_TOKEN,  # Assure-toi que HF_TOKEN est défini

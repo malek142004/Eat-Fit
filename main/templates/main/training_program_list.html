@@ -1,0 +1,38 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">My Training Programs</h2>
+    {% if user.is_authenticated and user.role == 'coach' %}
+        <a href="{% url 'appointments:training_program_create' %}" class="btn btn-success mb-3">Create Training Program</a>
+    {% endif %}
+    {% if object_list.exists %}
+    <div class="row">
+        {% for program in object_list %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm" style="border-radius:18px; background:#fff;">
+                <div class="card-body">
+                    <h5 class="card-title" style="font-size:1.3rem; font-weight:700; color:#2d2d2d;">{{ program.name }}</h5>
+                    <p class="mb-1" style="color:#ff6b35; font-weight:600;">{{ program.get_level_display }}</p>
+                    <p class="mb-1" style="color:#555;">${{ program.price|floatformat:2 }}</p>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'appointments:training_program_pdf' program.pk %}" class="btn" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; font-weight:600; border-radius:24px; padding:8px 20px; font-size:1rem; border:none;" title="Download PDF"><i class="fa fa-file-pdf-o"></i></a>
+                        {% if user.is_authenticated and user.role == 'coach' and program.user == user %}
+                            <a href="{% url 'appointments:training_program_edit' program.pk %}" class="btn" style="background: linear-gradient(90deg,#ffb347 0%,#ff6b35 100%); color:#fff; font-weight:600; border-radius:24px; padding:8px 20px; font-size:1rem; border:none;">Edit</a>
+                            <a href="{% url 'appointments:training_program_delete' program.pk %}" class="btn" style="background: linear-gradient(90deg,#e74c3c 0%,#ffb347 100%); color:#fff; font-weight:600; border-radius:24px; padding:8px 20px; font-size:1rem; border:none;">Delete</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <p style="color:#aaa;">No training programs found.</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center">No training programs found. Click "Create Training Program" to add one.</p>
+    {% endif %}
+</div>
+{% endblock %}

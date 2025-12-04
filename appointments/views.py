@@ -1,3 +1,8 @@
+def training_program_detail_view(request, pk):
+    training_program = get_object_or_404(TrainingProgram, pk=pk)
+    return render(request, 'main/training_program_detail.html', {'training_program': training_program})
+import logging
+logger = logging.getLogger(__name__)
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -17,6 +22,23 @@ import string
 
 from .forms import AppointmentCreateForm, AppointmentUpdateForm
 from .models import Appointment
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.forms import ValidationError
+from .forms import AppointmentCreateForm, AppointmentUpdateForm, ClientUpdateForm, TrainingProgramForm
+from .models import Appointment, Client, TrainingProgram
+
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponse, FileResponse
+from .models import Feedback
+from .serializers import FeedbackSerializer
+import weasyprint
+import io
+from reportlab.pdfgen import canvas
 
 User = get_user_model()
 
@@ -455,3 +477,160 @@ def api_appointments(request, pk=None):
             return JsonResponse({'status': 'error', 'message': 'Appointment not found'}, status=404)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+class GenerateTrainingPDFView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        training_program_id = request.data.get('training_program_id')
+        try:
+            training_program = TrainingProgram.objects.get(id=training_program_id, user=request.user)
+        except TrainingProgram.DoesNotExist:
+            return Response({'error': 'Training program not found or access denied.'}, status=404)
+
+        # Generate PDF content
+        html_content = f"""
+        <html>
+        <head><title>{training_program.title}</title></head>
+        <body>
+            <h1>{training_program.title}</h1>
+            <p>{training_program.description}</p>
+            <p>Created at: {training_program.created_at}</p>
+        </body>
+        </html>
+        """
+        pdf_file = weasyprint.HTML(string=html_content).write_pdf()
+
+        # Return PDF as response
+        response = HttpResponse(pdf_file, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{training_program.title}.pdf"'
+        return response
+
+from rest_framework import generics, permissions
+
+class FeedbackListCreateView(generics.ListCreateAPIView):
+    serializer_class = FeedbackSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Feedback.objects.filter(coach=self.kwargs['coach_id'])
+
+    def perform_create(self, serializer):
+        # Allow any authenticated client to leave feedback for a coach
+        serializer.save(client=self.request.user)
+
+class FeedbackDeleteView(generics.DestroyAPIView):
+    serializer_class = FeedbackSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Feedback.objects.filter(client=self.request.user)
+
+def training_programs_view(request):
+    training_programs = TrainingProgram.objects.all()
+    return render(request, 'main/training_programs.html', {'training_programs': training_programs})
+
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from .models import Feedback
+
+def feedback_view(request, coach_id):
+    coach = get_object_or_404(get_user_model(), id=coach_id)
+    feedback_list = Feedback.objects.filter(coach=coach)
+    return render(request, 'feedback.html', {'feedback_list': feedback_list, 'coach_id': coach_id})
+
+def coach_detail_view(request, coach_id):
+    coach = get_object_or_404(get_user_model(), id=coach_id)
+    feedbacks = Feedback.objects.filter(coach=coach).order_by('-created_at')
+    can_leave_feedback = True  # Always allow feedback for testing
+
+    if request.method == 'POST' and 'leave_feedback' in request.POST and can_leave_feedback:
+        rating = int(request.POST.get('rating', 0))
+        comment = request.POST.get('comment', '')
+        Feedback.objects.create(
+            coach=coach,
+            client=request.user,
+            rating=rating,
+            comment=comment
+        )
+        return redirect('appointments:coach_detail', coach_id=coach_id)
+
+    avg_rating = feedbacks.aggregate_avg('rating') if feedbacks.exists() else None
+    latest_feedbacks = feedbacks[:3]
+    more_feedbacks = feedbacks.count() > 3
+    all_feedbacks = feedbacks
+
+    return render(request, 'main/coach_detail.html', {
+        'coach': coach,
+        'all_feedbacks': all_feedbacks,
+        'latest_feedbacks': latest_feedbacks,
+        'more_feedbacks': more_feedbacks,
+        'avg_rating': avg_rating,
+        'can_leave_feedback': can_leave_feedback,
+    })
+
+from django.views.generic import CreateView, UpdateView, DeleteView, ListView
+from django.urls import reverse_lazy
+
+class TrainingProgramCreateView(CreateView):
+    model = TrainingProgram
+    form_class = TrainingProgramForm
+    template_name = 'main/training_program_form.html'
+    success_url = reverse_lazy('appointments:training_program_list')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+class TrainingProgramUpdateView(UpdateView):
+    model = TrainingProgram
+    form_class = TrainingProgramForm
+    template_name = 'main/training_program_form.html'
+    success_url = reverse_lazy('appointments:training_program_list')
+
+class TrainingProgramDeleteView(DeleteView):
+    model = TrainingProgram
+    template_name = 'main/training_program_confirm_delete.html'
+    success_url = reverse_lazy('appointments:training_program_list')
+
+class TrainingProgramListView(ListView):
+    model = TrainingProgram
+    template_name = 'main/training_program_list.html'
+
+    def get_queryset(self):
+        queryset = TrainingProgram.objects.filter(user=self.request.user)
+        logger.debug(f"Training programs for user {self.request.user}: {queryset}")
+        return queryset
+
+def generate_training_program_pdf(request, pk):
+    training_program = get_object_or_404(TrainingProgram, pk=pk)
+
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.lib.units import cm
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
+    styles = getSampleStyleSheet()
+    story = []
+
+    story.append(Paragraph(f"<b>Training Program:</b> {training_program.name}", styles['Title']))
+    story.append(Spacer(1, 0.5*cm))
+    story.append(Paragraph(f"<b>Price:</b> ${training_program.price}", styles['Normal']))
+    story.append(Paragraph(f"<b>Level:</b> {training_program.get_level_display()}", styles['Normal']))
+    story.append(Spacer(1, 0.5*cm))
+    story.append(Paragraph("<b>Description:</b>", styles['Heading2']))
+    story.append(Paragraph(training_program.description.replace('\n', '<br/>'), styles['BodyText']))
+
+    doc.build(story)
+    buffer.seek(0)
+    return FileResponse(buffer, as_attachment=True, filename=f"{training_program.name}.pdf")
+
+def coach_training_programs_view(request, coach_id):
+    coach = get_object_or_404(get_user_model(), id=coach_id)
+    training_programs = TrainingProgram.objects.filter(user=coach)
+    return render(request, 'main/coach_training_programs.html', {
+        'training_programs': training_programs,
+        'coach': coach
+    })

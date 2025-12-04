@@ -16,59 +16,116 @@
 </section>
 <section class="trainers-page-section spad overflow-hidden">
     <div class="container">
-        {% if request.user.is_authenticated and request.user.role == 'coach' %}
         <div class="row mb-4">
-            <div class="col-12 text-end">
-                <a href="{% url 'users:coach_create' %}" class="btn btn-success me-2">Add New Coach</a>
+            <div class="col-12 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="d-flex gap-2">
+                    <a href="{% url 'users:coach_create' %}" class="btn btn-lg fw-bold shadow-sm" style="background: linear-gradient(90deg,#43ea7c 0%,#1abc9c 100%); color:#fff; border-radius:18px; padding:12px 32px; font-size:1.1rem; border:none;">Add New Coach</a>
+                    {% if user.is_authenticated and user.role == 'coach' %}
+                        <a href="{% url 'appointments:training_program_create' %}" class="btn btn-lg fw-bold shadow-sm" style="background: linear-gradient(90deg,#2980ff 0%,#ff6b35 100%); color:#fff; border-radius:18px; padding:12px 32px; font-size:1.1rem; border:none;">Create Training Program</a>
+                    {% endif %}
+                </div>
+                <div class="d-flex gap-2 align-items-center flex-wrap">
+                    <form method="get" class="d-flex gap-2 align-items-center flex-wrap" style="background:#fff6f0; border-radius:16px; box-shadow:0 2px 8px rgba(255,107,53,0.08); padding:10px 18px;">
+                        <input type="text" name="search" class="form-control" style="border-radius:12px; border:1.5px solid #ffb347; font-size:1.08rem; width:180px;" placeholder="Search coaches..." value="{{ search_query }}">
+                        <select name="sport" class="form-select" style="border-radius:12px; border:1.5px solid #ffb347; font-size:1.08rem;">
+                            <option value="">All Sports</option>
+                            {% for sport_tuple in all_sport_types %}
+                                <option value="{{ sport_tuple.0 }}" {% if current_sport == sport_tuple.0 %}selected{% endif %}>{{ sport_tuple.1 }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="location" class="form-select" style="border-radius:12px; border:1.5px solid #ffb347; font-size:1.08rem;">
+                            <option value="">All Locations</option>
+                            {% for loc in locations %}
+                                <option value="{{ loc }}" {% if location == loc %}selected{% endif %}>{{ loc }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn fw-bold" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; border-radius:14px; padding:8px 24px; font-size:1.08rem; border:none; box-shadow:0 2px 8px rgba(255,107,53,0.08);">Filter</button>
+                        <a href="?" class="btn fw-bold" style="background: linear-gradient(90deg,#bdbdbd 0%,#ffe0c3 100%); color:#333; border-radius:14px; padding:8px 24px; font-size:1.08rem; border:none; box-shadow:0 2px 8px rgba(189,189,189,0.08);">Clear</a>
+                    </form>
+                    <div class="d-flex gap-2 align-items-center ms-2">
+                        <label for="sort" class="fw-bold" style="color:#ff6b35; font-size:1.08rem;">Sort by:</label>
+                        <select id="sort" name="sort" class="form-select" style="border-radius:12px; border:1.5px solid #ffb347; font-size:1.08rem; width:140px; display:inline-block;" onchange="window.location.href='?search={{ search_query }}&sport={{ current_sport }}&location={{ location }}&sort=' + this.value + '&order=' + document.getElementById('order').value">
+                            <option value="id" {% if current_sort == 'id' %}selected{% endif %}>Default</option>
+                            <option value="experience_years" {% if current_sort == 'experience_years' %}selected{% endif %}>Experience</option>
+                            <option value="session_price" {% if current_sort == 'session_price' %}selected{% endif %}>Session Price</option>
+                            <option value="subscription_price" {% if current_sort == 'subscription_price' %}selected{% endif %}>Subscription Price</option>
+                        </select>
+                        <select id="order" name="order" class="form-select ms-2" style="border-radius:12px; border:1.5px solid #ffb347; font-size:1.08rem; width:120px; display:inline-block;" onchange="window.location.href='?search={{ search_query }}&sport={{ current_sport }}&location={{ location }}&sort=' + document.getElementById('sort').value + '&order=' + this.value">
+                            <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Ascending</option>
+                            <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Descending</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
-        {% endif %}
         <div class="row">
             {% for coach in coaches %}
-            <div class="col-lg-6">
-                <div class="{% if forloop.counter > 2 %}ts-item{% endif %}">
-                    <div class="trainer-item">
-                        <div class="ti-img">
-                            {# Vérifie si le champ 'pdp' (Photo De Profil) de CustomUser est renseigné #}
-                            {% if coach.pdp %}
-                                <img src="{{ coach.pdp.url }}" alt="{{ coach.nom_complet }}" class="img-fluid rounded" />
-                            {% else %}
-                                <img src="{% static 'img/trainer/default.png' %}" alt="{{ coach.nom_complet }}" class="img-fluid rounded" />
-                            {% endif %}
-                        </div>
-                        <div class="ti-text">
-                            {# Utilisation de nom_complet au lieu de full_name #}
-                            <h4>{{ coach.nom_complet }}</h4>
-                            
-                            {# coach.get_sport_type_display fonctionne car coach est une instance de Coach qui hérite de CustomUser #}
-                            <h6>{{ coach.get_sport_type_display }} Trainer</h6>
-                            
-                            <p>
-                                {% if coach.certifications %}
-                                    {{ coach.certifications }}
+            <div class="col-lg-6 mb-4">
+                <div class="trainer-card shadow-lg position-relative" style="border-radius:24px; background: linear-gradient(120deg,#fff6f0 0%,#ffe0c3 100%); overflow:hidden;">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-md-5 text-center p-4">
+                            <div class="profile-img-wrapper mx-auto" style="width:180px; height:180px; border-radius:50%; box-shadow:0 4px 24px rgba(255,107,53,0.15); background: linear-gradient(135deg,#ffb347 0%,#ff6b35 100%); display:flex; align-items:center; justify-content:center;">
+                                {% if coach.pdp %}
+                                    <img src="{{ coach.pdp.url }}" alt="{{ coach.nom_complet }}" style="width:160px; height:160px; object-fit:cover; border-radius:50%; border:6px solid #fff;" />
                                 {% else %}
-                                    {{ coach.experience_years }} years of experience in {{ coach.get_sport_type_display }}
+                                    <img src="{% static 'img/trainer/default.png' %}" alt="{{ coach.nom_complet }}" style="width:160px; height:160px; object-fit:cover; border-radius:50%; border:6px solid #fff;" />
                                 {% endif %}
-                            </p>
-                            
-                            <div class="ti-actions mt-2">
-                                {# Détail visible pour tout le monde #}
-                                <a href="{% url 'users:coach_detail' coach.pk %}" class="btn btn-outline-dark me-2">View</a>
-
-                                {# Édition / suppression : seulement pour l'admin ou le coach lui‑même #}
-                                {% if request.user.is_authenticated %}
-                                    {% if request.user.role == 'admin' or request.user.pk == coach.pk %}
-                                        <a href="{% url 'users:coach_update' coach.pk %}" class="btn btn-primary me-2">Edit</a>
-                                        
-                                        <form action="{% url 'users:coach_delete' coach.pk %}" method="post" style="display:inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this coach?');">
-                                                Delete
-                                            </button>
-                                        </form>
+                            </div>
+                        </div>
+                        <div class="col-md-7 p-4">
+                            <div class="coach-info">
+                                <h4 style="font-size:2rem; font-weight:700; color:#ff6b35; margin-bottom:6px; letter-spacing:0.5px;">{{ coach.nom_complet }}</h4>
+                                <h6 style="color:#ffb347; font-weight:600; margin-bottom:10px; font-size:1.1rem;">{{ coach.get_sport_type_display }} Coach</h6>
+                                <p style="color:#444; font-size:1.08rem; margin-bottom:10px;">
+                                    {% if coach.certifications %}
+                                        {{ coach.certifications }}
+                                    {% else %}
+                                        {{ coach.experience_years }} years of experience in {{ coach.get_sport_type_display }}
                                     {% endif %}
-                                {% endif %}
+                                </p>
+                                {% with data=coach_feedback_data|dictsort:coach.pk %}
+                                    {% if data and data.avg_rating %}
+                                        <div class="mb-2">
+                                            <span style="color:#FFD700; font-size:1.3rem; font-weight:700;">
+                                                {% for i in "12345" %}
+                                                    {% if i|add:'0' <= data.avg_rating|floatformat:0 %}
+                                                        &#9733;
+                                                    {% else %}
+                                                        <span style="color:#ffe0c3;">&#9733;</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {{ data.avg_rating|floatformat:1 }} / 5
+                                            </span>
+                                            <span class="text-muted small">({{ data.feedback_count }} reviews)</span>
+                                        </div>
+                                    {% endif %}
+                                    {% if data and data.latest_feedbacks %}
+                                        <ul class="list-unstyled mb-2">
+                                            {% for feedback in data.latest_feedbacks %}
+                                                <li class="mb-1">
+                                                    <span style="color:#FFD700; font-size:1.1rem;">
+                                                        {% for i in "12345" %}
+                                                            {% if i|add:'0' <= feedback.rating %}
+                                                                &#9733;
+                                                            {% else %}
+                                                                <span style="color:#ffe0c3;">&#9733;</span>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </span>
+                                                    {% if feedback.comment %}<span class="text-muted"> - {{ feedback.comment|truncatechars:40 }}</span>{% endif %}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                {% endwith %}
+                                <div class="ti-actions mt-3 d-flex gap-2">
+                                    <a href="{% url 'users:coach_detail' coach.pk %}" class="btn" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; font-weight:600; border-radius:24px; padding:8px 24px; font-size:1rem; border:none;">View</a>
+                                    <a href="{% url 'users:coach_update' coach.pk %}" class="btn" style="background: linear-gradient(90deg,#ffb347 0%,#ff6b35 100%); color:#fff; font-weight:600; border-radius:24px; padding:8px 24px; font-size:1rem; border:none;">Edit</a>
+                                    <form action="{% url 'users:coach_delete' coach.pk %}" method="post" style="display:inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn" style="background: linear-gradient(90deg,#e74c3c 0%,#ffb347 100%); color:#fff; font-weight:600; border-radius:24px; padding:8px 24px; font-size:1rem; border:none;" onclick="return confirm('Are you sure you want to delete this coach?');">Delete</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -82,4 +139,59 @@
         </div>
     </div>
 </section>
+
+<style>
+    .trainer-card {
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 8px 32px rgba(255,107,53,0.10), 0 2px 8px rgba(255,179,71,0.08);
+        background: linear-gradient(120deg,#fff6f0 0%,#ffe0c3 100%);
+        transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .trainer-card:hover {
+        box-shadow: 0 16px 48px rgba(255,107,53,0.18), 0 4px 16px rgba(255,179,71,0.12);
+        transform: translateY(-4px) scale(1.02);
+    }
+    .profile-img-wrapper {
+        box-shadow: 0 4px 24px rgba(255,107,53,0.15);
+        background: linear-gradient(135deg,#ffb347 0%,#ff6b35 100%);
+        border-radius: 50%;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    .coach-info h4 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #ff6b35;
+        margin-bottom: 6px;
+        letter-spacing: 0.5px;
+    }
+    .coach-info h6 {
+        color: #ffb347;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
+    .coach-info p {
+        color: #444;
+        font-size: 1.08rem;
+        margin-bottom: 10px;
+    }
+    .coach-info .btn {
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 24px;
+        padding: 8px 24px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(255,107,53,0.08);
+        margin-right: 8px;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+    .coach-info .btn:active {
+        box-shadow: 0 1px 4px rgba(255,107,53,0.12);
+    }
+    .coach-info .btn:last-child {
+        margin-right: 0;
+    }
+</style>
 {% endblock %}

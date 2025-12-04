@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from appointments.models import Appointment
-from appointments.forms import AppointmentCreateForm, AppointmentUpdateForm
+from appointments.models import Appointment, Client, Feedback
+from users.models import Coach
+from appointments.forms import AppointmentCreateForm, AppointmentUpdateForm, ClientUpdateForm, FeedbackForm
 from users.forms import CustomUserUpdateForm
 from blogapp.models import Blog
 from product.models import Product
 from users.models import CustomUser as User, Coach, Nutritionist
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Avg
 from django.db.models.functions import TruncMonth
 import json
 from datetime import datetime
@@ -252,3 +253,47 @@ def backoffice_dashboard(request):
     }
 
     return render(request, 'backoffice/dashboard.html', context)
+
+def coach_list(request):
+    coaches = Coach.objects.filter(show_on_website=True).annotate(avg_rating=Avg('feedback_received__rating'))
+    return render(request, 'main/coach_list.html', {'coaches': coaches})
+
+def coach_detail(request, coach_id):
+    coach = get_object_or_404(Coach, id=coach_id)
+    feedbacks = Feedback.objects.filter(coach=coach).order_by('-created_at')
+    latest_feedbacks = feedbacks[:3]
+    more_feedbacks = feedbacks.count() > 3
+    avg_rating = feedbacks.aggregate(Avg('rating'))['rating__avg']
+
+    can_leave_feedback = False
+    feedback_form = None
+    if request.user.is_authenticated and hasattr(request.user, 'role') and request.user.role == 'client':
+        # Check if the logged-in client had an appointment with this coach
+        try:
+            client_obj = Client.objects.get(email=request.user.email)
+            has_appointment = Appointment.objects.filter(client=client_obj, coach_id=coach_id).exists()
+            if has_appointment:
+                can_leave_feedback = True
+                if request.method == 'POST' and 'leave_feedback' in request.POST:
+                    feedback_form = FeedbackForm(request.POST)
+                    if feedback_form.is_valid():
+                        feedback = feedback_form.save(commit=False)
+                        feedback.client = request.user
+                        feedback.coach = coach
+                        feedback.save()
+                        messages.success(request, 'Votre avis a été enregistré.')
+                        return redirect('coach_detail', coach_id=coach_id)
+                else:
+                    feedback_form = FeedbackForm()
+        except Client.DoesNotExist:
+            pass
+
+    return render(request, 'main/coach_detail.html', {
+        'coach': coach,
+        'latest_feedbacks': latest_feedbacks,
+        'more_feedbacks': more_feedbacks,
+        'all_feedbacks': feedbacks,
+        'avg_rating': avg_rating,
+        'can_leave_feedback': can_leave_feedback,
+        'feedback_form': feedback_form,
+    })

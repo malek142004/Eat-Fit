@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.db.models import Q, Avg, Count
 from django.utils import timezone
 from django.conf import settings
-from django.http import FileResponse, JsonResponse, HttpResponse
+from django.http import FileResponse, JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
@@ -47,7 +47,12 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
 
+#----
+import random
+import string
+import logging
 
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 # Pages principale
@@ -420,6 +425,7 @@ def backoffice_nutritionist_detail(request, pk):
     nutritionist = get_object_or_404(Nutritionist, pk=pk)
     return render(request, 'backoffice/BOnutritionist_detail.html', {'nutritionist': nutritionist})
 # ----------------------
+
 # CRUD Coaches
 
 def coach_list(request):
@@ -439,119 +445,98 @@ def coach_list(request):
     if sport_type:
         coaches = coaches.filter(sport_type__iexact=sport_type)
 
-    # 3. LOGIQUE DE TRI (ORDRE)
+    # 3. FILTRAGE PAR LOCALISATION
+    location = request.GET.get('location')
+    if location:
+        coaches = coaches.filter(location__iexact=location)
+
+    # 4. LOGIQUE DE TRI (ORDRE)
     sort_by = request.GET.get('sort', 'id') 
+    valid_sort_fields = ['session_price', 'subscription_price', 'experience_years', 'id']
+    if sort_by not in valid_sort_fields:
+        sort_by = 'id'  # Default sorting
 
-    # ⚠️ Correction: Gérer le cas où 'sort_by' n'est pas un champ valide pour éviter une erreur 500
-    try:
-        coaches = coaches.order_by(sort_by)
-    except Exception:
-         # Revenir à un tri par défaut si le champ de tri n'existe pas
-        coaches = coaches.order_by('id') 
+    coaches = coaches.order_by(sort_by)
 
-    # 4. Rendu de la page
+    # 5. Liste des localisations uniques
+    locations = Coach.objects.values_list('location', flat=True).distinct()
+
+    # 6. Rendu de la page
+    # Calculate average rating and latest feedbacks for each coach
+    from appointments.models import Feedback
+    from django.db.models import Avg
+    coach_feedback_data = {}
+    for coach in coaches:
+        feedbacks = Feedback.objects.filter(coach=coach).order_by('-created_at')
+        avg_rating = feedbacks.aggregate(avg=Avg('rating'))['avg']
+        latest_feedbacks = feedbacks[:3]
+        coach_feedback_data[coach.pk] = {
+            'avg_rating': avg_rating,
+            'latest_feedbacks': latest_feedbacks,
+            'feedback_count': feedbacks.count()
+        }
     context = {
         'coaches': coaches,
         'current_sport': sport_type,
         'current_sort': sort_by,
-        # ⚠️ Correction: Utiliser Coach.SPORT_CHOICES si défini dans models.py
-        'all_sport_types': getattr(Coach, 'SPORT_CHOICES', []) 
+        'location': location,
+        'locations': locations,
+        'all_sport_types': Coach.SPORT_TYPES,
+        'coach_feedback_data': coach_feedback_data,
     }
-    
     return render(request, 'main/trainer.html', context)
 
 # users/views.py - Fonction coach_create (Corrigée et simplifiée)
-
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+# Assurez-vous d'importer Coach (votre modèle) et CoachForm (votre formulaire)
+from .models import Coach
+from .forms import CoachForm
 
 # views.py
 
 @login_required
 def coach_create(request):
-    """
-    Permet à un utilisateur connecté de devenir Coach sans recréer un CustomUser.
-    - On utilise le CustomUser existant (request.user)
-    - On crée ou met à jour l'objet Coach lié (multi-table) avec la même PK
-    """
+        # --- FRONT-END SELF-SERVICE COACH CREATION ---
+        # This view is for logged-in users to create their own coach profile.
+        # It should NEVER create, delete, or overwrite user accounts.
+        # It only extends the current user with coach-specific data.
     user = request.user
 
-    # Si l'utilisateur est déjà coach ET qu'un profil Coach existe, on le redirige vers la page d'édition
+    # 1. LOGIQUE DE REDIRECTION (Vérifie si le profil Coach complet existe)
     if user.role == 'coach':
-        try:
-            Coach.objects.get(pk=user.pk)
+        if Coach.objects.filter(pk=user.pk).exists():
             messages.info(request, "Vous êtes déjà un Coach. Vous pouvez modifier votre profil.")
             return redirect('users:coach_update', pk=user.pk)
-        except Coach.DoesNotExist:
-            # le rôle est 'coach' mais pas encore d'entrée dans la table Coach -> on continue la création
-            pass
 
+    # --- 2. LOGIQUE DE TRAITEMENT POST ---
     if request.method == 'POST':
-        # On utilise CoachForm seulement pour la validation des champs
         form = CoachForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            # 1) Promouvoir l'utilisateur au rôle 'coach' sans recréer un CustomUser
-            if user.role != 'coach':
-                user.role = 'coach'
-                # mettre à jour aussi les infos de base si besoin
-                user.nom_complet = form.cleaned_data.get('nom_complet', user.nom_complet)
-                user.num_tel = form.cleaned_data.get('num_tel', user.num_tel)
-                user.ville = form.cleaned_data.get('ville', user.ville)
-                if form.cleaned_data.get('pdp'):
-                    user.pdp = form.cleaned_data['pdp']
-                user.save()
-
-            # 2) Créer ou mettre à jour l'entrée Coach liée à ce CustomUser
-            coach_fields = {
-                'sport_type': form.cleaned_data.get('sport_type'),
-                'experience_years': form.cleaned_data.get('experience_years'),
-                'location': form.cleaned_data.get('location'),
-                'session_price': form.cleaned_data.get('session_price'),
-                'subscription_price': form.cleaned_data.get('subscription_price'),
-                'bio': form.cleaned_data.get('bio'),
-                'certifications': form.cleaned_data.get('certifications'),
-                'is_available': form.cleaned_data.get('is_available'),
-                'show_on_website': form.cleaned_data.get('show_on_website'),
-            }
-
-            # Multi-table inheritance : on crée/maj uniquement la table enfant,
-            # reliée au CustomUser existant via customuser_ptr (même PK).
-            coach, created = Coach.objects.get_or_create(
-                pk=user.pk,
-                defaults=coach_fields,
-            )
-            if not created:
-                for field, value in coach_fields.items():
-                    setattr(coach, field, value)
-                coach.save()
-
-            messages.success(request, 'Félicitations, votre profil Coach est créé !')
-            return redirect('users:coach_list')
-    else:
-        # Pré-remplir le formulaire avec les infos de base de l'utilisateur
-        initial = {
-            'email': user.email,
-            'nom_complet': user.nom_complet,
-            'num_tel': user.num_tel,
-            'ville': user.ville,
-        }
-        # Si un Coach existe déjà sans rôle correctement défini, on peut aussi charger ses champs
         try:
-            coach = Coach.objects.get(pk=user.pk)
-            initial.update({
-                'sport_type': coach.sport_type,
-                'experience_years': coach.experience_years,
-                'location': coach.location,
-                'session_price': coach.session_price,
-                'subscription_price': coach.subscription_price,
-                'bio': coach.bio,
-                'certifications': coach.certifications,
-                'is_available': coach.is_available,
-                'show_on_website': coach.show_on_website,
-            })
-        except Coach.DoesNotExist:
-            pass
-
-        form = CoachForm(initial=initial)
+            if form.is_valid():
+                coach_obj = form.save(commit=False)
+                # Do NOT overwrite user info fields
+                coach_obj.pk = user.pk  # Ensure coach uses the same PK as user
+                coach_obj.nom_complet = user.nom_complet
+                coach_obj.num_tel = user.num_tel
+                coach_obj.ville = user.ville
+                coach_obj.email = user.email
+                coach_obj.save()
+                # Explicitly set user role to 'coach' and save
+                user.role = 'coach'
+                user.save()
+                logger.info(f"Coach profile created for user {user.email} (ID: {user.pk})")
+                messages.success(request, 'Félicitations, votre profil Coach est créé !')
+                return redirect('users:coach_list')
+            else:
+                logger.warning(f"Coach form invalid for user {user.email}: {form.errors}")
+                messages.error(request, "Veuillez corriger les erreurs dans le formulaire.")
+        except Exception as e:
+            logger.error(f"Exception during coach creation for user {user.email}: {e}")
+            messages.error(request, "Une erreur est survenue lors de la création du profil Coach. Contactez l'administrateur.")
+    else:
+        form = CoachForm()
 
     return render(request, 'main/coach_form.html', {
         'form': form,
@@ -572,7 +557,14 @@ def coach_update(request, pk):
         # Utiliser l'instance Coach pour la mise à jour
         form = CoachForm(request.POST, request.FILES, instance=coach)
         if form.is_valid():
-            form.save()
+            coach = form.save(commit=False)
+
+            # Ensure latitude, longitude, and show_map are saved
+            coach.latitude = form.cleaned_data.get('latitude')
+            coach.longitude = form.cleaned_data.get('longitude')
+            coach.show_map = form.cleaned_data.get('show_map', coach.show_map)
+
+            coach.save()
             messages.success(request, 'Profil Coach modifié avec succès ✅')
             return redirect('users:coach_list')
     else:
@@ -602,7 +594,39 @@ def coach_delete(request, pk):
 def coach_detail(request, pk):
     """Détail d'un coach (Front-end)."""
     coach = get_object_or_404(Coach, pk=pk)
-    return render(request, 'main/coach_detail.html', {'coach': coach})
+    from appointments.models import Feedback
+    from appointments.forms import FeedbackForm
+    from django.db.models import Avg
+    feedbacks = Feedback.objects.filter(coach=coach).order_by('-created_at')
+    avg_rating = feedbacks.aggregate(avg=Avg('rating'))['avg']
+    latest_feedbacks = feedbacks[:3]
+    all_feedbacks = feedbacks
+    more_feedbacks = feedbacks.count() > 3
+    can_leave_feedback = False
+    feedback_form = None
+    user = request.user
+    # Allow any authenticated client to leave unlimited feedback
+    if user.is_authenticated and user.role == 'client':
+        can_leave_feedback = True
+        feedback_form = FeedbackForm()
+        if request.method == 'POST' and 'leave_feedback' in request.POST:
+            feedback_form = FeedbackForm(request.POST)
+            if feedback_form.is_valid():
+                feedback_obj = feedback_form.save(commit=False)
+                feedback_obj.client = user
+                feedback_obj.coach = coach
+                feedback_obj.save()
+                return redirect('users:coach_detail', pk=coach.pk)
+    context = {
+        'coach': coach,
+        'avg_rating': avg_rating,
+        'latest_feedbacks': latest_feedbacks,
+        'all_feedbacks': all_feedbacks,
+        'more_feedbacks': more_feedbacks,
+        'can_leave_feedback': can_leave_feedback,
+        'feedback_form': feedback_form,
+    }
+    return render(request, 'main/coach_detail.html', context)
 
 # ----------------------
 # Backoffice CRUD Coaches
@@ -610,33 +634,96 @@ def coach_detail(request, pk):
 
 
 
+
 def manage_coaches(request):
-    # Handle search functionality
-    coaches = Coach.objects.select_related('customuser_ptr').all()
-    return render(request, 'backoffice/coaches/manage_coaches.html', {'coaches': coaches})
+    """
+    Manage coaches in the backoffice with filtering and sorting functionality.
+    """
+    # Base queryset
+    coaches = Coach.objects.all()
+
+    # Filtering by sport type
+    sport_type = request.GET.get('sport_type')
+    if sport_type:
+        coaches = coaches.filter(sport_type__iexact=sport_type)
+
+    # Filtering by location
+    location = request.GET.get('location')
+    if location:
+        coaches = coaches.filter(location__iexact=location)
+
+    # Filtering by status
+    status = request.GET.get('status')
+    if status == 'available':
+        coaches = coaches.filter(is_available=True)
+    elif status == 'not_available':
+        coaches = coaches.filter(is_available=False)
+
+    # Searching by name or email
+    search_query = request.GET.get('search')
+    if search_query:
+        coaches = coaches.filter(
+            Q(nom_complet__icontains=search_query) |
+            Q(email__icontains=search_query)
+        )
+
+    # Sorting
+    sort_by = request.GET.get('sort', 'id')
+    order = request.GET.get('order', 'asc')
+    valid_sort_fields = ['session_price', 'subscription_price', 'experience_years', 'id']
+    if sort_by not in valid_sort_fields:
+        sort_by = 'id'  # Default sorting
+
+    if order == 'desc':
+        sort_by = f'-{sort_by}'
+
+    # Log the sorting parameters
+    logger.debug(f"Sorting by: {sort_by}")
+
+    try:
+        coaches = coaches.order_by(sort_by)
+    except Exception as e:
+        logger.error(f"Error while sorting: {e}")
+        coaches = Coach.objects.all()  # Fallback to default queryset
+
+    # Log the resulting queryset
+    logger.debug(f"Resulting Queryset: {coaches.query}")
+
+    # Get unique locations for the location filter
+    locations = Coach.objects.values_list('location', flat=True).distinct()
+
+    # Get sport types for the sport type filter
+    sport_types = Coach.SPORT_TYPES
+
+    # Context data
+    context = {
+        'coaches': coaches,
+        'sport_type_filter': sport_type,
+        'location_filter': location,
+        'status_filter': status,
+        'search_query': search_query,
+        'current_sort': sort_by,
+        'current_order': order,
+        'sport_types': sport_types,
+        'locations': locations,
+    }
+
+    return render(request, 'backoffice/coaches/manage_coaches.html', context)
 
 
-
-
-
-# Récupération du modèle utilisateur personnalisé (doit être CustomUser)
-User = get_user_model()
-
-
-@login_required(login_url='users:auth')
 def add_coach(request):
-    # Sécurité: Vérifier si l'utilisateur est Admin avant de procéder
-    if request.user.role != 'coach': 
-        messages.error(request, "Accès refusé.")
-        return redirect('users:auth') # Rediriger vers un lieu sûr
-        
+        # --- BACKOFFICE ADMIN COACH CREATION ---
+        # This view is for admins to create a new user and coach profile at once.
+        # It generates a password, creates a new user, then links a coach profile.
+        # It should NEVER be used for self-service coach creation by logged-in users.
     if request.method == 'POST':
         try:
-            # --- 1. Récupération des Données ---
+            # --- Data Retrieval ---
             full_name = request.POST.get('full_name')
             email = request.POST.get('email')
             phone_number = request.POST.get('phone_number', '')
             city = request.POST.get('city', '')
+            # Use request.FILES.get() for file uploads (profile_photo)
             profile_photo = request.FILES.get('profile_photo') 
             
             sport_type = request.POST.get('sport_type')
@@ -646,72 +733,65 @@ def add_coach(request):
             subscription_price = request.POST.get('subscription_price')
             bio = request.POST.get('bio', '')
             certifications = request.POST.get('certifications', '')
+            # Checkbox values are 'on' or None
             is_available = request.POST.get('is_available') == 'on'
             show_on_website = request.POST.get('show_on_website') == 'on'
             
-            # --- 2. Validation de base ---
-            if not all([nom_complet, email, sport_type, experience_years, location, session_price, subscription_price]):
-                messages.error(request, 'Veuillez remplir tous les champs obligatoires.')
+            # --- Validation ---
+            if not all([full_name, email, sport_type, experience_years, location, session_price, subscription_price]):
+                messages.error(request, 'Please fill in all required fields.')
                 return redirect('backoffice:manage_coaches')
             
-            # Validation d'unicité de l'email (très important)
             if User.objects.filter(email=email).exists():
-                messages.error(request, f"Un utilisateur avec l'email {email} existe déjà.")
+                messages.error(request, 'A user with this email already exists.')
                 return redirect('backoffice:manage_coaches')
             
-            # Validation de la conversion de type (pour éviter les erreurs d'exécution)
-            try:
-                exp_years_int = int(experience_years)
-                session_price_float = float(session_price)
-                subscription_price_float = float(subscription_price)
-            except ValueError:
-                messages.error(request, "Les champs de prix et d'expérience doivent être des nombres valides.")
-                return redirect('backoffice:manage_coaches')
-
-
-            # --- 3. Création et Hachage ---
+            # --- Processing and Creation ---
             
-
-            # 💡 CRÉATION DE L'OBJET COACH (qui est aussi un CustomUser)
-            # L'objet est créé en une seule étape.
-            coach = Coach.objects.create(
-                # Champs CustomUser
+            # Generate a random password (Requires import random and string)
+            password = ''.join(random.choices(string.ascii_letters + string.digits, k=12))
+            
+            # Create user
+            user = User.objects.create_user(
                 email=email,
-                nom_complet=full_name,
-                num_tel=phone_number,
-                ville=city,
-                pdp=profile_photo,
-                role='Coach',  # Définir le rôle explicitement
-                
-                # Champs Coach
+                password=password,
+                full_name=full_name,
+                phone_number=phone_number,
+                city=city,
+                role='coach'
+            )
+            
+            if profile_photo:
+                user.profile_photo = profile_photo
+            
+            user.save()
+            
+            # Create coach profile
+            coach = Coach.objects.create(
+                user=user,
                 sport_type=sport_type,
-                experience_years=exp_years_int, 
-                session_price=session_price_float,
-                subscription_price=subscription_price_float,
+                # Convert string inputs to correct types
+                experience_years=int(experience_years), 
+                session_price=float(session_price),
+                subscription_price=float(subscription_price),
                 location=location,
                 bio=bio,
                 certifications=certifications,
                 is_available=is_available,
                 show_on_website=show_on_website
             )
-
-            # Il est ESSENTIEL d'appeler set_password puis save() après la création
-            coach.set_password(raw_password)
-            coach.save()
             
-            # Optionnel: Envoyer l'email au coach avec le raw_password
-            # send_mail(..., raw_password)
-            
-            messages.success(request, f'Coach {full_name} ajouté. Mot de passe généré : {raw_password} (Veuillez lui communiquer en privé).')
+            messages.success(request, f'Coach {full_name} was added successfully! A random password has been generated for their account.')
             
         except Exception as e:
-            messages.error(request, f'Erreur lors de l\'ajout du coach: {str(e)}')
-            
+            # Catch exceptions like invalid type conversion (float/int)
+            messages.error(request, f'Error adding coach: {str(e)}')
+        
         return redirect('backoffice:manage_coaches')
     
-    # GET request: Assurez-vous de rediriger vers le bon endroit
-    # ou de rendre un formulaire si vous avez une page d'ajout dédiée
+    # If not POST (or a GET request to this URL), redirect back to coaches page
     return redirect('backoffice:manage_coaches')
+
 
 
 def coach_edit(request, pk):
@@ -761,6 +841,9 @@ def coaches_coach_delete(request, pk):
     
     messages.success(request, f'Coach profile "{nom_complet}" has been deleted.')
     return redirect('users:manage_coaches')
+
+
+
 
 from .forms import BusinessOwnerForm
 from .models import BusinessOwner

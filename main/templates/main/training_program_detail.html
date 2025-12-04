@@ -1,0 +1,18 @@
+{% extends 'main/base.html' %}
+{% block title %}Détail du Programme d'Entraînement{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card p-4 shadow-sm mb-4" style="border-radius: 18px;">
+                <h2 class="mb-3" style="color:#ff6b35; font-weight:700;">{{ training_program.name }}</h2>
+                <p><strong>Description :</strong> {{ training_program.description|linebreaks }}</p>
+                <p><strong>Niveau :</strong> {{ training_program.get_level_display }}</p>
+                <p><strong>Prix :</strong> ${{ training_program.price|floatformat:2 }}</p>
+                <p><strong>Date de création :</strong> {{ training_program.created_at|date:"d/m/Y H:i" }}</p>
+                <a href="{% url 'appointments:training_program_pdf' training_program.pk %}" class="btn btn-primary mt-3">Télécharger en PDF</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

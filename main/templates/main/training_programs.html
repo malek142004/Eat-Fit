@@ -1,0 +1,75 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<h1>Training Programs</h1>
+
+<ul>
+    {% for program in training_programs %}
+    <li>
+        <h2>{{ program.title }}</h2>
+        <p>{{ program.description }}</p>
+        <button onclick="generatePDF({{ program.id }})">Generate PDF</button>
+    </li>
+    {% endfor %}
+</ul>
+
+<script>
+    async function generatePDF(trainingProgramId) {
+        const response = await fetch('/training/export/pdf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ training_program_id: trainingProgramId })
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `training_program_${trainingProgramId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        } else {
+            alert('Failed to generate PDF.');
+        }
+    }
+</script>
+
+<!-- Include Leaflet.js CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-o8cnR1mNa8i8g9e1+8z8w+8k+8z8w+8k+8z8w+8k+8z8w+8k" crossorigin=""/>
+
+<!-- Include Leaflet.js JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o8cnR1mNa8i8g9e1+8z8w+8k+8z8w+8k+8z8w+8k+8z8w+8k" crossorigin=""></script>
+
+<style>
+    #map {
+        height: 400px; /* Adjust the height as needed */
+        width: 100%;
+    }
+</style>
+
+<!-- Map container -->
+<div id="map"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize the map
+        var map = L.map('map').setView([51.505, -0.09], 13); // Default coordinates and zoom level
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Example marker
+        L.marker([51.505, -0.09]).addTo(map)
+            .bindPopup('A sample marker.')
+            .openPopup();
+    });
+</script>
+{% endblock %}

@@ -10,6 +10,8 @@ urlpatterns = [
     path('<int:pk>/edit/', views.blog_update, name='blog_update'),
     path('<int:pk>/delete/', views.blog_delete, name='blog_delete'),
     path('<int:pk>/like/', views.toggle_like, name='toggle_like'),
+    path('blog/<int:pk>/pdf/', views.blog_to_pdf, name='blog_pdf'),
+    path('blog/<int:pk>/summary/', views.summarize_blog, name='blog_summary'),
 
    
     path('backoffice/tables_blogs/', views.backoffice_tables, name='blogs_list'),

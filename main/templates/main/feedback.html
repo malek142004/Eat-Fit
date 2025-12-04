@@ -1,0 +1,52 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<h1>Feedback for Coach</h1>
+
+<ul>
+    {% for feedback in feedback_list %}
+    <li>
+        <strong>Rating:</strong> {{ feedback.rating }}<br>
+        <strong>Comment:</strong> {{ feedback.comment }}<br>
+        <strong>Client:</strong> {{ feedback.client }}<br>
+        <strong>Date:</strong> {{ feedback.created_at }}
+    </li>
+    {% endfor %}
+</ul>
+
+<h2>Leave Feedback</h2>
+<form id="feedback-form">
+    <label for="rating">Rating (1-5):</label>
+    <input type="number" id="rating" name="rating" min="1" max="5" required><br>
+
+    <label for="comment">Comment:</label>
+    <textarea id="comment" name="comment" required></textarea><br>
+
+    <button type="submit">Submit Feedback</button>
+</form>
+
+<script>
+    document.getElementById('feedback-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const rating = document.getElementById('rating').value;
+        const comment = document.getElementById('comment').value;
+
+        const response = await fetch('/feedback/{{ coach_id }}/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ rating, comment })
+        });
+
+        if (response.ok) {
+            alert('Feedback submitted successfully!');
+            location.reload();
+        } else {
+            alert('Failed to submit feedback.');
+        }
+    });
+</script>
+{% endblock %}

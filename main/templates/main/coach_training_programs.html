@@ -1,0 +1,42 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Programmes d'entraînement de {{ coach.nom_complet }}{% endblock %}
+
+{% block content %}
+<section class="page-top-section set-bg" data-setbg="{% static 'img/page-top-bg.jpg' %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 m-auto text-white text-center">
+                <h2>Programmes d'entraînement</h2>
+                <p>Découvrez les programmes proposés par {{ coach.nom_complet }}.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="trainer-programs-section spad">
+    <div class="container">
+        <div class="row">
+            {% if training_programs.exists %}
+                {% for program in training_programs %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ program.name }}</h5>
+                            <p class="card-text">{{ program.description|truncatewords:20 }}</p>
+                            <p class="card-text text-muted">Niveau: {{ program.get_level_display }}</p>
+                            <p class="card-text text-success fw-bold">Prix: ${{ program.price }}</p>
+                            <a href="{% url 'appointments:training_program_detail' program.id %}" class="btn btn-primary">Voir les détails</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-center">Aucun programme d'entraînement disponible pour ce coach.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

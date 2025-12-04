@@ -18,6 +18,7 @@
             <th>Sport Type</th>
             <th>Experience</th>
             <th>Session Price</th>
+            <th>Average Rating</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -30,6 +31,7 @@
             <td>{{ coach.sport_type }}</td>
             <td>{{ coach.experience_years }} years</td>
             <td>${{ coach.session_price }}</td>
+            <td>{% if coach.avg_rating %}{{ coach.avg_rating|floatformat:1 }} / 5{% else %}-{% endif %}</td>
             <td>
                 <a href="{% url 'coach_detail' coach.id %}" class="btn btn-info btn-sm">View</a>
                 <a href="{% url 'coach_update' coach.id %}" class="btn btn-warning btn-sm">Edit</a>
@@ -38,7 +40,7 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="7" class="text-center">No coaches found. <a href="{% url 'coach_create' %}">Add the first coach</a></td>
+            <td colspan="8" class="text-center">No coaches found. <a href="{% url 'coach_create' %}">Add the first coach</a></td>
         </tr>
         {% endfor %}
     </tbody>

@@ -108,6 +108,10 @@
         }
     </style>
 
+    <!-- Include Leaflet.js CSS and JavaScript without integrity attributes -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
     <section class="page-top-section set-bg" data-setbg="{% static 'img/page-top-bg.jpg' %}">
         <div class="container">
             <div class="row">
@@ -118,6 +122,35 @@
             </div>
         </div>
     </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("Initializing map...");
+
+            // Initialize the map
+            var map = L.map('map').setView([51.505, -0.09], 13); // Default coordinates and zoom level
+            console.log("Map initialized.");
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            console.log("Tiles added to map.");
+
+            // Add a draggable marker
+            var marker = L.marker([51.505, -0.09], { draggable: true }).addTo(map);
+            console.log("Draggable marker added.");
+
+            // Update hidden input fields on marker drag
+            marker.on('dragend', function(e) {
+                var latlng = marker.getLatLng();
+                console.log("Marker dragged to:", latlng);
+                document.getElementById('id_latitude').value = latlng.lat;
+                document.getElementById('id_longitude').value = latlng.lng;
+            });
+        });
+    </script>
     
     <section class="contact-page-section spad overflow-hidden">
         <div class="container">
@@ -281,6 +314,62 @@
                                     </label>
                                 </div>
                             </div>
+
+                            {# Map for selecting location #}
+                            <div class="col-md-12 mb-4">
+                                <label class="form-label">Select Location on Map</label>
+                                <div id="map" style="height: 400px; width: 100%; background-color: #e9ecef;"></div>
+                                <input type="hidden" id="id_latitude" name="latitude" value="{{ form.instance.latitude|default:'' }}">
+                                <input type="hidden" id="id_longitude" name="longitude" value="{{ form.instance.longitude|default:'' }}">
+                            </div>
+
+                            {# Checkbox to make the map visible in coach details #}
+                            <div class="col-md-12 mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="id_show_map" name="show_map" {% if form.instance.show_map %}checked{% endif %}>
+                                    <label class="form-check-label" for="id_show_map">
+                                        Make Map Visible in Coach Details
+                                    </label>
+                                </div>
+                            </div>
+
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function() {
+                                    console.log("Initializing map...");
+
+                                    // Initialize the map
+                                    var map = L.map('map').setView([36.85, 10.27], 13); // Default coordinates and zoom level
+                                    console.log("Map initialized.");
+
+                                    // Add OpenStreetMap tiles
+                                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                        maxZoom: 19,
+                                        attribution: '© OpenStreetMap contributors'
+                                    }).addTo(map);
+                                    console.log("Tiles added to map.");
+
+                                    // Add a marker that can be moved by clicking on the map
+                                    var marker = L.marker([51.505, -0.09], { draggable: true }).addTo(map);
+                                    console.log("Draggable marker added.");
+
+                                    // Update marker position and hidden input fields when the map is clicked
+                                    map.on('click', function(e) {
+                                        var latlng = e.latlng;
+                                        marker.setLatLng(latlng);
+                                        console.log("Map clicked at:", latlng);
+                                        document.getElementById('id_latitude').value = latlng.lat;
+                                        document.getElementById('id_longitude').value = latlng.lng;
+                                    });
+
+                                    // Update hidden input fields on marker drag
+                                    marker.on('dragend', function(e) {
+                                        var latlng = marker.getLatLng();
+                                        console.log("Marker dragged to:", latlng);
+                                        document.getElementById('id_latitude').value = latlng.lat;
+                                        document.getElementById('id_longitude').value = latlng.lng;
+                                    });
+                                });
+                            </script>
                         </div>
 
                         <hr class="mt-4 mb-5">

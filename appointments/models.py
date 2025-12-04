@@ -1,7 +1,22 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
+
+class Client(models.Model):
+    nom_complet = models.CharField(max_length=200)
+    email = models.EmailField(unique=True)
+    num_tel = models.CharField(max_length=20, default='')
+    ville = models.CharField(max_length=100, default='')
+    pdp = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nom_complet
+    
+    
 class Appointment(models.Model):
     STATUS_CHOICES = [
         ('untreated', 'Untreated'),
@@ -27,3 +42,36 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"Appointment for {self.client} on {self.appointment_date} at {self.start_time}"
+
+class TrainingProgram(models.Model):
+    LEVEL_CHOICES = [
+        ('beginner', 'Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced', 'Advanced'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='training_programs')
+    name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+class Feedback(models.Model):
+    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='feedback_given')
+    coach = models.ForeignKey(User, on_delete=models.CASCADE, related_name='feedback_received')
+    rating = models.PositiveSmallIntegerField()  # 1 to 5
+    comment = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['coach']),
+        ]
+
+    def __str__(self):
+        return f"Feedback from {self.client} to {self.coach}"

@@ -148,6 +148,14 @@ class Coach(CustomUser): # Héritage multi-table (pour respecter la demande)
         default=True, 
         help_text="Display this coach on the public trainers page"
     )
+    show_map = models.BooleanField(
+        default=True,
+        help_text="Make the coach's map visible on their profile."
+    )
+
+    # NEW FIELDS FOR LOCATION
+    latitude = models.FloatField(blank=True, null=True, help_text="Latitude of the coach's location.")
+    longitude = models.FloatField(blank=True, null=True, help_text="Longitude of the coach's location.")
 
     def __str__(self):
         return f"Coach: {self.nom_complet} - {self.sport_type}"

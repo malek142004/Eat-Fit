@@ -5,6 +5,69 @@ from django.db.models import Q
 from users.models import BusinessOwner
 from .models import Product, Rating
 from .forms import ProductForm, RatingForm
+import os
+import openai
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt  # on utilisera CSRF token via fetch; pas csrf_exempt idéal
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
+# configure openai
+from openai import OpenAI
+from django.conf import settings
+
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+
+@login_required
+@require_POST
+def generate_product_info(request):
+    if request.user.role != 'business_owner':
+        return JsonResponse({'ok': False, 'error': 'Unauthorized'}, status=403)
+
+    product_name = request.POST.get('product_name', '').strip()
+    category = request.POST.get('category', '').strip()
+
+    if not product_name:
+        return JsonResponse({'ok': False, 'error': 'Missing product_name'}, status=400)
+
+    prompt = f"""
+Pour un produit healthy food, génère les informations suivantes en français strictement au format JSON :
+
+1. Description courte (2-3 phrases)
+2. Calories approximatives
+3. Ingrédients principaux
+4. Prix estimé en euros
+
+Nom du produit: {product_name}
+Catégorie: {category}
+
+⚠️ IMPORTANT : retourne uniquement du JSON valide avec des doubles guillemets, rien d'autre.
+
+Format exact attendu :
+{{
+  "description": "...",
+  "calories": "...",
+  "ingredients": "...",
+  "estimated_price": "..."
+}}
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=300
+        )
+        text = response.choices[0].message.content.strip()
+        # Parser JSON
+        import json
+        data = json.loads(text)
+        return JsonResponse({'ok': True, 'data': data})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=500)
 
 
 def product_list(request):

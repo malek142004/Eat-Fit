@@ -30,6 +30,8 @@ class Blog(models.Model):
         related_name='liked_blogs',
         blank=True
     )
+    is_flagged = models.BooleanField(default=False)
+    toxicity_score = models.FloatField(null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']  
@@ -56,7 +58,8 @@ class Comment(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
-
+    is_flagged = models.BooleanField(default=False)
+    toxicity_score = models.FloatField(null=True, blank=True)
     class Meta:
         ordering = ['-created_at'] 
 

@@ -50,6 +50,9 @@ urlpatterns = [
     #path('businessowner/businessowner/', views.create_or_edit_business, name='create_business'),
     path('businessowner/', views.businessowner_page, name='businessowner_page'),
 
+    path('order/<int:order_id>/delete/', views.delete_order, name='delete_order'),
+    path('order/<int:order_id>/done/', views.mark_order_done, name='mark_order_done'),
+
     #business owner backoffice
     path('manage-business/', views.backoffice_manage_businessowners, name='manage_businessowners'),
     path('manage-business/add/', views.backoffice_add_businessowner, name='backoffice_add_businessowner'),

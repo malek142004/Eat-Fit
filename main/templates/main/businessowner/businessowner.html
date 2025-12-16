@@ -193,6 +193,70 @@
                     </div>
 
                 </form>
+                <div class="business-box mt-5">
+    <section class="business-form">
+        <h3>Customer Orders</h3>
+
+        <table class="table table-borderless mb-0">
+            <thead>
+                <tr class="tr-gradient">
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Customer</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Notes</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in orders %}
+                <tr>
+                    <td>{{ item.product.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.order.full_name }}</td>
+                    <td>{{ item.order.phone }}</td>
+                    <td>{{ item.order.address }}</td>
+                    <td>{{ item.order.notes }}</td>
+                    <td>{{ item.order.created_at|date:"Y-m-d H:i" }}</td>
+
+                    <td>
+                        {% if item.order.is_done %}
+                            <span class="text-success fw-bold">Done</span>
+                        {% else %}
+                            <span class="text-warning fw-bold">Pending</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="d-flex gap-2">
+                        <!-- Mark done -->
+                        <a href="{% url 'users:mark_order_done' item.order.id %}" 
+                           class="btn-template-small" 
+                           style="background: linear-gradient(90deg, #4caf50, #2e7d32); padding: 6px 10px; border-radius: 50%;">
+                            <i class="material-icons" style="font-size:18px; color:#fff;">done</i>
+                        </a>
+
+                        <!-- Delete -->
+                        <a href="{% url 'users:delete_order' item.order.id %}" 
+                           class="btn-template-small" 
+                           style="background: linear-gradient(90deg, #ff4f4f, #d73939); padding: 6px 10px; border-radius: 50%;">
+                            <i class="material-icons" style="font-size:18px; color:#fff;">delete</i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted">No orders yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+
             </section>
 
         </div>

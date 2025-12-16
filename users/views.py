@@ -864,26 +864,28 @@ def coaches_coach_delete(request, pk):
     messages.success(request, f'Coach profile "{nom_complet}" has been deleted.')
     return redirect('users:manage_coaches')
 
-
-
-
 from .forms import BusinessOwnerForm
 from .models import BusinessOwner
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+
+from order.models import OrderItem, Order
 
 
 @login_required
 def businessowner_page(request):
 
-    # Si l'utilisateur n'est PAS Business Owner → afficher la page publique
     if request.user.role != 'business_owner':
         owners = BusinessOwner.objects.all()
         return render(request, 'main/businessowner/businessowner_public.html', {'owners': owners})
 
-    # Si l'utilisateur est Business Owner → récupérer ou créer son profil
     business, created = BusinessOwner.objects.get_or_create(user=request.user)
+
+    # 🔥 Récupérer les commandes liées à ce Business Owner
+    orders = OrderItem.objects.filter(
+        product__business_owner=business
+    ).select_related("order", "product")
 
     if request.method == "POST":
         form = BusinessOwnerForm(request.POST, request.FILES, instance=business)
@@ -891,11 +893,41 @@ def businessowner_page(request):
             form.save()
             messages.success(request, "Vos informations ont été enregistrées avec succès.")
             return redirect('users:businessowner_page')
-  # éviter le resubmit en actualisant
     else:
         form = BusinessOwnerForm(instance=business)
 
-    return render(request, 'main/businessowner/businessowner.html', {'form': form})
+    return render(request, 'main/businessowner/businessowner.html', {
+        'form': form,
+        'orders': orders,
+    })
+
+
+@login_required
+def delete_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    if not order.items.filter(product__business_owner__user=request.user).exists():
+        messages.error(request, "Vous ne pouvez pas supprimer cette commande.")
+        return redirect("users:businessowner_page")
+
+    order.delete()
+    messages.success(request, "Commande supprimée.")
+    return redirect("users:businessowner_page")
+
+
+@login_required
+def mark_order_done(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    if not order.items.filter(product__business_owner__user=request.user).exists():
+        messages.error(request, "Impossible de modifier cette commande.")
+        return redirect("users:businessowner_page")
+
+    order.is_processed = True
+    order.save()
+
+    messages.success(request, "Commande marquée comme terminée.")
+    return redirect("users:businessowner_page")
 
 #backoffice buisness owner 
 

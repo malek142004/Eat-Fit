@@ -72,26 +72,67 @@ def blog_list(request):
 
 def blog_detail(request, pk):
     blog = get_object_or_404(Blog, pk=pk)
-    comments = blog.comments.filter(is_active=True)  # grâce à related_name
+    comments = blog.comments.filter(is_active=True)  # IMPORTANT: Filtrer seulement les commentaires actifs
+    
     if request.method == 'POST':
         if not request.user.is_authenticated:
             messages.error(request, "Vous devez être connecté pour commenter.")
             return redirect('login')
+        
         content = request.POST.get('content', '').strip()
         if content:
-            Comment.objects.create(
-                blog=blog,
-                author=request.user,
-                content=content,
-                created_at=timezone.now()
-            )
-            messages.success(request, "Commentaire ajouté.")
-            return redirect('blogapp:blog_detail', pk=blog.pk)
+            try:
+                toxicity = analyze_toxicity(content)
+                
+                if toxicity > 0.6:
+                    # NE PAS créer le commentaire OU le créer avec is_active=False
+                    # Option 1: Ne pas créer du tout (recommandé)
+                    messages.error(
+                        request,
+                        "Votre commentaire contient un contenu inapproprié et ne peut pas être publié. "
+                        "Veuillez modifier votre texte et réessayer."
+                    )
+                    # OU Option 2: Créer mais invisible (pour modération admin)
+                    # Comment.objects.create(
+                    #     blog=blog,
+                    #     author=request.user,
+                    #     content=content,
+                    #     toxicity_score=toxicity,
+                    #     is_flagged=True,
+                    #     is_active=False  # CRITIQUE: Doit être False
+                    # )
+                else:
+                    # Créer le commentaire normalement
+                    Comment.objects.create(
+                        blog=blog,
+                        author=request.user,
+                        content=content,
+                        toxicity_score=toxicity,
+                        is_flagged=False,
+                        is_active=True
+                    )
+                    messages.success(request, "Commentaire ajouté avec succès.")
+                
+                return redirect('blogapp:blog_detail', pk=blog.pk)
+                
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Comment toxicity analysis failed: {str(e)}")
+                
+                messages.warning(
+                    request,
+                    "Impossible de vérifier le contenu pour le moment. Veuillez réessayer plus tard."
+                )
+                return redirect('blogapp:blog_detail', pk=blog.pk)
         else:
             messages.error(request, "Le commentaire est vide.")
+            return redirect('blogapp:blog_detail', pk=blog.pk)
+    
     liked = False
     if request.user.is_authenticated:
         liked = request.user in blog.likes.all()
+    
     return render(request, 'blog/blogapp/blog_detail.html', {
         'blog': blog,
         'comments': comments,
@@ -114,21 +155,60 @@ def toggle_like(request, pk):
 # CREATE
 @login_required
 def blog_create(request):
-    """
-    - GET : afficher le formulaire vide
-    - POST: valider et créer l'article (assigner l'auteur = request.user)
-    """
     if request.method == 'POST':
         form = BlogForm(request.POST)
         if form.is_valid():
-            blog = form.save(commit=False)  # on obtient l'objet sans l'enregistrer
-            blog.author = request.user      # attribuer l'auteur actuel
-            blog.save()                     # maintenant on enregistre en base
-            messages.success(request, "Article créé avec succès.")
-            return redirect('blogapp:blog_detail', pk=blog.pk)
+            blog = form.save(commit=False)
+            blog.author = request.user
+
+            try:
+                # Check toxicity in all text fields
+                content_toxicity = analyze_toxicity(blog.content)
+                title_toxicity = analyze_toxicity(blog.title)
+                preview_toxicity = analyze_toxicity(blog.preview) if blog.preview else 0
+                
+                # Use the highest toxicity score
+                toxicity = max(content_toxicity, title_toxicity, preview_toxicity)
+                blog.toxicity_score = toxicity
+
+                if toxicity > 0.6:
+                    blog.is_flagged = True
+                    messages.error(
+                        request,
+                        "Votre article contient un contenu inapproprié et ne peut pas être publié. "
+                        "Veuillez modifier votre texte et réessayer."
+                    )
+                    # Return form with user's data preserved
+                    return render(request, 'blog/blogapp/blog_form.html', {
+                        'form': form,
+                        'title': 'Créer un article'
+                    })
+
+                blog.save()
+                messages.success(request, "Article créé avec succès.")
+                return redirect('blogapp:blog_detail', pk=blog.pk)
+                
+            except Exception as e:
+                # Log the error for debugging
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Toxicity analysis failed: {str(e)}")
+                
+                messages.warning(
+                    request,
+                    "Impossible de vérifier le contenu pour le moment. Veuillez réessayer plus tard."
+                )
+                return render(request, 'blog/blogapp/blog_form.html', {
+                    'form': form,
+                    'title': 'Créer un article'
+                })
     else:
         form = BlogForm()
-    return render(request, 'blog/blogapp/blog_form.html', {'form': form, 'title': 'Créer un article'})
+
+    return render(request, 'blog/blogapp/blog_form.html', {
+        'form': form,
+        'title': 'Créer un article'
+    })
 
 # UPDATE
 @login_required
@@ -136,20 +216,61 @@ def blog_update(request, pk):
     """
     - Vérifie que l'utilisateur est l'auteur
     - GET : pré-remplit le formulaire avec instance=blog
-    - POST: sauvegarde les modifications si valide
+    - POST: sauvegarde les modifications si valide, avec détection de bad words
     """
     blog = get_object_or_404(Blog, pk=pk)
     if blog.author != request.user:
         return HttpResponseForbidden("Vous n'êtes pas autorisé à modifier cet article.")
+
     if request.method == 'POST':
         form = BlogForm(request.POST, instance=blog)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Article mis à jour.")
-            return redirect('blogapp:blog_detail', pk=blog.pk)
+            blog_temp = form.save(commit=False)
+            
+            try:
+                # Analyse de toxicité sur tous les champs textuels
+                content_toxicity = analyze_toxicity(blog_temp.content)
+                title_toxicity = analyze_toxicity(blog_temp.title)
+                preview_toxicity = analyze_toxicity(blog_temp.preview) if blog_temp.preview else 0
+                
+                toxicity = max(content_toxicity, title_toxicity, preview_toxicity)
+                blog_temp.toxicity_score = toxicity
+
+                if toxicity > 0.6:
+                    blog_temp.is_flagged = True
+                    messages.error(
+                        request,
+                        "Votre article contient un contenu inapproprié et ne peut pas être publié. "
+                        "Veuillez modifier votre texte et réessayer."
+                    )
+                    return render(request, 'blog/blogapp/blog_form.html', {
+                        'form': form,
+                        'title': 'Modifier l’article'
+                    })
+
+                # Enregistrer normalement si OK
+                blog_temp.save()
+                messages.success(request, "Article mis à jour avec succès.")
+                return redirect('blogapp:blog_detail', pk=blog.pk)
+
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Toxicity analysis failed: {str(e)}")
+                messages.warning(
+                    request,
+                    "Impossible de vérifier le contenu pour le moment. Veuillez réessayer plus tard."
+                )
+                return render(request, 'blog/blogapp/blog_form.html', {
+                    'form': form,
+                    'title': 'Modifier l’article'
+                })
+
     else:
         form = BlogForm(instance=blog)
+
     return render(request, 'blog/blogapp/blog_form.html', {'form': form, 'title': 'Modifier l’article'})
+
 
 # DELETE
 @login_required
@@ -324,3 +445,35 @@ def summarize_blog(request, pk):
         "blog": blog,
         "summary": summary
     })
+
+
+
+from huggingface_hub import InferenceClient
+
+HF_TOKEN = ""
+
+client = InferenceClient(
+    provider="hf-inference",
+    api_key=HF_TOKEN,
+)
+
+MODEL = "unitary/toxic-bert"
+
+def analyze_toxicity(text: str) -> float:
+    """
+    Retourne un score de toxicité entre 0 et 1
+    """
+    try:
+        result = client.text_classification(
+            text,
+            model=MODEL
+        )
+
+        for label in result:
+            if label["label"].lower() == "toxic":
+                return float(label["score"])
+
+        return 0.0
+
+    except Exception:
+        return 0.0

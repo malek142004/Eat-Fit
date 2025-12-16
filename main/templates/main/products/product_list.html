@@ -200,6 +200,7 @@
             <button type="submit">Search</button>
         </form>
 
+
         {% if user.is_authenticated and user.role == 'business_owner' %}
         <div class="text-right mb-4">
             <a href="{% url 'product:product_create' %}" class="site-btn sb-gradient">Add Product</a>
@@ -279,6 +280,7 @@
             </div>
             {% endfor %}
         </div>
+        
     </div>
 </section>
 
@@ -312,4 +314,5 @@ function confirmDelete(productId) {
     modal.show();
 }
 </script>
+
 {% endblock %}

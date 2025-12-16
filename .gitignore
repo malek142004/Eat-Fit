@@ -1,0 +1,9 @@
+# Fichiers sensibles
+.env
+
+# Fichiers Python compilés
+__pycache__/
+*.pyc
+
+# Environnement virtuel
+env/

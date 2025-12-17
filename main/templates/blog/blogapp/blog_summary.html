@@ -1,0 +1,59 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block title %}Résumé – {{ blog.title }}{% endblock %}
+
+{% block content %}
+
+<!-- Hero principal -->
+<section class="page-top-section set-bg" data-setbg="{% static 'blog/img/page-top-bg.jpg' %}">
+    <div class="container text-white text-center">
+        <h1 class="display-3 fw-bold mb-3">{{ blog.title }}</h1>
+        <p class="lead fs-3">Résumé de l'article • {{ blog.author.nom_complet|default:blog.author.username }}</p>
+    </div>
+</section>
+
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Card résumé -->
+            <div class="card shadow-lg rounded-4 overflow-hidden">
+                <!-- Bloc coloré selon thème -->
+                <div class="position-relative text-white text-center p-5"
+                     style="height: 200px; 
+                            background: linear-gradient(135deg,
+                            {% if blog.theme == 'nutrition' %}#ff6b6b, #ff8e8e
+                            {% elif blog.theme == 'fitness' %}#f65d5d, #fd9b7d
+                            {% elif blog.theme == 'wellness' %}#ff8e9d, #ffb3c6
+                            {% elif blog.theme == 'consultation' %}#e8ceb8, #D4B69F
+                            {% elif blog.theme == 'ia' %}#b8e8ce, #d05ce3
+                            {% elif blog.theme == 'products' %}#4caf50, #81c784
+                            {% else %}#f65d5d, #fdb07d{% endif %});">
+                    <h2 class="fw-bold fs-1 mb-0 text-shadow">{{ blog.get_theme_display }}</h2>
+                </div>
+
+                <!-- Contenu du résumé -->
+                <div class="card-body bg-white p-4 d-flex flex-column">
+                    <h3 class="fs-4 fw-bold mb-3">Résumé de l'article</h3>
+                    <p class="text-muted flex-grow-1">{{ summary }}</p>
+
+                    <!-- Bouton retour -->
+                    <div class="mt-4">
+                        <a href="{% url 'blogapp:blog_detail' blog.pk %}" 
+                           class="btn btn-sm px-4 py-2 text-white fw-semibold rounded-pill"
+                           style="background: linear-gradient(135deg, #f65d5d, #fd9b7d); 
+                                  border: none; transition: transform 0.2s ease, box-shadow 0.2s ease;"
+                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(246,93,93,0.4)';"
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                            Retour à l'article <i class="fa fa-arrow-left ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

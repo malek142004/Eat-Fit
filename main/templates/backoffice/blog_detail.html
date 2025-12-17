@@ -1,0 +1,57 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="h3 mb-2 text-gray-800">{{ blog.title }}</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Détails du blog</h6>
+    </div>
+    <div class="card-body">
+        <p><strong>Thème :</strong> {{ blog.get_theme_display }}</p>
+        <p><strong>Auteur :</strong> {{ blog.author.username }}</p>
+        <p><strong>Extrait :</strong> {{ blog.preview }}</p>
+        <p><strong>Contenu :</strong></p>
+        <div class="border p-3">{{ blog.content }}</div>
+        <p><strong>Créé le :</strong> {{ blog.created_at|date:"d/m/Y H:i" }}</p>
+        <p><strong>Dernière modification :</strong> {{ blog.updated_at|date:"d/m/Y H:i" }}</p>
+
+        <a href="{% url 'blogapp:backoffice_edit' blog.pk %}" class="btn btn-primary">Modifier</a>
+        <a href="{% url 'blogapp:backoffice_delete' blog.pk %}" class="btn btn-danger">Supprimer</a>
+        <a href="{% url 'blogapp:blogs_list' %}" class="btn btn-secondary">Retour</a>
+    </div>
+    <h3>Commentaires</h3>
+<a href="{% url 'blogapp:backoffice_comment_create' blog.pk %}" class="btn btn-primary mb-3 btn-sm">Ajouter un commentaire</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Auteur</th>
+            <th>Commentaire</th>
+            <th>Actif</th>
+            <th>Créé le</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for comment in blog.comments.all %}
+        <tr>
+            <td>{{ comment.author.username }}</td>
+            <td>{{ comment.content }}</td>
+            <td>{% if comment.is_active %}Oui{% else %}Non{% endif %}</td>
+            <td>{{ comment.created_at|date:"d/m/Y H:i" }}</td>
+            <td>
+                <a href="{% url 'blogapp:backoffice_comment_edit' comment.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                <a href="{% url 'blogapp:backoffice_comment_delete' comment.pk %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">Aucun commentaire pour ce blog.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% load static %}
+{% load socialaccount %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion Google</title>
+
+    <!-- Ton CSS -->
+    <link rel="stylesheet" href="{% static 'users/user.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            background: #f6f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .google-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 40px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .google-card h2 {
+            margin-bottom: 20px;
+        }
+
+        .google-btn {
+            background: #db4437;
+            color: white;
+            padding: 12px;
+            width: 100%;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .google-btn:hover {
+            background: #c3362a;
+        }
+
+        .return-link {
+            display: block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="google-card">
+    <h2>Connexion avec Google</h2>
+
+    <p>
+        Vous êtes sur le point de vous connecter en utilisant votre compte Google.
+    </p>
+
+    <a href="{% provider_login_url 'google' %}" class="google-btn">
+        <i class="fab fa-google"></i> Continuer avec Google
+    </a>
+
+    <a href="/users/auth/" class="return-link">
+        ← Retour à la page de connexion
+    </a>
+</div>
+
+</body>
+</html>

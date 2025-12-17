@@ -1,0 +1,191 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<section class="page-top-section set-bg" data-setbg="{% static 'blog/img/page-top-bg.jpg' %}">
+    <div class="container text-white text-center py-5">
+        <h1 class="display-4">{{ title }}</h1>
+        <p class="lead">Partage tes conseils nutrition, fitness ou bien-être</p>
+    </div>
+</section>
+
+<section class="events-page-section spad">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-9">
+
+                <div class="p-5 rounded-lg shadow" style="background:#fff9f6; border:2px solid #fde8e0;">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Titre -->
+                        <div class="mb-4">
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <small class="text-danger d-block">{{ form.title.errors }}</small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Thème -->
+                        <div class="mb-4">
+                            {{ form.theme }}
+                            {% if form.theme.errors %}
+                                <small class="text-danger d-block">{{ form.theme.errors }}</small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Extrait (preview) -->
+                        <div class="mb-4">
+                            {{ form.preview }}
+                            <small class="text-muted">Cet extrait apparaîtra sur la page d'accueil (max 200 caractères)</small>
+                            {% if form.preview.errors %}
+                                <small class="text-danger d-block">{{ form.preview.errors }}</small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Contenu complet -->
+                        <div class="mb-5">
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                                <small class="text-danger d-block">{{ form.content.errors }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="site-btn sb-gradient px-5 py-3 mr-3">
+                                Publier l'article
+                            </button>
+                            <a href="{% url 'blogapp:blog_list' %}" class="site-btn sb-white px-5 py-3">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal pour contenu inapproprié -->
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == "error" %}
+<div class="modal fade" id="badWordsModal" tabindex="-1" role="dialog" aria-labelledby="badWordsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="badWordsModalLabel">Contenu inapproprié détecté</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Fermer">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>{{ message }}</p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="site-btn sb-gradient" data-dismiss="modal">
+                    Compris
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Script pour ouvrir le modal automatiquement -->
+<script>
+(function() {
+    function showModal() {
+        var modalEl = document.getElementById('badWordsModal');
+        
+        if (!modalEl) {
+            console.error('Modal element not found');
+            return;
+        }
+
+        console.log('Attempting to show modal...');
+
+        // Méthode 1: jQuery + Bootstrap 4
+        if (typeof $ !== 'undefined' && $.fn && $.fn.modal) {
+            console.log('Using jQuery method');
+            try {
+                $('#badWordsModal').modal({
+                    backdrop: 'static',
+                    keyboard: false,
+                    show: true
+                });
+                return;
+            } catch(e) {
+                console.error('jQuery modal failed:', e);
+            }
+        }
+
+        // Méthode 2: Bootstrap 5 natif
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            console.log('Using Bootstrap 5 native method');
+            try {
+                var bsModal = new bootstrap.Modal(modalEl, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                bsModal.show();
+                return;
+            } catch(e) {
+                console.error('Bootstrap 5 modal failed:', e);
+            }
+        }
+
+        // Méthode 3: Fallback JavaScript vanilla
+        console.log('Using vanilla JS fallback');
+        modalEl.classList.add('show', 'd-block');
+        modalEl.style.display = 'block';
+        modalEl.setAttribute('aria-modal', 'true');
+        modalEl.removeAttribute('aria-hidden');
+        document.body.classList.add('modal-open');
+
+        // Créer le backdrop
+        var backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        backdrop.id = 'modalBackdrop';
+        document.body.appendChild(backdrop);
+
+        // Gérer la fermeture
+        var closeButtons = modalEl.querySelectorAll('[data-dismiss="modal"]');
+        closeButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                modalEl.classList.remove('show', 'd-block');
+                modalEl.style.display = 'none';
+                modalEl.setAttribute('aria-hidden', 'true');
+                modalEl.removeAttribute('aria-modal');
+                document.body.classList.remove('modal-open');
+                var existingBackdrop = document.getElementById('modalBackdrop');
+                if (existingBackdrop) {
+                    existingBackdrop.remove();
+                }
+            });
+        });
+    }
+
+    // Essayer immédiatement
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', showModal);
+    } else {
+        showModal();
+    }
+
+    // Sécurité: essayer aussi après un court délai
+    setTimeout(showModal, 100);
+})();
+</script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

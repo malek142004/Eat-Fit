@@ -1,0 +1,203 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Our Coaches | Eat and Fit{% endblock %}
+
+{% block content %}
+<section class="page-top-section set-bg" data-setbg="{% static 'img/page-top-bg.jpg' %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 m-auto text-white">
+                <h2>Our Coaches</h2>
+                <p>Our coaches are dedicated mentors who guide every step of your journey, helping you grow, improve, and unlock your full potential.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="trainers-page-section spad overflow-hidden">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4 w-100">
+                            <div class="d-flex gap-3 flex-wrap w-100" style="justify-content:space-between;">
+                                <a href="{% url 'users:coach_create' %}" class="btn btn-lg fw-bold shadow-sm" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; border-radius:24px; padding:12px 32px; font-size:1.1rem; border:none;">Add New Coach</a>
+                                {% if user.is_authenticated and user.role == 'coach' %}
+                                    <a href="{% url 'appointments:training_program_create' %}" class="btn btn-lg fw-bold shadow-sm ms-auto" style="background: linear-gradient(90deg,#e74c3c 0%,#ffb347 100%); color:#fff; border-radius:24px; padding:12px 32px; font-size:1.1rem; border:none; float:right;">Create Training Program</a>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                </div>
+                </div>
+        <div style="height:14px;"></div>
+        <div class="row mb-4">
+            <div class="col-12">
+                <form method="get" class="d-flex gap-4 align-items-center flex-nowrap justify-content-center w-100" style="background:#fff6f0; border-radius:24px; box-shadow:0 2px 8px rgba(255,107,53,0.08); padding:18px 32px; width:100%; max-width:1200px; margin:auto;">
+                    <input type="text" name="search" class="form-control" style="border-radius:16px; border:1.5px solid #ffb347; font-size:1.15rem; width:220px;" placeholder="Search coaches..." value="{{ search_query }}">
+                    <select name="sport" class="form-select" style="border-radius:16px; border:1.5px solid #ffb347; font-size:1.15rem; width:180px;">
+                        <option value="">All Sports</option>
+                        {% for sport_tuple in all_sport_types %}
+                            <option value="{{ sport_tuple.0 }}" {% if current_sport == sport_tuple.0 %}selected{% endif %}>{{ sport_tuple.1 }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="location" class="form-select" style="border-radius:16px; border:1.5px solid #ffb347; font-size:1.15rem; width:180px;">
+                        <option value="">All Locations</option>
+                        {% for loc in locations %}
+                            <option value="{{ loc }}" {% if location == loc %}selected{% endif %}>{{ loc }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="sort" class="fw-bold ms-2" style="color:#ff6b35; font-size:1.15rem;">Sort by:</label>
+                    <select id="sort" name="sort" class="form-select" style="border-radius:16px; border:1.5px solid #ffb347; font-size:1.15rem; width:160px; display:inline-block;">
+                        <option value="id" {% if current_sort == 'id' %}selected{% endif %}>Default</option>
+                        <option value="experience_years" {% if current_sort == 'experience_years' %}selected{% endif %}>Experience</option>
+                        <option value="session_price" {% if current_sort == 'session_price' %}selected{% endif %}>Session Price</option>
+                        <option value="subscription_price" {% if current_sort == 'subscription_price' %}selected{% endif %}>Subscription Price</option>
+                    </select>
+                    <select id="order" name="order" class="form-select ms-2" style="border-radius:16px; border:1.5px solid #ffb347; font-size:1.15rem; width:140px; display:inline-block;">
+                        <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Ascending</option>
+                        <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Descending</option>
+                    </select>
+                    <button type="submit" class="btn fw-bold" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; border-radius:18px; padding:10px 32px; font-size:1.15rem; border:none; box-shadow:0 2px 8px rgba(255,107,53,0.08);">Filter</button>
+                    <a href="?" class="btn fw-bold" style="background: linear-gradient(90deg,#bdbdbd 0%,#ffe0c3 100%); color:#333; border-radius:18px; padding:10px 32px; font-size:1.15rem; border:none; box-shadow:0 2px 8px rgba(189,189,189,0.08); white-space:nowrap;">Clear</a>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            {% for coach in coaches %}
+            <div class="col-lg-6 mb-4">
+                <div class="trainer-card shadow-lg position-relative" style="border-radius:24px; background: linear-gradient(120deg,#fff6f0 0%,#ffe0c3 100%); overflow:hidden;">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-md-5 text-center p-4">
+                            <div class="profile-img-wrapper mx-auto" style="width:180px; height:180px; border-radius:50%; box-shadow:0 4px 24px rgba(255,107,53,0.15); background: linear-gradient(135deg,#ffb347 0%,#ff6b35 100%); display:flex; align-items:center; justify-content:center;">
+                                {% if coach.pdp %}
+                                    <img src="{{ coach.pdp.url }}" alt="{{ coach.nom_complet }}" style="width:160px; height:160px; object-fit:cover; border-radius:50%; border:6px solid #fff;" />
+                                {% else %}
+                                    <img src="{% static 'img/trainer/default.png' %}" alt="{{ coach.nom_complet }}" style="width:160px; height:160px; object-fit:cover; border-radius:50%; border:6px solid #fff;" />
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-7 p-4">
+                            <div class="coach-info">
+                                <h4 style="font-size:2rem; font-weight:700; color:#ff6b35; margin-bottom:6px; letter-spacing:0.5px;">{{ coach.nom_complet }}</h4>
+                                <h6 style="color:#ffb347; font-weight:600; margin-bottom:10px; font-size:1.1rem;">{{ coach.get_sport_type_display }} Coach</h6>
+                                <p style="color:#444; font-size:1.08rem; margin-bottom:10px;">
+                                    {% if coach.certifications %}
+                                        {{ coach.certifications }}
+                                    {% else %}
+                                        {{ coach.experience_years }} years of experience in {{ coach.get_sport_type_display }}
+                                    {% endif %}
+                                </p>
+                                {% with data=coach_feedback_data|dictsort:coach.pk %}
+                                    {% if data and data.avg_rating %}
+                                        <div class="mb-2">
+                                            <span style="color:#FFD700; font-size:1.3rem; font-weight:700;">
+                                                {% for i in "12345" %}
+                                                    {% if i|add:'0' <= data.avg_rating|floatformat:0 %}
+                                                        &#9733;
+                                                    {% else %}
+                                                        <span style="color:#ffe0c3;">&#9733;</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {{ data.avg_rating|floatformat:1 }} / 5
+                                            </span>
+                                            <span class="text-muted small">({{ data.feedback_count }} reviews)</span>
+                                        </div>
+                                    {% endif %}
+                                    {% if data and data.latest_feedbacks %}
+                                        <ul class="list-unstyled mb-2">
+                                            {% for feedback in data.latest_feedbacks %}
+                                                <li class="mb-1">
+                                                    <span style="color:#FFD700; font-size:1.1rem;">
+                                                        {% for i in "12345" %}
+                                                            {% if i|add:'0' <= feedback.rating %}
+                                                                &#9733;
+                                                            {% else %}
+                                                                <span style="color:#ffe0c3;">&#9733;</span>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </span>
+                                                    {% if feedback.comment %}<span class="text-muted"> - {{ feedback.comment|truncatechars:40 }}</span>{% endif %}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                {% endwith %}
+                                <div class="ti-actions mt-3 d-flex gap-2">
+                                    <a href="{% url 'users:coach_detail' coach.pk %}" class="btn" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; font-weight:600; border-radius:24px; padding:8px 24px; font-size:1rem; border:none;">View</a>
+                                    <a href="{% url 'users:coach_update' coach.pk %}" class="btn" style="background: linear-gradient(90deg,#ffb347 0%,#ff6b35 100%); color:#fff; font-weight:600; border-radius:24px; padding:8px 24px; font-size:1rem; border:none;">Edit</a>
+                                    <form action="{% url 'users:coach_delete' coach.pk %}" method="post" style="display:inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn" style="background: linear-gradient(90deg,#e74c3c 0%,#ffb347 100%); color:#fff; font-weight:600; border-radius:24px; padding:8px 24px; font-size:1rem; border:none;" onclick="return confirm('Are you sure you want to delete this coach?');">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-center">No coaches available at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+    .trainer-card {
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 8px 32px rgba(255,107,53,0.10), 0 2px 8px rgba(255,179,71,0.08);
+        background: linear-gradient(120deg,#fff6f0 0%,#ffe0c3 100%);
+        transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .trainer-card:hover {
+        box-shadow: 0 16px 48px rgba(255,107,53,0.18), 0 4px 16px rgba(255,179,71,0.12);
+        transform: translateY(-4px) scale(1.02);
+    }
+    .profile-img-wrapper {
+        box-shadow: 0 4px 24px rgba(255,107,53,0.15);
+        background: linear-gradient(135deg,#ffb347 0%,#ff6b35 100%);
+        border-radius: 50%;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    .coach-info h4 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #ff6b35;
+        margin-bottom: 6px;
+        letter-spacing: 0.5px;
+    }
+    .coach-info h6 {
+        color: #ffb347;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
+    .coach-info p {
+        color: #444;
+        font-size: 1.08rem;
+        margin-bottom: 10px;
+    }
+    .coach-info .btn {
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 24px;
+        padding: 8px 24px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(255,107,53,0.08);
+        margin-right: 8px;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+    .coach-info .btn:active {
+        box-shadow: 0 1px 4px rgba(255,107,53,0.12);
+    }
+    .coach-info .btn:last-child {
+        margin-right: 0;
+    }
+</style>
+{% endblock %}

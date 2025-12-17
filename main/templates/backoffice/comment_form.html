@@ -1,0 +1,27 @@
+{% extends 'backoffice/base_backoffice.html' %}
+
+{% block content %}
+<h1 class="h3 mb-2 text-gray-800">{{ action }} un commentaire pour : {{ blog.title }}</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="mb-3">
+                {{ form.content.label_tag }}
+                {{ form.content }}
+                {{ form.content.errors }}
+            </div>
+            <div class="form-check mb-3">
+                {{ form.is_active }}
+                {{ form.is_active.label_tag }}
+            </div>
+
+            <button type="submit" class="btn btn-success">{{ action }}</button>
+            <a href="{% url 'blogapp:backoffice_detail' blog.pk %}" class="btn btn-secondary">Annuler</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

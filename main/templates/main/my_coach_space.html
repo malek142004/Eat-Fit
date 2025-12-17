@@ -1,0 +1,104 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}My Coach Space{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold mb-2" style="color:#ff5a00;">My Coach Space</h1>
+            <p class="lead text-muted">Manage your training programs, view your stats, and grow your coaching business!</p>
+        </div>
+    </div>
+    <div class="row mb-5">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-0 h-100 text-center p-4 gradient-bg-orange">
+                <h5 class="fw-bold text-white mb-1">Total Sales</h5>
+                <div class="display-5 fw-bold text-white">{{ total_sales }}</div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-0 h-100 text-center p-4 gradient-bg-green">
+                <h5 class="fw-bold text-white mb-1">Total Revenue</h5>
+                <div class="display-5 fw-bold text-white">${{ total_revenue|floatformat:2 }}</div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-0 h-100 text-center p-4 gradient-bg-blue">
+                <h5 class="fw-bold text-white mb-1">Total Clients</h5>
+                <div class="display-5 fw-bold text-white">{{ total_clients }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center mb-3">
+            <h2 class="fw-bold">My Training Programs</h2>
+            <a href="{# TODO: Add program creation URL #}" class="btn btn-success btn-lg rounded-pill px-4 shadow-sm">
+                <i class="fa fa-plus me-2"></i>Add Program
+            </a>
+        </div>
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle rounded shadow-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Level</th>
+                            <th>Price</th>
+                            <th>Description</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for program in programs %}
+                        <tr>
+                            <td class="fw-bold">{{ program.name }}</td>
+                            <td>{{ program.get_level_display }}</td>
+                            <td>${{ program.price|floatformat:2 }}</td>
+                            <td>{{ program.description|truncatewords:10 }}</td>
+                            <td>{{ program.created_at|date:"d/m/Y" }}</td>
+                            <td>
+                                <a href="{# TODO: Add edit URL #}" class="btn btn-warning btn-sm rounded-pill me-2">Edit</a>
+                                <a href="{# TODO: Add delete URL #}" class="btn btn-danger btn-sm rounded-pill">Delete</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No training programs found. <a href="#" class="fw-bold">Add your first program</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.gradient-bg-orange {
+    background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+}
+.gradient-bg-green {
+    background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+}
+.gradient-bg-blue {
+    background: linear-gradient(135deg, #36d1c4 0%, #5b86e5 100%);
+}
+.card {
+    border-radius: 1.2rem;
+}
+.btn-lg {
+    font-size: 1.1rem;
+    padding: 0.7rem 2.2rem;
+}
+.table {
+    border-radius: 1.2rem;
+    overflow: hidden;
+}
+.table th, .table td {
+    vertical-align: middle;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Résultat de la Prédiction</h1>
+    <a href="{% url 'appointments:backoffice_appointment_list' %}" class="btn btn-sm btn-secondary shadow-sm">
+        <i class="fas fa-arrow-left fa-sm text-white-50"></i> Retour à la liste
+    </a>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            Prédiction pour le rendez-vous de {{ appointment.client.nom_complet }}
+        </h6>
+    </div>
+    <div class="card-body">
+        <p><strong>Client :</strong> {{ appointment.client.nom_complet }}</p>
+        <p><strong>Date du RDV :</strong> {{ appointment.appointment_date }} à {{ appointment.start_time }}</p>
+        
+        <hr>
+
+        <h4>Résultat</h4>
+        {% if prediction_result is not None %}
+            <div class="alert alert-info">
+                <p class="mb-0">
+                    <strong>Probabilité de No-Show :</strong> 
+                    <span class="font-weight-bold">{{ prediction_result }}%</span>
+                </p>
+                <p class="mb-0 mt-2">
+                    <strong>Action Recommandée :</strong> 
+                    <span class="font-weight-bold">{{ prediction_action }}</span>
+                </p>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <p>La prédiction n'a pas pu être calculée.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if 'e-mail' in prediction_action %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-envelope"></i> Envoyer un E-mail de Rappel
+        </h6>
+    </div>
+    <div class="card-body">
+        <form action="{% url 'appointments:backoffice_send_email' appointment.id %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Destinataire</label>
+                <input type="email" class="form-control" value="{{ appointment.client.email }}" disabled>
+            </div>
+            <div class="form-group">
+                <label for="subject">Sujet</label>
+                <input type="text" class="form-control" id="subject" name="subject" value="Rappel de votre rendez-vous chez Eat&Fit">
+            </div>
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea class="form-control" id="message" name="message" rows="5">Bonjour {{ appointment.client.nom_complet }},
+
+Ceci est un rappel pour votre rendez-vous prévu le {{ appointment.appointment_date }} à {{ appointment.start_time }}.
+
+Cordialement,
+L'équipe Eat&Fit</textarea>
+            </div>
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-paper-plane"></i> Envoyer l'E-mail
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% if 'Appeler' in prediction_action %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-phone"></i> Appeler le Client
+        </h6>
+    </div>
+    <div class="card-body">
+        <p>Le numéro de téléphone du client est le <strong>{{ appointment.client.num_tel }}</strong>.</p>
+        <a href="tel:{{ appointment.client.num_tel }}" class="btn btn-info">
+            <i class="fas fa-phone-alt"></i> Lancer l'appel
+        </a>
+        <small class="d-block mt-2">
+            (Cliquez sur le bouton pour lancer l'appel depuis votre téléphone ou une application de bureau compatible)
+        </small>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

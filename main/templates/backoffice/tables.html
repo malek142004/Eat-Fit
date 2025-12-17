@@ -1,0 +1,188 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+{% load appointment_tags %}
+
+{% block content %}
+<!-- Page Heading -->
+<h1 class="h3 mb-2 text-gray-800">Appointments Management</h1>
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Appointments List</h6>
+        <div class="d-none d-sm-inline-block">
+            <a href="{% url 'appointments:generate_pdf_report' %}?date={{ date_query|default:'' }}&email={{ email_query|default:'' }}&sort={{ current_sort|default:'' }}" class="btn btn-sm btn-primary shadow-sm mr-2"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+            <span class="mr-2">Sort by date:</span>
+            <a href="?sort=asc&date={{ date_query|default:'' }}&email={{ email_query|default:'' }}" class="btn btn-sm btn-secondary">Ascending</a>
+            <a href="?sort=desc&date={{ date_query|default:'' }}&email={{ email_query|default:'' }}" class="btn btn-sm btn-secondary">Descending</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <a href="{% url 'appointments:backoffice_appointment_create' %}" class="btn btn-primary btn-icon-split mb-3">
+            <span class="icon text-white-50">
+                <i class="fas fa-plus"></i>
+            </span>
+            <span class="text">Add New Appointment</span>
+        </a>
+
+        <!-- Search Form -->
+        <form method="get" action="{% url 'appointments:backoffice_appointment_list' %}" class="mb-4">
+            <div class="form-row">
+                <div class="col-md-4">
+                    <input type="date" name="date" class="form-control" value="{{ date_query|default:'' }}">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="email" class="form-control" value="{{ email_query|default:'' }}" placeholder="Search by Client Email">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Search</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'appointments:backoffice_appointment_list' %}" class="btn btn-secondary" style="width: 100%;">Reset</a>
+                </div>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Client Name</th>
+                        <th>Client Email</th>
+                        <th>Wallet Points</th>
+                        <th>Coupons</th>
+                        <th>Professional</th>
+                        <th>Appointment Date</th>
+                        <th>Time Remaining</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Mode</th>
+                        <th>pay status</th>
+                        <th>Visio Link</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment.client.nom_complet }}</td>
+                        <td>{{ appointment.client.email }}</td>
+                        <td><strong>{{ appointment.wallet_points|default:0 }} pts</strong></td>
+                        <td>
+                            {% with coupons=appointment.client.coupons.all %}
+                                {% if coupons|length > 0 %}
+                                    {% for c in coupons %}
+                                        <span class="badge badge-info mr-1">{{ c.code }}{% if c.redeemed %} (redeemed){% endif %}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% if appointment.professional %}
+                                {{ appointment.professional.email }} ({{ appointment.professional.get_role_display }})
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>{{ appointment.appointment_date }}</td>
+                        <td>{{ appointment.appointment_date|time_until }}</td>
+                        <td>{{ appointment.start_time }}</td>
+                        <td>{{ appointment.end_time }}</td>
+                        <td>{{ appointment.mode }}</td>
+                        <td>
+                            {% if appointment.is_paid %}
+                                <span class="badge badge-success">Payed</span>
+                            {% else %}
+                                <span class="badge badge-warning">Not Paid</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if appointment.visio_link %}
+                                <a href="{{ appointment.visio_link }}" target="_blank">{{ appointment.visio_link }}</a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'appointments:backoffice_appointment_update' appointment.pk %}" class="btn btn-info btn-circle btn-sm" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'appointments:backoffice_appointment_delete' appointment.pk %}" class="btn btn-danger btn-circle btn-sm" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            <button type="button" class="btn btn-warning btn-circle btn-sm btn-predict" data-appointment-id="{{ appointment.pk }}" data-url="{% url 'appointments:backoffice_prediction_result' appointment.pk %}" title="Predict No-Show">
+                                <i class="fas fa-cogs"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="13">No appointments found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Prediction Modal -->
+<div class="modal fade" id="predictModal" tabindex="-1" role="dialog" aria-labelledby="predictModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form id="predictForm" method="post" action="">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="predictModalLabel">Prédiction - Paramètres</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="predict_age">Âge</label>
+            <input type="number" min="0" class="form-control" id="predict_age" name="age" required>
+          </div>
+          <div class="form-group">
+            <label for="predict_gender">Genre</label>
+            <select class="form-control" id="predict_gender" name="gender">
+              <option value="1">Homme</option>
+              <option value="0">Femme</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-primary">Lancer la prédiction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    var buttons = document.querySelectorAll('.btn-predict');
+    var form = document.getElementById('predictForm');
+    buttons.forEach(function(btn){
+        btn.addEventListener('click', function(){
+            var url = this.getAttribute('data-url');
+            form.action = url;
+            // reset form fields
+            form.querySelector('#predict_age').value = '';
+            form.querySelector('#predict_gender').value = '1';
+            // show bootstrap modal (works if bootstrap/jquery are loaded)
+            if (typeof $ !== 'undefined' && typeof $.fn.modal === 'function'){
+                $('#predictModal').modal('show');
+            } else {
+                document.getElementById('predictModal').classList.add('show');
+                document.getElementById('predictModal').style.display = 'block';
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Training Program Form{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">{% if object %}Edit{% else %}Create{% endif %} Training Program</h2>
+    <div class="card shadow-sm" style="border-radius:18px; background:#fff; max-width:600px; margin:auto;">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; font-weight:600; border-radius:24px; padding:10px 32px; font-size:1.1rem; border:none;">Save</button>
+                    <a href="{% url 'appointments:training_program_list' %}" class="btn" style="background: linear-gradient(90deg,#e74c3c 0%,#ffb347 100%); color:#fff; font-weight:600; border-radius:24px; padding:10px 32px; font-size:1.1rem; border:none;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

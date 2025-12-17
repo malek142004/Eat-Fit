@@ -1,0 +1,249 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}{{ coach.nom_complet }} | Profil Coach{% endblock %}
+
+{% block content %}
+<section class="page-top-section set-bg" data-setbg="{% static 'img/page-top-bg.jpg' %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 m-auto text-white text-center">
+                <h2>Profil de l'Entraîneur</h2>
+                <p>Détails professionnels de **{{ coach.nom_complet }}**, votre coach de {{ coach.get_sport_type_display }}.</p>
+            </div>
+        </div>
+        </div>
+</section>
+
+---
+
+<section class="trainer-details-section spad overflow-hidden bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9 col-md-10">
+                
+                <div class="card p-4 shadow-sm mb-5" style="border-radius: 18px; background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+                    <div class="trainer-header d-flex flex-column flex-md-row align-items-center align-items-md-start">
+                        <div class="profile-photo me-md-4 mb-3 mb-md-0 text-center flex-shrink-0">
+                            {% if coach.pdp %}
+                                <img src="{{ coach.pdp.url }}" alt="Photo de profil de {{ coach.nom_complet }}" class="rounded" style="width: 180px; height: 180px; object-fit: cover; border-radius: 16px;">
+                            {% else %}
+                                <img src="{% static 'img/trainer/default.png' %}" alt="Photo par défaut" class="rounded" style="width: 180px; height: 180px; object-fit: cover; border-radius: 16px;">
+                            {% endif %}
+                        </div>
+                        <div class="profile-info flex-grow-1 text-center text-md-start">
+                            <h2 class="mb-1" style="font-size:2.2rem; font-weight:700; color:#2d2d2d;">{{ coach.nom_complet }}</h2>
+                            <h5 class="mb-2" style="color:#ff6b35; font-weight:600;">{{ coach.get_sport_type_display }} Coach</h5>
+                            <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-md-start mb-2">
+                                <span style="font-size:1rem; color:#555;"><strong>Expérience:</strong> {{ coach.experience_years }} an(s)</span>
+                                <span style="font-size:1rem; color:#555;"><strong>Statut:</strong> <span style="color:#4caf50; font-weight:600;">{% if coach.is_available %}Disponible{% else %}Non disponible{% endif %}</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Bloc des Coordonnées #}
+                <div class="card p-4 shadow-sm mb-5">
+                    <h4 class="mb-3" style="color:#ff6b35; font-weight:600; border-bottom:2px solid #f0f0f0;">Coordonnées</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <i class="fa fa-envelope" style="color:#ff6b35; margin-right:8px;"></i>
+                            <strong>Email:</strong> <a href="mailto:{{ coach.email }}" class="text-decoration-none" style="color:#2d2d2d;">{{ coach.email }}</a>
+                        </div>
+                        {% if coach.num_tel %}
+                        <div class="col-md-6 mb-3">
+                            <i class="fa fa-phone" style="color:#ff6b35; margin-right:8px;"></i>
+                            <strong>Téléphone:</strong> {{ coach.num_tel }}
+                        </div>
+                        {% endif %}
+                        {% if coach.location or coach.ville %}
+                        <div class="col-md-6 mb-3">
+                            <i class="fa fa-map-marker" style="color:#ff6b35; margin-right:8px;"></i>
+                            <strong>Ville:</strong> {{ coach.location|default_if_none:coach.ville }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Bloc Biographie et Certifications (CORRECTION D'UNIFORMITÉ) #}
+                <div class="card p-4 shadow-sm mb-5">
+                    {% if coach.bio %}
+                        <h4 class="mb-3" style="color:#ff6b35; font-weight:600; border-bottom:2px solid #f0f0f0;">Biographie et Parcours</h4>
+                        <p style="color:#555; font-size:1.05rem;">{{ coach.bio|linebreaks }}</p>
+                    {% endif %}
+                    {% if coach.certifications %}
+                        <h4 class="mb-3" style="color:#ff6b35; font-weight:600; border-bottom:2px solid #f0f0f0;">Certifications et Qualifications</h4>
+                        <p style="color:#555; font-size:1.05rem;">{{ coach.certifications|linebreaksbr }}</p>
+                    {% endif %}
+                </div>
+
+                {# Bloc Tarification (Alignement déjà corrigé) #}
+                {% if coach.session_price or coach.subscription_price %}
+                <div class="card p-4 shadow-sm mb-5" style="border-radius: 18px;">
+                    <h4 class="mb-4" style="color:#ff6b35; font-weight:600; border-bottom:2px solid #f0f0f0;">Tarification</h4>
+                    <div class="row g-3">
+                        <div class="col-sm-6 col-lg-6">
+                            <div class="p-4 border rounded text-center h-100 d-flex flex-column justify-content-between" style="background: #f9f9f9; border: 1.5px solid #ff6b35;">
+                                <p class="mb-2" style="color:#ff6b35; font-size:0.95rem; font-weight:600;">Prix par Séance</p>
+                                <h3 style="color:#ff6b35; font-weight:700;">${{ coach.session_price|floatformat:2 }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-6">
+                            <div class="p-4 border rounded text-center h-100 d-flex flex-column justify-content-between" style="background: #f9f9f9; border: 1.5px solid #ff6b35;">
+                                <p class="mb-2" style="color:#ff6b35; font-size:0.95rem; font-weight:600;">Abonnement Mensuel</p>
+                                <h3 style="color:#ff6b35; font-weight:700;">${{ coach.subscription_price|floatformat:2 }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {# Bloc Carte (Map) #}
+                {% if coach.show_map %}
+                <div class="card p-4 shadow-sm mb-5">
+                    <h4 class="mb-3 text-secondary border-bottom pb-2">Localisation</h4>
+                    <div id="map" style="height: 400px; width: 100%;"></div>
+                </div>
+
+                <!-- Include Leaflet.js CSS and JavaScript -->
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        // Initialize the map
+                        var map = L.map('map').setView([{{ coach.latitude|default:51.505 }}, {{ coach.longitude|default:-0.09 }}], 13);
+
+                        // Add OpenStreetMap tiles
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '© OpenStreetMap contributors'
+                        }).addTo(map);
+
+                        // Add a marker at the coach's location
+                        L.marker([{{ coach.latitude|default:51.505 }}, {{ coach.longitude|default:-0.09 }}]).addTo(map)
+                            .bindPopup('Localisation du coach.')
+                            .openPopup();
+                    });
+                </script>
+                {% endif %}
+
+                {# Bloc Programme d'Entraînement #}
+                <div class="card p-4 shadow-sm mb-5">
+                    <a href="{% url 'appointments:coach_training_programs' coach.id %}" class="btn" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; font-weight:600; border-radius:24px; padding:12px 32px; font-size:1.1rem; border:none;">Voir les programmes d'entraînement</a>
+                </div>
+
+                {# Bloc Avis et Notes #}
+                <div class="card p-4 shadow-sm mb-5">
+                    <h4 class="mb-3" style="color:#ff6b35; font-weight:600; border-bottom:2px solid #f0f0f0;">Avis des clients</h4>
+                    {% if avg_rating %}
+                        <div class="mb-3">
+                            <strong>Note moyenne :</strong>
+                            <span style="color:#FFD700; font-size:1.3rem;">
+                                {% for i in "12345" %}
+                                    {% if i|add:'0' <= avg_rating|floatformat:0 %}
+                                        &#9733;
+                                    {% else %}
+                                        <span style="color:#ccc;">&#9733;</span>
+                                    {% endif %}
+                                {% endfor %}
+                                {{ avg_rating|floatformat:1 }} / 5
+                            </span>
+                        </div>
+                    {% endif %}
+                    {% if latest_feedbacks %}
+                        <ul class="list-group mb-3">
+                            {% for feedback in latest_feedbacks %}
+                                <li class="list-group-item" style="border-radius:12px; margin-bottom:8px; border:1px solid #ffb347;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>
+                                            <span style="color:#FFD700; font-size:1.1rem;">
+                                                {% for i in "12345" %}
+                                                    {% if i|add:'0' <= feedback.rating %}
+                                                        &#9733;
+                                                    {% else %}
+                                                        <span style="color:#ccc;">&#9733;</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </span>
+                                            {% if feedback.comment %}<br><strong>Commentaire :</strong> {{ feedback.comment }}{% endif %}
+                                        </span>
+                                        <span class="text-muted small">{{ feedback.created_at|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        {% if more_feedbacks %}
+                        <button class="btn" type="button" data-bs-toggle="collapse" data-bs-target="#allFeedbacks" aria-expanded="false" aria-controls="allFeedbacks" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; font-weight:600; border-radius:24px; padding:8px 24px; font-size:1rem; border:none;">Afficher plus d'avis</button>
+                        <div class="collapse mt-3" id="allFeedbacks">
+                            <ul class="list-group">
+                                {% for feedback in all_feedbacks|slice:"3:" %}
+                                    <li class="list-group-item" style="border-radius:12px; margin-bottom:8px; border:1px solid #ffb347;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>
+                                                <span style="color:#FFD700; font-size:1.1rem;">
+                                                    {% for i in "12345" %}
+                                                        {% if i|add:'0' <= feedback.rating %}
+                                                            &#9733;
+                                                        {% else %}
+                                                            <span style="color:#ccc;">&#9733;</span>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </span>
+                                                {% if feedback.comment %}<br><strong>Commentaire :</strong> {{ feedback.comment }}{% endif %}
+                                            </span>
+                                            <span class="text-muted small">{{ feedback.created_at|date:"d/m/Y H:i" }}</span>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <p style="color:#aaa;">Aucun avis pour ce coach.</p>
+                    {% endif %}
+                </div>
+
+                {# Bloc Laisser un avis #}
+                
+                {% if can_leave_feedback %}
+                <div class="card p-4 shadow-sm mb-5" style="border-radius: 18px;">
+                    <h4 class="mb-3" style="color:#ff6b35; font-weight:600; border-bottom:2px solid #f0f0f0;">Laisser un avis</h4>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Note :</label>
+                            <div class="star-rating" style="font-size:2rem; color:#FFD700;">
+                                {% for i in "12345" %}
+                                    <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" style="display:none;">
+                                    <label for="star{{ i }}" style="cursor:pointer;">
+                                        &#9733;
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_comment" class="form-label">Commentaire :</label>
+                            <textarea name="comment" id="id_comment" rows="3" class="form-control" placeholder="Votre commentaire (optionnel)" style="border-radius:12px; border:1.5px solid #ffb347;"></textarea>
+                        </div>
+                        <button type="submit" name="leave_feedback" class="btn" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; font-weight:600; border-radius:24px; padding:10px 32px; font-size:1.1rem; border:none;">Envoyer l'avis</button>
+                    </form>
+                    <script>
+                        // Star rating JS
+                        document.querySelectorAll('.star-rating label').forEach(function(label, idx) {
+                            label.addEventListener('click', function() {
+                                document.querySelectorAll('.star-rating label').forEach(function(l, i) {
+                                    l.style.color = i <= idx ? '#FFD700' : '#ccc';
+                                });
+                                document.getElementById('star' + (idx+1)).checked = true;
+                            });
+                        });
+                    </script>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

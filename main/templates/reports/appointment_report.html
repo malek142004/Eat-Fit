@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Appointments Report</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20mm;
+        }
+        h1 {
+            color: #f65d5d;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 10px;
+            color: #777;
+            padding: 10mm;
+        }
+        .icon {
+            vertical-align: middle;
+            width: 14px;
+            height: 14px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Appointments Report</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Client Name</th>
+                <th>Client Email</th>
+                <th>Client Phone</th>
+                <th>Appointment Date</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Mode</th>
+                <th>Visio Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment.client.nom_complet }}</td>
+                <td>
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktZW52ZWxvcGUiIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTAgNGEyIDIgMCAwIDEgMi0yaDEyYTIgMiAwIDAgMSAyIDJ2OGEyIDIgMCAwIDEtMiAySDJhMiAyIDAgMCAxLTItMlY0Wm0yLTFhMSAxIDAgMCAwLTEgMXYudjIxN2w3IDQuMiA3LTQuMlY0YTEgMSAwIDAgMC0xLTFIMlptMTMgMi4zODMtNC43MDggMi44MjVMMTUgMTEuMTA1VjUuMzgzWm0tLjAzNCA2Ljg3Ni01LjY0LTMuNDcxTDggOS41ODNsLTEuMzI2LS43OTUtNS42NCAzLjQ3QTEgMSAwIDAgMCAyIDEzaDEyYTEgMSAwIDAgMCAuOTY2LS43NDFaTTEgMTEuMTA1bDUuNzA4LTIuODk3TDEgNS4zODN2NS43MjJaIi8+Cjwvc3ZnPg==" class="icon">
+                    {{ appointment.client.email }}
+                </td>
+                <td>
+                    {% if appointment.client.num_tel %}
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iY3VycmVudENvbG9yIiBjbGFzcz0iYmkgYmktZW52ZWxvcGUiIHZpZXdCb3g9IjAgMCAxNiAxNiI+CiAgPHBhdGggZD0iTTMuNjU0IDEuMzI4YS42NzguNjc4IDAgMCAwLTEuMDE1LTIuMDYzTDEuNjA1IDIuM2MtLjQ4My40ODQtLjY2MSAxLjE2OS0uNDUgMS43N2ExNy41NjggMTcuNTY4IDAgMCAwIDQuMTY4IDYuNjA4IDE3LjU2OSAxNy41NjkgMCAwIDAgNi42MDggNC4xNjhjLjYwMS4yMTEgMS4yODYuMDMzIDEuNzctLjQ1bDEuMDM0LTEuMDM0YS42NzguNjc4IDAgMCAwLS4wNjMtMS4wMTVsLTIuMzA3LTEuNzk0YS42NzguNjc4IDAgMCAwLS41OC0uMTIybC0yLjE5LjU0N2ExLjc0NSAxLjc0NSAwIDAgMS0xLjY1Ny0uNDU5TDUuNDgyIDguMDYyYTEuNzQ1IDEuNzQ1IDAgMCAxLS40Ni0xLjY1N2wuNTQ4LTIuMTlhLjY3OC42NzggMCAwIDAtLjEyMi0uNThsLTEuNzk0LTIuMzA3ek0xLjg4NC41MTFhMS43NDUgMS43NDUgMCAwIDEgMi42MTIuMTYzTDYuMjkgMi45OGMuMzI5LjQyMy40NDUuOTc0LjMxNSAxLjQ5NGwtLjU0NyAyLjE5YS42NzguNjc4IDAgMCAwIC4xNzguNjQzbDIuNDU3IDIuNDU3YS42NzguNjc4IDAgMCAwIC42NDQuMTc4bDIuMTg5LS41NDdhMS43NDUgMS43NDUgMCAwIDEgMS40OTQuMzE1bDIuMzA2IDEuNzk0Yy44MjkuNjQ1LjkwNSAxLjg3LjE2MyAyLjYxMWwtMS4wMzQgMS4wMzRjLS43NC43NC0xLjg0NiAxLjA2NS0yLjg3Ny43MDJhMTguNjM0IDE4LjYzNCAwIDAgMS03LjAxLTQuNDIgMTguNjM0IDE4LjYzNCAwIDAgMS00LjQyLTcuMDA5Yy0uMzYyLTEuMDMtLjAzNy0yLjEzNy43MDMtMi44NzdsMS4wMzQtMS4wMzR6Ii8+Cjwvc3ZnPg==" class="icon">
+                    {{ appointment.client.num_tel }}
+                    {% endif %}
+                </td>
+                <td>{{ appointment.appointment_date }}</td>
+                <td>{{ appointment.start_time }}</td>
+                <td>{{ appointment.end_time }}</td>
+                <td>{{ appointment.mode }}</td>
+                <td>{{ appointment.visio_link|default:"N/A" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8">No appointments found for this report.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Generated on {{ now|date:"Y-m-d H:i" }}
+    </div>
+</body>
+</html>

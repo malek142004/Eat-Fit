@@ -1,0 +1,17 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Delete Training Program{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4">
+        <h2 class="mb-4 text-danger">Delete Training Program</h2>
+        <p>Are you sure you want to delete the training program <strong>{{ object.name }}</strong>?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Confirm Delete</button>
+            <a href="{% url 'appointments:training_program_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

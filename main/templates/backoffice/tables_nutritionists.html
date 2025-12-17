@@ -1,0 +1,310 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Nutritionists Dashboard</h1>
+
+    <div class="row mb-4">
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total des Nutritionnistes
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_nutritionists|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+    <div class="card shadow-sm mb-4 border-0 rounded-4">
+        <div class="card-header py-3 bg-gradient-primary text-white rounded-top">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="m-0 font-weight-bold">Liste des Nutritionnistes</h6>
+                
+                <div class="d-flex gap-2">
+                    <a href="{% url 'users:backoffice_nutritionist_list_pdf' %}" class="btn btn-sm btn-light font-weight-bold shadow-sm" download title="Télécharger la liste au format PDF">
+                        <i class="fas fa-file-pdf"></i> Télécharger PDF
+                    </a>
+
+                    <a href="{% url 'users:backoffice_nutritionist_city_stats' %}" class="btn btn-sm btn-info font-weight-bold shadow-sm" title="Voir les statistiques des nutritionnistes par ville">
+                        <i class="fas fa-chart-pie"></i> Voir Statistiques
+                    </a>
+
+                    <a href="{% url 'users:backoffice_nutritionist_create' %}" class="btn btn-sm btn-light font-weight-bold shadow-sm">
+                        <i class="fas fa-plus"></i> Ajouter
+                    </a>
+                </div>
+            </div>
+            
+            <form method="get" class="d-flex align-items-center">
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" placeholder="Rechercher par nom, ville ou spécialité..."
+                        value="{{ search_query }}" style="border-radius: 0.5rem 0 0 0.5rem;">
+                    <button class="btn btn-light" type="submit" style="border-radius: 0 0.5rem 0.5rem 0;">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    {% if search_query %}
+                    <a href="{% url 'users:backoffice_nutritionist_list' %}" class="btn btn-outline-light ms-2" title="Effacer la recherche">
+                        <i class="fas fa-times"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="dataTable" width="100%" cellspacing="0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>
+                                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}sort=id&order={% if sort_by == 'id' and order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-dark">
+                                    ID {% if sort_by == 'id' %}{% if order == 'asc' %}↑{% else %}↓{% endif %}{% else %}↕{% endif %}
+                                </a>
+                            </th>
+                            <th>Photo</th>
+                            <th>
+                                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}sort=nom_complet&order={% if sort_by == 'nom_complet' and order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-dark">
+                                    Nom {% if sort_by == 'nom_complet' %}{% if order == 'asc' %}↑{% else %}↓{% endif %}{% else %}↕{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}sort=email&order={% if sort_by == 'email' and order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-dark">
+                                    Email {% if sort_by == 'email' %}{% if order == 'asc' %}↑{% else %}↓{% endif %}{% else %}↕{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}sort=num_tel&order={% if sort_by == 'num_tel' and order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-dark">
+                                    Téléphone {% if sort_by == 'num_tel' %}{% if order == 'asc' %}↑{% else %}↓{% endif %}{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}sort=ville&order={% if sort_by == 'ville' and order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-dark">
+                                    Ville {% if sort_by == 'ville' %}{% if order == 'asc' %}↑{% else %}↓{% endif %}{% else %}↕{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}sort=speciality&order={% if sort_by == 'speciality' and order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-dark">
+                                    Spécialité {% if sort_by == 'speciality' %}{% if order == 'asc' %}↑{% else %}↓{% endif %}{% else %}↕{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}sort=experience_years&order={% if sort_by == 'experience_years' and order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-dark">
+                                    Expérience {% if sort_by == 'experience_years' %}{% if order == 'asc' %}↑{% else %}↓{% endif %}{% else %}↕{% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}sort=consultation_fee&order={% if sort_by == 'consultation_fee' and order == 'asc' %}desc{% else %}asc{% endif %}" class="text-decoration-none text-dark">
+                                    Tarif {% if sort_by == 'consultation_fee' %}{% if order == 'asc' %}↑{% else %}↓{% endif %}{% else %}↕{% endif %}
+                                </a>
+                            </th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for n in nutritionists %}
+                        <tr class="shadow-sm rounded hover-row">
+                            <td class="text-center">{{ n.pk }}</td>
+                            <td class="text-center position-relative">
+                                <a href="{% url 'users:backoffice_nutritionist_detail' n.pk %}" class="photo-hover">
+                                    {% if n.pdp %}
+                                        <img src="{{ n.pdp.url }}" alt="{{ n.nom_complet }}"
+                                            class="rounded-circle shadow-sm" style="width:60px; height:60px; object-fit:cover;">
+                                    {% else %}
+                                        <img src="{% static 'main/img/undraw_profile.svg' %}" alt="no-photo"
+                                            class="rounded-circle shadow-sm" style="width:60px; height:60px; object-fit:cover;">
+                                    {% endif %}
+                                    <div class="overlay"><i class="fas fa-eye text-white"></i></div>
+                                </a>
+                            </td>
+                            <td><strong>{{ n.nom_complet }}</strong></td>
+                            <td>{{ n.email }}</td>
+                            <td>{{ n.num_tel }}</td>
+                            <td>{{ n.ville }}</td>
+                            <td><span class="badge bg-gradient-info text-white">{{ n.speciality }}</span></td>
+                            <td>{{ n.experience_years }} ans</td>
+                            <td>{{ n.consultation_fee }} DT</td>
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="{% url 'users:backoffice_nutritionist_update' n.pk %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger js-open-delete-modal" 
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                            data-delete-url="{% url 'users:backoffice_nutritionist_delete' n.pk %}" 
+                                            data-name="{{ n.nom_complet|escape }}" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center text-muted">
+                                {% if search_query %}
+                                    Aucun nutritionniste trouvé pour "<strong>{{ search_query }}</strong>".
+                                {% else %}
+                                    Aucun nutritionniste trouvé.
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-3 shadow">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form id="deleteForm" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <p id="deleteModalMessage">Êtes-vous sûr de vouloir supprimer ce nutritionniste ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger">Oui, supprimer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ... Votre CSS existant ... */
+.hover-row:hover { background-color: #f0f8ff; transition: background 0.3s ease; }
+.photo-hover { display: inline-block; position: relative; }
+.photo-hover .overlay { position: absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; background: rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; opacity:0; transition: opacity 0.3s ease; }
+.photo-hover:hover .overlay { opacity:1; }
+.badge { font-size:0.85rem; padding:0.5em 0.8em; border-radius:0.5rem; }
+.btn-outline-primary, .btn-outline-danger { border-radius:0.5rem; width:40px; height:40px; display:flex; align-items:center; justify-content:center; padding:0; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // 1. Initialiser les tooltips (si vous utilisez Bootstrap 5)
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        // Laisser cette ligne commentée si vous n'avez pas Bootstrap JS inclus
+        // return new bootstrap.Tooltip(tooltipTriggerEl) 
+    });
+
+    // 2. Gestion du Modal de Suppression (Inchangé)
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteForm = document.getElementById('deleteForm');
+    const deleteModalMessage = document.getElementById('deleteModalMessage');
+    
+    if (deleteModal) {
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget; 
+            const deleteUrl = button.getAttribute('data-delete-url');
+            const nutritionistName = button.getAttribute('data-name');
+
+            deleteForm.action = deleteUrl;
+            deleteModalMessage.innerHTML = 'Êtes-vous sûr de vouloir supprimer le nutritionniste <strong>' + nutritionistName + '</strong>? Cette action est irréversible.';
+        });
+    }
+
+    // 3. LOGIQUE DU GRAPHIQUE CIRCULAIRE (Chart.js)
+    
+    // Récupération sécurisée des données JSON
+    var cityStatsElement = document.getElementById('city_stats_data');
+    var cityStats = [];
+    if (cityStatsElement) {
+        cityStats = JSON.parse(cityStatsElement.textContent);
+    }
+    
+    if (cityStats.length === 0) {
+        return; // Rien à dessiner
+    }
+
+    // Extraction des étiquettes (Villes) et des valeurs (Pourcentages)
+    var cityLabels = [];
+    var cityData = [];
+    
+    cityStats.forEach(function(stat) {
+        // Utilise la ville ou "(Non spécifiée)" si le champ est vide
+        var city = stat.city ? stat.city : '(Non spécifiée)';
+        
+        // Ajout des données si le pourcentage est > 0
+        if (stat.percentage && stat.percentage > 0) {
+            cityLabels.push(city);
+            cityData.push(stat.percentage);
+        }
+    });
+
+    // Couleurs par défaut (Adaptées au style Admin LTE/Bootstrap)
+    var backgroundColors = [
+        '#4e73df', // Bleu Primaire
+        '#1cc88a', // Vert Succès
+        '#36b9cc', // Cyan Info
+        '#f6c23e', // Jaune Avertissement
+        '#e74a3b', // Rouge Danger
+        '#858796', // Gris
+    ];
+
+    // Initialisation du graphique Chart.js
+    var ctx = document.getElementById("cityPieChart");
+    if (ctx) {
+        var myPieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: cityLabels,
+                datasets: [{
+                    data: cityData,
+                    backgroundColor: backgroundColors.slice(0, cityLabels.length),
+                    hoverBackgroundColor: backgroundColors.slice(0, cityLabels.length),
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: true,
+                    caretPadding: 10,
+                    callbacks: {
+                        // Afficher le pourcentage dans la tooltip
+                        label: function(tooltipItem, data) {
+                            var label = data.labels[tooltipItem.index] || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += data.datasets[0].data[tooltipItem.index] + '%';
+                            return label;
+                        }
+                    }
+                },
+                legend: {
+                    display: true, // Afficher la légende
+                    position: 'bottom'
+                },
+                cutoutPercentage: 80, 
+            },
+        });
+    }
+});
+</script>
+{% endblock %}

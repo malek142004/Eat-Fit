@@ -1,0 +1,436 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+    {# 🎨 Styles pour la modernité et la PDP circulaire (À placer idéalement dans static/css/style.css) #}
+    <style>
+        /* Masquer le champ de fichier natif pour le remplacer par un cercle cliquable */
+        #id_pdp {
+            display: none !important;
+        }
+
+        /* Amélioration générale du formulaire */
+        .contact-form .form-control,
+        .contact-form select,
+        .contact-form textarea {
+            border-radius: 8px; /* Bords légèrement arrondis */
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            width: 100%; /* S'assurer qu'ils prennent toute la colonne */
+        }
+
+        .contact-form .form-control:focus,
+        .contact-form select:focus,
+        .contact-form textarea:focus {
+            border-color: #ff5a00; /* Accentuation orange sur le focus */
+            box-shadow: 0 0 5px rgba(255, 90, 0, 0.3);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            display: block; /* S'assurer que le label est sur sa propre ligne */
+        }
+
+        /* 📸 Styles spécifiques pour la Photo de Profil Circulaire */
+        .profile-photo-container {
+            padding: 20px;
+            border: 1px dashed #ddd; /* Conteneur discret */
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .current-pdp-wrapper {
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            margin: 10px 0;
+            user-select: none;
+        }
+
+        .current-pdp-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%; /* Le cercle ! */
+            object-fit: cover;
+            border: 5px solid #ff5a00;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .current-pdp-wrapper:hover .current-pdp-circle {
+            border-color: #ff8c00;
+            opacity: 0.8;
+        }
+        
+        /* Placeholder pour les utilisateurs sans image */
+        .placeholder-circle {
+            background-color: #e9ecef;
+            color: #888;
+            font-size: 50px; /* Utiliser une police à icônes ici, si 'fa fa-user-circle' est disponible */
+        }
+        .placeholder-circle .fa {
+            font-size: 70px;
+        }
+        
+        /* Texte pour inciter au changement */
+        .pdp-change-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .current-pdp-wrapper:hover .pdp-change-text {
+            opacity: 1;
+        }
+
+        /* Style des cases à cocher */
+        .form-check-label {
+            margin-left: 5px;
+        }
+    </style>
+
+    <!-- Include Leaflet.js CSS and JavaScript without integrity attributes -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+    <section class="page-top-section set-bg" data-setbg="{% static 'img/page-top-bg.jpg' %}">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-7 m-auto text-white">
+                    <h2>{{ title }}</h2>
+                    <p>Manage coach information and details</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("Initializing map...");
+
+            // Initialize the map
+            var map = L.map('map').setView([51.505, -0.09], 13); // Default coordinates and zoom level
+            console.log("Map initialized.");
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            console.log("Tiles added to map.");
+
+            // Add a draggable marker
+            var marker = L.marker([51.505, -0.09], { draggable: true }).addTo(map);
+            console.log("Draggable marker added.");
+
+            // Update hidden input fields on marker drag
+            marker.on('dragend', function(e) {
+                var latlng = marker.getLatLng();
+                console.log("Marker dragged to:", latlng);
+                document.getElementById('id_latitude').value = latlng.lat;
+                document.getElementById('id_longitude').value = latlng.lng;
+            });
+        });
+    </script>
+    
+    <section class="contact-page-section spad overflow-hidden">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <form method="post" enctype="multipart/form-data" class="singup-form contact-form">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        <hr class="mb-5">
+
+                        {# 👤 User Information (Héritée de CustomUser) #}
+                        <div class="row">
+                            <div class="col-12">
+                                <h4 class="mb-4">User Information</h4>
+                            </div>
+                            
+                            {# 📸 PHOTO DE PROFIL CIRCULAIRE (pdp) #}
+                            <div class="col-md-12 mb-4 text-center">
+                                <div class="profile-photo-container">
+                                    <label for="{{ form.pdp.id_for_label }}" class="form-label mb-3">Profile Photo</label>
+                                    
+                                    <div class="current-pdp-wrapper" onclick="document.getElementById('{{ form.pdp.id_for_label }}').click();">
+                                        {# Si l'image existe sur l'instance (création avec une PDP existante ou édition) #}
+                                        {% if form.instance.pdp %}
+                                            <img src="{{ form.instance.pdp.url }}" alt="Current Profile Photo" class="current-pdp-circle" id="pdp-preview">
+                                            <span class="pdp-change-text">Click to change</span>
+                                        {% else %}
+                                            {# Placeholder si aucune image #}
+                                            <div class="current-pdp-circle placeholder-circle" id="pdp-preview">
+                                                <i class="fa fa-user-circle"></i> {# Assurez-vous que Font Awesome est chargé #}
+                                            </div>
+                                            <span class="pdp-change-text">Click to upload</span>
+                                        {% endif %}
+                                    </div>
+
+                                    {# Rendu du champ de fichier réel (caché) #}
+                                    {{ form.pdp }} 
+                                    
+                                    {% if form.pdp.errors %}<div class="alert alert-danger mt-2">{{ form.pdp.errors }}</div>{% endif %}
+                                    {% if form.pdp.help_text %}<small class="form-text text-muted">{{ form.pdp.help_text }}</small>{% endif %}
+                                </div>
+                            </div>
+                            
+                            {# EMAIL #}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                                {% if form.email.errors %}<div class="alert alert-danger">{{ form.email.errors }}</div>{% endif %}
+                                <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" placeholder="Email Address" value="{{ form.email.value|default:'' }}" class="form-control" {% if form.email.field.required %}required{% endif %} {% if form.email.field.disabled %}disabled{% endif %}>
+                            </div>
+                            
+                            {# NOM COMPLET #}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nom_complet.id_for_label }}" class="form-label">Full Name</label>
+                                {% if form.nom_complet.errors %}<div class="alert alert-danger">{{ form.nom_complet.errors }}</div>{% endif %}
+                                <input type="text" name="{{ form.nom_complet.name }}" id="{{ form.nom_complet.id_for_label }}" placeholder="Full Name" value="{{ form.nom_complet.value|default:'' }}" class="form-control" {% if form.nom_complet.field.required %}required{% endif %} {% if form.nom_complet.field.disabled %}disabled{% endif %}>
+                            </div>
+                            
+                            {# NUMERO DE TÉLÉPHONE #}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.num_tel.id_for_label }}" class="form-label">Phone Number</label>
+                                {% if form.num_tel.errors %}<div class="alert alert-danger">{{ form.num_tel.errors }}</div>{% endif %}
+                                <input type="tel" name="{{ form.num_tel.name }}" id="{{ form.num_tel.id_for_label }}" placeholder="Phone Number" value="{{ form.num_tel.value|default:'' }}" class="form-control" {% if form.num_tel.field.required %}required{% endif %} {% if form.num_tel.field.disabled %}disabled{% endif %}>
+                            </div>
+                            
+                            {# VILLE #}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.ville.id_for_label }}" class="form-label">City</label>
+                                {% if form.ville.errors %}<div class="alert alert-danger">{{ form.ville.errors }}</div>{% endif %}
+                                <input type="text" name="{{ form.ville.name }}" id="{{ form.ville.id_for_label }}" placeholder="City" value="{{ form.ville.value|default:'' }}" class="form-control" {% if form.ville.field.required %}required{% endif %} {% if form.ville.field.disabled %}disabled{% endif %}>
+                            </div>
+                            
+                            {# MOT DE PASSE (Affiché uniquement lors de la création ou si inclus dans le form) #}
+                            {% if form.password %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                                {% if form.password.errors %}<div class="alert alert-danger">{{ form.password.errors }}</div>{% endif %}
+                                <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" placeholder="Password" class="form-control" {% if form.password.field.required %}required{% endif %}>
+                                {% if form.password.help_text %}<small class="form-text text-muted">{{ form.password.help_text }}</small>{% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <hr class="mt-4 mb-5">
+
+                        {# 🏋️ Coach Information (Champs spécifiques) #}
+                        <div class="row">
+                            <div class="col-12">
+                                <h4 class="mb-4">Coach Profile Details</h4>
+                            </div>
+                            
+                            {# SPORT TYPE #}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.sport_type.id_for_label }}" class="form-label">Sport Type</label>
+                                {% if form.sport_type.errors %}<div class="alert alert-danger">{{ form.sport_type.errors }}</div>{% endif %}
+                                {{ form.sport_type }}
+                            </div>
+                            
+                            {# EXPERIENCE YEARS #}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.experience_years.id_for_label }}" class="form-label">Experience Years</label>
+                                {% if form.experience_years.errors %}<div class="alert alert-danger">{{ form.experience_years.errors }}</div>{% endif %}
+                                <input type="number" name="{{ form.experience_years.name }}" id="{{ form.experience_years.id_for_label }}" placeholder="Experience Years" value="{{ form.experience_years.value|default:'' }}" class="form-control" min="0" required>
+                            </div>
+                            
+                            {# LOCATION #}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.location.id_for_label }}" class="form-label">Location (e.g., Gym, Studio)</label>
+                                {% if form.location.errors %}<div class="alert alert-danger">{{ form.location.errors }}</div>{% endif %}
+                                <input type="text" name="{{ form.location.name }}" id="{{ form.location.id_for_label }}" placeholder="Location" value="{{ form.location.value|default:'' }}" class="form-control" required>
+                            </div>
+                            
+                            {# SESSION PRICE #}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.session_price.id_for_label }}" class="form-label">Session Price ($)</label>
+                                {% if form.session_price.errors %}<div class="alert alert-danger">{{ form.session_price.errors }}</div>{% endif %}
+                                <input type="number" name="{{ form.session_price.name }}" id="{{ form.session_price.id_for_label }}" placeholder="Session Price ($)" value="{{ form.session_price.value|default:'' }}" class="form-control" step="0.01" required>
+                            </div>
+                            
+                            {# SUBSCRIPTION PRICE #}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.subscription_price.id_for_label }}" class="form-label">Subscription Price ($)</label>
+                                {% if form.subscription_price.errors %}<div class="alert alert-danger">{{ form.subscription_price.errors }}</div>{% endif %}
+                                <input type="number" name="{{ form.subscription_price.name }}" id="{{ form.subscription_price.id_for_label }}" placeholder="Subscription Price ($)" value="{{ form.subscription_price.value|default:'' }}" class="form-control" step="0.01" required>
+                            </div>
+                            
+                            {# BIO (TEXTAREA) #}
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.bio.id_for_label }}" class="form-label">Biography</label>
+                                {% if form.bio.errors %}<div class="alert alert-danger">{{ form.bio.errors }}</div>{% endif %}
+                                {{ form.bio }}
+                            </div>
+                            
+                            {# CERTIFICATIONS (TEXTAREA) #}
+                            <div class="col-md-12 mb-4">
+                                <label for="{{ form.certifications.id_for_label }}" class="form-label">Certifications & Credentials</label>
+                                {% if form.certifications.errors %}<div class="alert alert-danger">{{ form.certifications.errors }}</div>{% endif %}
+                                {{ form.certifications }}
+                            </div>
+                            
+                            {# CHECKBOXES #}
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {% if form.is_available.errors %}<div class="alert alert-danger">{{ form.is_available.errors }}</div>{% endif %}
+                                    {{ form.is_available }}
+                                    <label class="form-check-label" for="{{ form.is_available.id_for_label }}">
+                                        Available for Sessions
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {% if form.show_on_website.errors %}<div class="alert alert-danger">{{ form.show_on_website.errors }}</div>{% endif %}
+                                    {{ form.show_on_website }}
+                                    <label class="form-check-label" for="{{ form.show_on_website.id_for_label }}">
+                                        Show on Website
+                                    </label>
+                                </div>
+                            </div>
+
+                            {# Map for selecting location #}
+                            <div class="col-md-12 mb-4">
+                                <label class="form-label">Select Location on Map</label>
+                                <div id="map" style="height: 400px; width: 100%; background-color: #e9ecef;"></div>
+                                <input type="hidden" id="id_latitude" name="latitude" value="{{ form.instance.latitude|default:'' }}">
+                                <input type="hidden" id="id_longitude" name="longitude" value="{{ form.instance.longitude|default:'' }}">
+                            </div>
+
+                            {# Checkbox to make the map visible in coach details #}
+                            <div class="col-md-12 mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="id_show_map" name="show_map" {% if form.instance.show_map %}checked{% endif %}>
+                                    <label class="form-check-label" for="id_show_map">
+                                        Make Map Visible in Coach Details
+                                    </label>
+                                </div>
+                            </div>
+
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function() {
+                                    console.log("Initializing map...");
+
+                                    // Initialize the map
+                                    var map = L.map('map').setView([36.85, 10.27], 13); // Default coordinates and zoom level
+                                    console.log("Map initialized.");
+
+                                    // Add OpenStreetMap tiles
+                                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                        maxZoom: 19,
+                                        attribution: '© OpenStreetMap contributors'
+                                    }).addTo(map);
+                                    console.log("Tiles added to map.");
+
+                                    // Add a marker that can be moved by clicking on the map
+                                    var marker = L.marker([51.505, -0.09], { draggable: true }).addTo(map);
+                                    console.log("Draggable marker added.");
+
+                                    // Update marker position and hidden input fields when the map is clicked
+                                    map.on('click', function(e) {
+                                        var latlng = e.latlng;
+                                        marker.setLatLng(latlng);
+                                        console.log("Map clicked at:", latlng);
+                                        document.getElementById('id_latitude').value = latlng.lat;
+                                        document.getElementById('id_longitude').value = latlng.lng;
+                                    });
+
+                                    // Update hidden input fields on marker drag
+                                    marker.on('dragend', function(e) {
+                                        var latlng = marker.getLatLng();
+                                        console.log("Marker dragged to:", latlng);
+                                        document.getElementById('id_latitude').value = latlng.lat;
+                                        document.getElementById('id_longitude').value = latlng.lng;
+                                    });
+                                });
+                            </script>
+                        </div>
+
+                        <hr class="mt-4 mb-5">
+                        
+                        {# BOUTONS D'ACTION #}
+                        <div class="col-md-12 mt-4 text-center">
+                            {% if coach %}
+                                <button type="submit" class="site-btn sb-gradient">Update Coach</button>
+                            {% else %}
+                                <button type="submit" class="site-btn sb-gradient">Add Coach</button>
+                            {% endif %}
+                            <a href="{% url 'users:coach_list' %}" class="site-btn" style="background-color: #9b9b9b; margin-left: 10px;">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // 💡 Script pour afficher l'image sélectionnée instantanément
+        document.addEventListener('DOMContentLoaded', function() {
+            var fileInput = document.getElementById('{{ form.pdp.id_for_label }}');
+            var previewElement = document.getElementById('pdp-preview');
+            var changeTextElement = document.querySelector('.pdp-change-text');
+
+            if (fileInput) {
+                fileInput.onchange = function (event) {
+                    var file = event.target.files[0];
+                    if (file) {
+                        var reader = new FileReader();
+
+                        reader.onloadend = function () {
+                            if (previewElement.tagName === 'IMG') {
+                                previewElement.src = reader.result;
+                            } else if (previewElement.tagName === 'DIV') {
+                                // Si c'est le placeholder DIV
+                                previewElement.style.backgroundImage = 'url(' + reader.result + ')';
+                                previewElement.style.backgroundSize = 'cover';
+                                previewElement.style.backgroundPosition = 'center';
+                                previewElement.innerHTML = ''; 
+                                previewElement.classList.remove('placeholder-circle');
+                                
+                                // Créer un élément <img> temporaire pour la sauvegarde du style
+                                var imgTemp = document.createElement('img');
+                                imgTemp.src = reader.result;
+                                imgTemp.alt = "Preview";
+                                imgTemp.id = "pdp-preview";
+                                imgTemp.className = "current-pdp-circle";
+                                
+                                // Remplacer le DIV par l'IMG
+                                previewElement.parentNode.replaceChild(imgTemp, previewElement);
+                                previewElement = imgTemp; // Mettre à jour la référence
+                            }
+                            changeTextElement.textContent = "Click to change";
+                        }
+
+                        reader.readAsDataURL(file);
+                    }
+                };
+            }
+        });
+    </script>
+{% endblock %}

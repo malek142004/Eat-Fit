@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ blog.title }}</title>
+
+    <style>
+        body {
+            font-family: "DejaVu Sans", sans-serif;
+            margin: 40px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .theme {
+            font-size: 14px;
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: #f65d5d;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .meta {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .preview {
+            font-style: italic;
+            font-size: 16px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-left: 4px solid #f65d5d;
+            margin-bottom: 25px;
+        }
+
+        img {
+            max-width: 100%;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+
+        .content {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 13px;
+            color: #aaa;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+
+        .comment-block {
+            margin-top: 40px;
+            border-top: 2px solid #ddd;
+            padding-top: 20px;
+        }
+
+        .comment {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f3f3f3;
+            border-radius: 5px;
+        }
+
+        .comment small {
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>{{ blog.title }}</h1>
+
+        {% if blog.theme %}
+            <div class="theme">{{ blog.get_theme_display }}</div>
+        {% endif %}
+
+        <p class="meta">
+            Publié le {{ blog.created_at|date:"d M Y" }}
+            par {{ blog.author.nom_complet|default:blog.author.username }}
+        </p>
+    </div>
+
+
+    {% if blog.image %}
+        <img src="{{ blog.image.url }}" alt="Image du blog">
+    {% endif %}
+
+    {% if blog.preview %}
+        <div class="preview">{{ blog.preview }}</div>
+    {% endif %}
+
+    <div class="content">
+        {{ blog.content|safe }}
+    </div>
+
+
+    {% if comments %}
+    <div class="comment-block">
+        <h2>Commentaires</h2>
+
+        {% for c in comments %}
+            <div class="comment">
+                <strong>{{ c.author.nom_complet|default:c.author.username }}</strong>
+                <small> – {{ c.created_at|date:"d M Y H:i" }}</small>
+                <p>{{ c.content }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+    <div class="footer">
+        Généré automatiquement depuis EatFit Blog — {{ blog.created_at|date:"Y" }}
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Heading -->
+<h1 class="h3 mb-4 text-gray-800">Delete Appointment</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Confirm Deletion</h6>
+    </div>
+    <div class="card-body">
+        <p>Are you sure you want to delete the appointment for <strong>{{ appointment.client.nom_complet }}</strong> on <strong>{{ appointment.appointment_date }}</strong>?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a href="{% url 'main:backoffice_appointments_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1093 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="http://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     crossorigin=""/>
+
+<style>
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.delete-modal {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+.sort-controls .btn {
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: all 0.2s;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+.sb-line-gradient {
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #dee2e6;
+}
+
+.sb-gradient-active {
+    background: linear-gradient(to right, #ff4e50 0%, #f9d423 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.sort-icon {
+    font-size: 10px;
+    margin-left: 5px;
+    line-height: 1;
+}
+
+.custom-select-style {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 8px 10px;
+    font-size: 14px;
+    height: 38px;
+    min-width: 150px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 10px;
+    cursor: pointer;
+}
+
+.sort-toggle-btn {
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    text-decoration: none !important;
+}
+
+/* Map Styles */
+#nutritionist-map {
+    height: 500px;
+    width: 100%;
+    margin-top: 50px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Floating Analyze Button */
+.analyze-btn-floating {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 15px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: pulse 2s infinite;
+}
+
+.analyze-btn-floating:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.analyze-btn-floating img {
+    width: 24px;
+    height: 24px;
+    filter: brightness(0) invert(1);
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+    50% { box-shadow: 0 4px 25px rgba(102, 126, 234, 0.4); }
+    100% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+}
+
+/* Enhanced Nutritionist Cards */
+.trainer-item {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.trainer-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.ti-img {
+    position: relative;
+    overflow: hidden;
+    height: 280px;
+}
+
+.ti-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.trainer-item:hover .ti-img img {
+    transform: scale(1.05);
+}
+
+.ti-img::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 78, 80, 0.1) 0%, rgba(249, 212, 35, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.trainer-item:hover .ti-img::after {
+    opacity: 1;
+}
+
+.ti-text {
+    padding: 25px;
+    background: #fff;
+}
+
+.ti-text h4 {
+    margin-bottom: 8px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.ti-text h4 a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.ti-text h4 a:hover {
+    color: #ff4e50;
+}
+
+.ti-text h6 {
+    color: #ff4e50;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.nutritionist-info {
+    margin-bottom: 20px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.info-item i {
+    width: 20px;
+    margin-right: 10px;
+    color: #ff4e50;
+    font-size: 16px;
+}
+
+.info-item strong {
+    color: #2c3e50;
+    margin-right: 5px;
+}
+
+.consultation-fee {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    display: inline-block;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.availability-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.availability-badge.available {
+    background: #d4edda;
+    color: #155724;
+}
+
+.availability-badge.unavailable {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.rating-stars {
+    color: #ffd700;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.rating-stars .fa-star {
+    margin-right: 2px;
+}
+
+.ti-social {
+    margin-bottom: 20px;
+}
+
+.ti-social a {
+    display: inline-block;
+    width: 35px;
+    height: 35px;
+    background: #f8f9fa;
+    color: #666;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 35px;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.ti-social a:hover {
+    background: #ff4e50;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .site-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 15px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.action-buttons .site-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .trainer-item {
+        margin-bottom: 20px;
+    }
+
+    .ti-text {
+        padding: 20px;
+    }
+
+    .ti-text h4 {
+        font-size: 20px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons .site-btn {
+        margin-bottom: 8px;
+    }
+}
+
+/* Loading Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.trainer-item {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.trainer-item:nth-child(1) { animation-delay: 0.1s; }
+.trainer-item:nth-child(2) { animation-delay: 0.2s; }
+.trainer-item:nth-child(3) { animation-delay: 0.3s; }
+.trainer-item:nth-child(4) { animation-delay: 0.4s; }
+.trainer-item:nth-child(5) { animation-delay: 0.5s; }
+.trainer-item:nth-child(6) { animation-delay: 0.6s; }
+
+/* Enhanced Search and Filter Section */
+.search-filter-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.search-input-group {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto 20px;
+}
+
+.search-input-group input {
+    width: 100%;
+    padding: 15px 50px 15px 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 25px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.search-input-group input:focus {
+    border-color: #ff4e50;
+    box-shadow: 0 0 0 3px rgba(255, 78, 80, 0.1);
+    outline: none;
+}
+
+.search-input-group .input-group-append {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.search-input-group .site-btn {
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-weight: 600;
+}
+
+/* Statistics Cards */
+.stats-section {
+    margin-bottom: 40px;
+}
+
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.stats-card h3 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.stats-card p {
+    font-size: 16px;
+    opacity: 0.9;
+    margin: 0;
+}
+
+/* Enhanced Notification Styles */
+.notification-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px 0;
+    margin-bottom: 20px;
+}
+
+.notification-card {
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 50px 20px 20px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    animation: fadeInUp 0.6s ease-out;
+    border-left: 5px solid #ff4e50;
+    transition: all 0.3s ease;
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+}
+
+.notification-card.success {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    border-left-color: #28a745;
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+}
+
+.notification-card.error {
+    background: linear-gradient(135deg, #ff4e50 0%, #f9d423 100%);
+    border-left-color: #dc3545;
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+}
+
+.notification-card.warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-left-color: #ffc107;
+    box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+}
+
+.notification-card.info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-left-color: #17a2b8;
+    box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+}
+
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.notification-icon {
+    font-size: 24px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.notification-text h5 {
+    margin: 0 0 8px 0;
+    font-weight: 600;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.notification-text p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    opacity: 0.95;
+}
+
+.notification-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 16px;
+}
+
+.notification-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.notification-close:active {
+    transform: scale(0.95);
+}
+
+.notification-close .fa-times {
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* Notification fade out animation */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+.notification-card.fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Leaflet JS -->
+<script src="http://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+<script>
+console.log('Script loaded successfully - nutritionist_list.html');
+
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('DOMContentLoaded fired');
+    initSortControls();
+    initDeleteModal();
+    initNutritionistMap();
+    initNotificationClose();
+});
+
+function initSortControls() {
+    const sortSelect = document.getElementById('sort-select');
+    const sortForm = document.getElementById('sort-form');
+    const orderInput = document.getElementById('order-input');
+
+    if (sortSelect && sortForm && orderInput) {
+        sortSelect.addEventListener('change', function () {
+            orderInput.value = 'asc';
+            sortForm.submit();
+        });
+    }
+}
+
+function initDeleteModal() {
+    const openBtns = document.querySelectorAll('.open-delete-modal-list');
+    const modal = document.getElementById('delete-modal-list');
+    const cancelBtn = document.getElementById('cancel-delete-list');
+    const deleteForm = document.getElementById('delete-form-list');
+    const messageEl = document.getElementById('delete-modal-message');
+
+    if (!openBtns.length || !modal || !deleteForm) return;
+
+    function showModal(nutritionistId, nutritionistName) {
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden', 'false');
+        deleteForm.action = '/nutritionists/' + nutritionistId + '/delete/';
+        messageEl.innerHTML = 'Vous êtes sur le point de supprimer <strong>' + nutritionistName + '</strong>. Cette action est irréversible. Voulez-vous continuer ?';
+    }
+
+    function hideModal() {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    openBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            showModal(id, name);
+        });
+    });
+
+    cancelBtn && cancelBtn.addEventListener('click', function () {
+        hideModal();
+    });
+
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) hideModal();
+    });
+
+    deleteForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const url = deleteForm.action;
+        const formData = new FormData(deleteForm);
+
+        const submitBtn = document.getElementById('confirm-delete-list');
+        const originalText = submitBtn ? submitBtn.innerHTML : null;
+        if (submitBtn) submitBtn.innerHTML = 'Suppression...';
+
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(function (resp) {
+            if (resp.ok) {
+                window.location.href = "{% url 'users:nutritionist_list' %}";
+                return;
+            }
+            return resp.text().then(function (text) {
+                alert('Erreur lors de la suppression: ' + (text || resp.statusText));
+            });
+        }).catch(function (err) {
+            alert('Erreur réseau lors de la suppression.');
+            console.error(err);
+        }).finally(function () {
+            if (submitBtn) submitBtn.innerHTML = originalText;
+            hideModal();
+        });
+    });
+}
+
+function initNutritionistMap() {
+    const mapElement = document.getElementById('nutritionist-map');
+    if (!mapElement) {
+        console.error('Map element not found!');
+        return;
+    }
+
+    // Check if Leaflet is loaded
+    if (typeof L === 'undefined') {
+        console.error('Leaflet library not loaded!');
+        return;
+    }
+
+    let map;
+    try {
+        // Initialize map centered on Tunis
+        map = L.map('nutritionist-map').setView([36.8065, 10.1815], 10);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Test if map is working by adding a test marker
+        L.marker([36.8065, 10.1815]).addTo(map);
+
+    } catch (error) {
+        console.error('Error initializing map:', error);
+        return;
+    }
+
+    // Custom red icon for nutritionists
+    const redIcon = L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    // Get nutritionist data from the page
+    const nutritionistCards = document.querySelectorAll('.trainer-item');
+    console.log('Found nutritionist cards:', nutritionistCards.length);
+    const nutritionists = [];
+
+    nutritionistCards.forEach((card, index) => {
+        const link = card.querySelector('.ti-text h4 a');
+        const name = link ? link.textContent.trim() : '';
+        const detailUrl = link ? link.href : '';
+
+        // Get office address and city from data attributes
+        const officeAddress = card.querySelector('.ti-text h4 a')?.getAttribute('data-office-address') || '';
+        const city = card.querySelector('.ti-text h4 a')?.getAttribute('data-city') || '';
+
+        // Get speciality from the info item
+        const specialityElement = card.querySelector('.info-item strong');
+        const speciality = specialityElement && specialityElement.nextSibling ? specialityElement.nextSibling.textContent.trim() : '';
+
+        console.log(`Card ${index}: name=${name}, officeAddress=${officeAddress}, city=${city}, speciality=${speciality}`);
+
+        if (name && (officeAddress || city)) {
+            nutritionists.push({
+                name: name,
+                speciality: speciality,
+                city: city,
+                officeAddress: officeAddress,
+                detailUrl: detailUrl
+            });
+        }
+    });
+
+    console.log('Nutritionists array:', nutritionists);
+
+    // Geocode and add markers
+    nutritionists.forEach(nutritionist => {
+        // Skip only if office address exists but is invalid (just numbers, or too short)
+        if (nutritionist.officeAddress && ( /^\d+$/.test(nutritionist.officeAddress) || nutritionist.officeAddress.length < 3 )) {
+            console.log('Skipping invalid address for', nutritionist.name, ':', nutritionist.officeAddress);
+            return;
+        }
+
+        // Use office address with Tunisia appended for better geocoding, otherwise fall back to city
+        const address = nutritionist.officeAddress ? `${nutritionist.officeAddress}, Tunisia` : `${nutritionist.city}, Tunisia`;
+
+        console.log('Processing nutritionist:', nutritionist.name, 'Address:', address, 'Office:', nutritionist.officeAddress, 'City:', nutritionist.city);
+
+        // Use backend geocoding endpoint to avoid CORS issues
+        fetch(`{% url 'users:geocode_address' %}?address=${encodeURIComponent(address)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+
+                    console.log('Geocoding successful for', nutritionist.name, ':', address, '->', lat, lon);
+
+                    // Create marker with red icon
+                    const marker = L.marker([lat, lon], {icon: redIcon}).addTo(map);
+
+                    // Create Google Maps link
+                    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+
+                    // Create popup content
+                    const popupContent = `
+                        <div style="max-width: 250px;">
+                            <h6 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: bold;">${nutritionist.name}</h6>
+                            <p style="margin: 0 0 8px 0; font-size: 13px; color: #666; line-height: 1.4;">
+                                <strong>Spécialité:</strong> ${nutritionist.speciality}<br>
+                                <strong>Adresse:</strong> ${nutritionist.officeAddress || nutritionist.city}
+                            </p>
+                            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                <a href="${nutritionist.detailUrl}" style="color: #ff4e50; text-decoration: none; font-size: 12px; font-weight: bold;">📋 Voir le profil</a>
+                                <a href="${googleMapsUrl}" target="_blank" style="color: #4285f4; text-decoration: none; font-size: 12px; font-weight: bold;">🗺️ Google Maps</a>
+                            </div>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent);
+                } else {
+                    console.log('No geocoding results for', address, 'trying simplified address...');
+
+                    // Try with simplified address (remove specific details, keep city/area)
+                    const simplifiedAddress = nutritionist.officeAddress.split(',')[0].trim() + ', Tunisia';
+                    if (simplifiedAddress !== address) {
+                        fetch(`{% url 'users:geocode_address' %}?address=${encodeURIComponent(simplifiedAddress)}`)
+                            .then(response => response.json())
+                            .then(simplifiedData => {
+                                if (simplifiedData && simplifiedData.length > 0) {
+                                    const lat = parseFloat(simplifiedData[0].lat);
+                                    const lon = parseFloat(simplifiedData[0].lon);
+
+                                    console.log('Simplified geocoding successful for', nutritionist.name, ':', simplifiedAddress, '->', lat, lon);
+
+                                    const marker = L.marker([lat, lon], {icon: redIcon}).addTo(map);
+
+                                    // Create Google Maps link
+                                    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(simplifiedAddress)}`;
+
+                                    // Create popup content
+                                    const popupContent = `
+                                        <div style="max-width: 250px;">
+                                            <h6 style="margin: 0 0 8px 0; color: #2c3e50; font-weight: bold;">${nutritionist.name}</h6>
+                                            <p style="margin: 0 0 8px 0; font-size: 13px; color: #666; line-height: 1.4;">
+                                                <strong>Spécialité:</strong> ${nutritionist.speciality}<br>
+                                                <strong>Adresse:</strong> ${nutritionist.officeAddress || nutritionist.city}
+                                            </p>
+                                            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                                <a href="${nutritionist.detailUrl}" style="color: #ff4e50; text-decoration: none; font-size: 12px; font-weight: bold;">📋 Voir le profil</a>
+                                                <a href="${googleMapsUrl}" target="_blank" style="color: #4285f4; text-decoration: none; font-size: 12px; font-weight: bold;">🗺️ Google Maps</a>
+                                            </div>
+                                        </div>
+                                    `;
+
+                                    marker.bindPopup(popupContent);
+                                } else {
+                                    console.log('No geocoding results for simplified address either:', simplifiedAddress);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Simplified geocoding error for', simplifiedAddress, error);
+                            });
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Geocoding error for', address, error);
+            });
+    });
+
+    // Fit map to show all markers (will be called after all geocoding is done)
+    setTimeout(() => {
+        const group = new L.featureGroup();
+        map.eachLayer(layer => {
+            if (layer instanceof L.Marker) {
+                group.addLayer(layer);
+            }
+        });
+        if (group.getLayers().length > 0) {
+            map.fitBounds(group.getBounds().pad(0.1));
+        }
+    }, 2000);
+}
+
+function initNotificationClose() {
+    const closeButtons = document.querySelectorAll('.notification-close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const notificationCard = this.closest('.notification-card');
+            notificationCard.classList.add('fade-out');
+            setTimeout(() => {
+                notificationCard.remove();
+            }, 300);
+        });
+    });
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-top-section set-bg" data-setbg="{% static 'main/img/my-hero2.jpg' %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 m-auto text-white">
+                <h2>Our Nutritionists</h2>
+                <p>Expert nutrition guidance for a healthier lifestyle. Meet our team of certified nutritionists ready to help you achieve your health goals.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Notification Section -->
+{% if messages %}
+<section class="notification-section spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                {% for message in messages %}
+                <div class="notification-card {% if message.tags %}notification-{{ message.tags }}{% endif %}">
+                    <button type="button" class="notification-close" aria-label="Fermer la notification">
+                        <i class="fa fa-times"></i>
+                    </button>
+                    <div class="notification-content">
+                        <i class="fa fa-bell notification-icon"></i>
+                        <div class="notification-text">
+                            <h5>Notification</h5>
+                            <p>{{ message }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+<section class="trainers-page-section spad overflow-hidden">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 mb-4">
+                <form method="GET" action="{% url 'users:nutritionist_list' %}" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Rechercher par nom, ville, spécialité..." value="{{ search_query }}">
+                        <div class="input-group-append">
+                            <button class="site-btn sb-gradient" type="submit">Rechercher</button>
+                            <a href="{% url 'users:nutritionist_list' %}" class="site-btn sb-dark">Reset</a>
+                        </div>
+                    </div>
+                </form>
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    
+                    <div class="sort-controls d-flex flex-wrap align-items-center gap-2">
+                        <label for="sort-select" class="me-2 text-dark font-weight-bold">Trier par :</label>
+                        
+                        <form id="sort-form" method="GET" action="{% url 'users:nutritionist_list' %}">
+                            {# Conserver le paramètre de recherche s'il existe #}
+                            {% if search_query %}
+                                <input type="hidden" name="q" value="{{ search_query }}">
+                            {% endif %}
+                            {# Champ caché pour l'ordre de tri, que nous mettrons à jour via JS #}
+                            <input type="hidden" name="order" id="order-input" value="{{ order }}">
+
+                            <select name="sort" id="sort-select" class="form-select custom-select-style">
+                                <option value="" disabled>Sélectionnez une option</option>
+
+                                {% for key, value in sort_options_list %}
+                                    <option value="{{ key }}" {% if sort_by == key %}selected{% endif %}>
+                                        {{ value }}
+                                        {% if sort_by == key %}
+                                            {% if order == 'asc' %} (A-Z/Croissant)
+                                            {% else %} (Z-A/Décroissant)
+                                            {% endif %}
+                                        {% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+
+                        {# Bouton d'inversion d'ordre, visible uniquement quand un tri est actif #}
+                        {% if sort_by and sort_by != 'default' %}
+                            {% with new_order_toggle='desc' %}
+                            {% if order == 'desc' %}
+                                {% with new_order_toggle='asc' %}
+                                {% endwith %}
+                            {% endif %}
+                            <a href="?{% if search_query %}q={{ search_query }}&{% endif %}sort={{ sort_by }}&order={{ new_order_toggle }}" 
+                                class="site-btn sb-gradient-active btn-sm sort-toggle-btn"
+                                data-current-order="{{ order }}">
+                                {% if order == 'asc' %} ⬇️ Z-A
+                                {% else %} ⬆️ A-Z
+                                {% endif %}
+                            </a>
+                            {% endwith %}
+                        {% endif %}
+
+                    </div>
+                    <a href="{% url 'users:nutritionist_create' %}" class="site-btn sb-gradient mt-2 mt-sm-0">Ajouter Nutritionniste</a>
+                    <a href="{% url 'users:nutritionist_list_pdf' %}" class="site-btn sb-dark mt-2 mt-sm-0" target="_blank" style="background-color:#c0392b;">
+        Télécharger la liste (PDF)
+    </a>
+                </div>
+            </div>
+
+            {% for nutritionist in nutritionists %}
+            <div class="col-lg-6">
+                <div class="trainer-item">
+                    {% if nutritionist.pdp %}
+                    <div class="ti-img">
+                        <img src="{{ nutritionist.pdp.url }}" alt="">
+                    </div>
+                    {% else %}
+                    <div class="ti-img" style="background: #f8f8f8; display: flex; align-items: center; justify-content: center; height: 300px;">
+                        <i class="fa fa-user-circle-o fa-5x" style="color: #ccc;"></i>
+                    </div>
+                    {% endif %}
+                    <div class="ti-text">
+                        <h4><a href="{% url 'users:nutritionist_detail' nutritionist.pk %}" data-office-address="{{ nutritionist.office_address }}" data-city="{{ nutritionist.ville }}">{{ nutritionist.nom_complet }}</a></h4>
+                        <h6>Nutritionist</h6>
+
+                        <div class="nutritionist-info">
+                            <div class="info-item">
+                                <i class="fa fa-stethoscope"></i>
+                                <strong>Spécialité:</strong> {{ nutritionist.speciality }}
+                            </div>
+                            <div class="info-item">
+                                <i class="fa fa-calendar"></i>
+                                <strong>Expérience:</strong> {{ nutritionist.experience_years }} ans
+                            </div>
+                            <div class="info-item">
+                                <i class="fa fa-map-marker"></i>
+                                <strong>Ville:</strong> {{ nutritionist.ville }}
+                            </div>
+                            {% if nutritionist.office_address %}
+                            <div class="info-item">
+                                <i class="fa fa-building"></i>
+                                <strong>Cabinet:</strong> {{ nutritionist.office_address }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="consultation-fee">
+                            <i class="fa fa-euro"></i> Consultation: 50€ - 80€
+                        </div>
+
+                        <div class="availability-badge available">
+                            <i class="fa fa-check-circle"></i> Disponible
+                        </div>
+
+                        <div class="rating-stars">
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star-half-o"></i>
+                            <span style="color: #666; font-size: 14px; margin-left: 8px;">4.5/5 (127 avis)</span>
+                        </div>
+
+                        <div class="ti-social">
+                            <a href="#" title="Facebook"><i class="fa fa-facebook"></i></a>
+                            <a href="#" title="Instagram"><i class="fa fa-instagram"></i></a>
+                            <a href="#" title="Twitter"><i class="fa fa-twitter"></i></a>
+                            <a href="#" title="LinkedIn"><i class="fa fa-linkedin"></i></a>
+                        </div>
+
+                        <div class="action-buttons">
+                            <a href="{% url 'users:nutritionist_detail' nutritionist.pk %}" class="site-btn sb-gradient">
+                                <i class="fa fa-eye"></i> Voir Profil
+                            </a>
+                            {% if nutritionist.pk %}
+                            <a href="{% url 'users:nutritionist_update' nutritionist.pk %}" class="site-btn sb-dark">
+                                <i class="fa fa-edit"></i> Modifier
+                            </a>
+                            <button type="button" class="site-btn sb-line-gradient open-delete-modal-list" data-id="{{ nutritionist.pk }}" data-name="{{ nutritionist.nom_complet }}">
+                                <i class="fa fa-trash"></i> Supprimer
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-lg-12">
+                <p class="text-center text-muted">Aucun nutritionniste trouvé correspondant à votre recherche.</p>
+            </div>
+            {% endfor %}
+            
+            {% if is_paginated %}
+            <div class="site-pagination">
+                {# S'assurer que le tri et la recherche sont conservés lors de la pagination #}
+                {% with query_params='&sort='|add:sort_by|add:'&order='|add:order|add:'&q='|add:search_query %}
+                
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{{ query_params }}"><i class="material-icons">keyboard_arrow_left</i></a>
+                {% endif %}
+                
+                <a href="#" class="active">{{ page_obj.number }}</a>
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{{ query_params }}"><i class="material-icons">keyboard_arrow_right</i></a>
+                {% endif %}
+                
+                {% endwith %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Nutritionist Map Section -->
+<section class="map-section spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title text-center">
+                    <h2>Localisation des Cabinets</h2>
+                    <p>Découvrez où se trouvent nos nutritionnistes à Tunis</p>
+                </div>
+                <div id="nutritionist-map"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="delete-modal-list" class="delete-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1050;">
+    <div class="delete-modal-card" style="background:#fff; width:90%; max-width:480px; border-radius:10px; padding:20px; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+        <h4 style="margin-top:0; color:#2c3e50;">Confirmer la suppression</h4>
+        <p style="color:#666;" id="delete-modal-message">Vous êtes sur le point de supprimer ce nutritionniste. Cette action est irréversible. Voulez-vous continuer ?</p>
+        <form id="delete-form-list" method="post">
+            {% csrf_token %}
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px;">
+                <button type="button" id="cancel-delete-list" class="site-btn sb-line-gradient" style="background:#fff; border:1px solid #ddd; color:#333; padding:8px 16px;">Annuler</button>
+                <button type="submit" id="confirm-delete-list" class="site-btn" style="background:#e74c3c; color:#fff; border:none; padding:8px 16px;" autofocus>Supprimer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Floating Analyze Button -->
+<a href="{% url 'users:analyze_food_image' %}" class="analyze-btn-floating">
+    🍎 Analyser Image
+</a>
+{% endblock %}
+

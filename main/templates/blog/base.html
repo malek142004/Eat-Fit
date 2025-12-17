@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mon Blog Mode{% endblock %}</title>
+
+    {% load static %}   <!-- IL MANQUAIT ÇA ! -->
+
+    <link rel="stylesheet" href="{% static 'blog/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/owl.carousel.min.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/slicknav.min.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/custom.css' %}"> <!-- si tu l'as -->
+</head>
+<body>
+
+   {% include 'main/header.html' %}
+
+    {% block content %}
+    {% endblock %}
+
+    <!-- Scripts à la fin -->
+    <script src="{% static 'blog/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'blog/js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'blog/js/jquery.nice-select.min.js' %}"></script>
+    <script src="{% static 'blog/js/jquery.slicknav.min.js' %}"></script>
+    <script src="{% static 'blog/js/main.js' %}"></script>
+
+</body>
+</html>

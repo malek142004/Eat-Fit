@@ -1,0 +1,265 @@
+{% extends 'backoffice/base_backoffice.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Calendar</h1>
+</div>
+
+<!-- Content Row -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Appointments Calendar</h6>
+            </div>
+            <div class="card-body">
+                <div id='calendar'></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Modal -->
+<div class="modal fade" id="appointmentModal" tabindex="-1" role="dialog" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appointmentModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="appointmentForm">
+                    <input type="hidden" id="appointmentId"> <!-- Hidden field for appointment ID -->
+                    <div class="form-group">
+                        <label for="clientName">Client Name</label>
+                        <input type="text" class="form-control" id="clientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientEmail">Client Email</label>
+                        <input type="email" class="form-control" id="clientEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientPhone">Client Phone</label>
+                        <input type="text" class="form-control" id="clientPhone">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientCity">Client City</label>
+                        <input type="text" class="form-control" id="clientCity">
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentDate">Date</label>
+                        <input type="date" class="form-control" id="appointmentDate" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="startTime">Start Time</label>
+                        <input type="time" class="form-control" id="startTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endTime">End Time</label>
+                        <input type="time" class="form-control" id="endTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentMode">Mode</label>
+                        <select class="form-control" id="appointmentMode" required>
+                            <option value="face_to_face">Face to Face</option>
+                            <option value="visio">Visio</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="visioLink">Visio Link (if mode is Visio)</label>
+                        <input type="url" class="form-control" id="visioLink">
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentStatus">Status</label>
+                        <select class="form-control" id="appointmentStatus" required>
+                            <option value="untreated">Untreated</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary" id="saveAppointmentBtn"></button>
+                        <button type="button" class="btn btn-danger" id="deleteAppointmentBtn" style="display: none;">Delete Appointment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,dayGridYear'
+        },
+        views: {
+            dayGridYear: {
+                buttonText: 'Year'
+            }
+        },
+        selectable: true,
+        selectHelper: true,
+        select: function(info) {
+            // Clear form and set for new appointment
+            $('#appointmentForm')[0].reset();
+            $('#appointmentId').val('');
+            $('#appointmentModalLabel').text('Create New Appointment');
+            $('#saveAppointmentBtn').text('Save Appointment');
+            $('#deleteAppointmentBtn').hide(); // Hide delete button for new appointments
+
+            // Pre-fill date/time
+            $('#appointmentDate').val(info.startStr.split('T')[0]);
+            $('#startTime').val(info.startStr.split('T')[1] ? info.startStr.split('T')[1].substring(0, 5) : '09:00');
+            $('#endTime').val(info.endStr.split('T')[1] ? info.endStr.split('T')[1].substring(0, 5) : '10:00');
+            
+            $('#appointmentModal').modal('show');
+        },
+        events: '{% url "appointments:api_appointments_list" %}',
+        eventContent: function(arg) {
+            let arrayOfDomNodes = [];
+            let titleEl = document.createElement('div');
+            titleEl.innerHTML = arg.event.title;
+
+            // Apply styles to prevent text overflow
+            titleEl.style.overflow = 'hidden';
+            titleEl.style.textOverflow = 'ellipsis';
+            titleEl.style.whiteSpace = 'nowrap';
+            titleEl.style.fontSize = '0.85em'; /* Adjust font size if needed */
+            titleEl.style.padding = '2px'; /* Add some padding */
+
+
+            arrayOfDomNodes.push(titleEl);
+            return { domNodes: arrayOfDomNodes };
+        },
+        eventClick: function(info) {
+            // Populate form for editing
+            $('#appointmentForm')[0].reset(); // Clear form first
+            $('#appointmentId').val(info.event.id);
+            $('#appointmentModalLabel').text('Edit Appointment');
+            $('#saveAppointmentBtn').text('Update Appointment');
+            $('#deleteAppointmentBtn').show(); // Show delete button for existing appointments
+
+            $('#clientName').val(info.event.extendedProps.client_name);
+            $('#clientEmail').val(info.event.extendedProps.client_email);
+            $('#clientPhone').val(info.event.extendedProps.client_num_tel);
+            $('#clientCity').val(info.event.extendedProps.client_ville);
+            $('#appointmentDate').val(info.event.start.toISOString().split('T')[0]);
+            $('#startTime').val(info.event.start.toTimeString().substring(0, 5));
+            $('#endTime').val(info.event.end ? info.event.end.toTimeString().substring(0, 5) : '');
+            $('#appointmentMode').val(info.event.extendedProps.mode);
+            $('#visioLink').val(info.event.extendedProps.visio_link);
+            $('#appointmentStatus').val(info.event.extendedProps.status);
+
+            $('#appointmentModal').modal('show');
+        },
+        eventDidMount: function(info) {
+            info.el.style.backgroundColor = info.event.backgroundColor;
+            info.el.style.borderColor = info.event.borderColor;
+        }
+    });
+    calendar.render();
+
+    // Handle form submission (Create/Update)
+    $('#appointmentForm').on('submit', function(e) {
+        e.preventDefault();
+
+        var appointmentId = $('#appointmentId').val();
+        var method = appointmentId ? 'PUT' : 'POST';
+        var url = '{% url "appointments:api_appointments_list" %}';
+        if (appointmentId) {
+            url = '{% url "appointments:api_appointments_detail" pk=0 %}'.replace('0', appointmentId); // Use detail URL for PUT
+        }
+
+        var formData = {
+            id: appointmentId, // Include ID for PUT
+            client_name: $('#clientName').val(),
+            client_email: $('#clientEmail').val(),
+            client_num_tel: $('#clientPhone').val(),
+            client_ville: $('#clientCity').val(),
+            date: $('#appointmentDate').val(),
+            start_time: $('#startTime').val(),
+            end_time: $('#endTime').val(),
+            mode: $('#appointmentMode').val(),
+            visio_link: $('#visioLink').val(),
+            status: $('#appointmentStatus').val(),
+        };
+
+        $.ajax({
+            url: url,
+            type: method,
+            contentType: 'application/json',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken') // Include CSRF token
+            },
+            data: JSON.stringify(formData),
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert('Appointment saved successfully!');
+                    $('#appointmentModal').modal('hide');
+                    calendar.refetchEvents(); // Refresh calendar
+                } else {
+                    alert('Error saving appointment: ' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('AJAX Error: ' + xhr.responseText);
+            }
+        });
+    });
+
+    // Handle Delete button click
+    $('#deleteAppointmentBtn').on('click', function() {
+        var appointmentId = $('#appointmentId').val();
+        if (appointmentId && confirm('Are you sure you want to delete this appointment?')) {
+            $.ajax({
+                url: '{% url "appointments:api_appointments_detail" pk=0 %}'.replace('0', appointmentId),
+                type: 'DELETE',
+                contentType: 'application/json',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                data: JSON.stringify({ id: appointmentId }),
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert('Appointment deleted successfully!');
+                        $('#appointmentModal').modal('hide');
+                        calendar.refetchEvents(); // Refresh calendar
+                    } else {
+                        alert('Error deleting appointment: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('AJAX Error: ' + xhr.responseText);
+                }
+            });
+        }
+    });
+});
+</script>
+
+{% endblock %}

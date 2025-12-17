@@ -25,12 +25,17 @@ from .models import Appointment
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import ValidationError
+<<<<<<< HEAD
 from .forms import AppointmentCreateForm, AppointmentUpdateForm, ClientUpdateForm, TrainingProgramForm, ManualPredictionFeaturesForm
 from .models import Appointment, Client, TrainingProgram
 from .models import Appointment, Client, TrainingProgram, Wallet, Coupon
 import joblib
 import numpy as np
 import os
+=======
+from .forms import AppointmentCreateForm, AppointmentUpdateForm, ClientUpdateForm, TrainingProgramForm
+from .models import Appointment, Client, TrainingProgram
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -42,12 +47,15 @@ from .models import Feedback
 from .serializers import FeedbackSerializer
 import io
 from reportlab.pdfgen import canvas
+<<<<<<< HEAD
 import uuid
 import openai
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.db import transaction
 from django.views.decorators.http import require_http_methods
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
 
 User = get_user_model()
 
@@ -57,9 +65,14 @@ def is_admin(user):
 @login_required
 def create_appointment_request(request, professional_id=None):
     user = request.user
+<<<<<<< HEAD
     # Allow only clients or admins (staff) to create appointments
     if not (user.role == 'client' or user.is_staff):
         messages.error(request, "Only clients or admins can create appointments.")
+=======
+    if user.role != 'client':
+        messages.error(request, "Only clients can create appointments.")
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
         return redirect("main:index")
 
     professional = None
@@ -99,6 +112,7 @@ def appointment_list(request):
     else:
         appointments = appointments.order_by('-appointment_date', '-start_time')
 
+<<<<<<< HEAD
     # Wallet points (for current user)
     wallet_points = 0
     if request.user.is_authenticated:
@@ -112,6 +126,12 @@ def appointment_list(request):
         'date_query': date_query,
         'current_sort': sort_order,
         'wallet_points': wallet_points,
+=======
+    return render(request, 'main/listappointment.html', {
+        'appointments': appointments,
+        'date_query': date_query,
+        'current_sort': sort_order
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
     })
 
 
@@ -232,6 +252,7 @@ def confirm_payment(request, pk):
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
+<<<<<<< HEAD
 @require_POST
 def quiz_generate(request):
     """Generate a quiz (uses OpenAI if key provided); returns questions and stores answers in session.
@@ -388,6 +409,8 @@ def quiz_submit(request):
     return JsonResponse({'correct': correct_count, 'total': total, 'points_awarded': points_awarded, 'new_balance': wallet.points})
 
 
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
 def generate_pdf_report(request):
     appointments = Appointment.objects.all()
     
@@ -395,6 +418,7 @@ def generate_pdf_report(request):
     email_query = request.GET.get('email')
     sort_order = request.GET.get('sort')
 
+<<<<<<< HEAD
 
 @require_POST
 def coupon_generate(request):
@@ -454,6 +478,8 @@ def coupon_redeem(request):
     coupon.save()
     return JsonResponse({'status': 'success', 'code': coupon.code, 'amount': float(coupon.amount)})
 
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
     if date_query:
         appointments = appointments.filter(appointment_date=date_query)
     
@@ -477,6 +503,7 @@ def coupon_redeem(request):
     
     return HttpResponse("Error Generating PDF", status=500)
 
+<<<<<<< HEAD
 @login_required
 def backoffice_appointments_list(request):
     # Accessible to any logged-in user (no automatic redirect to login for already-authenticated users)
@@ -495,6 +522,10 @@ def backoffice_appointments_list(request):
         .prefetch_related('client__coupons', 'client__wallet')
         .annotate(wallet_points=Coalesce(Subquery(wallet_points_subq, output_field=IntegerField()), Value(0), output_field=IntegerField()))
     )
+=======
+def backoffice_appointments_list(request):
+    appointments = Appointment.objects.all()
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
     
     date_query = request.GET.get('date')
     email_query = request.GET.get('email')
@@ -511,6 +542,7 @@ def backoffice_appointments_list(request):
     else:
         appointments = appointments.order_by('-appointment_date')
 
+<<<<<<< HEAD
     # wallet_points is now guaranteed to be an integer (0 when no Wallet exists)
 
     context = {
@@ -520,6 +552,14 @@ def backoffice_appointments_list(request):
         'current_sort': sort_order,
     }
     return render(request, 'backoffice/tables.html', context)
+=======
+    return render(request, 'backoffice/tables.html', {
+        'appointments': appointments,
+        'date_query': date_query,
+        'email_query': email_query,
+        'current_sort': sort_order
+    })
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
 
 def backoffice_appointment_create(request):
     if request.method == 'POST':
@@ -558,6 +598,7 @@ def backoffice_appointment_delete(request, pk):
         return redirect('appointments:backoffice_appointment_list')
     return render(request, 'backoffice/appointment_confirm_delete.html', {'appointment': appointment})
 
+<<<<<<< HEAD
 
 def predict_manual_features_view(request, appointment_id):
     # Accessible without login requirement for prediction flow
@@ -759,6 +800,8 @@ def quick_predict_view(request, appointment_id):
     return render(request, 'backoffice/prediction_result.html', context)
 
 
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
 @csrf_exempt
 @csrf_exempt
 def api_available_slots(request):

@@ -118,6 +118,7 @@ class FeedbackForm(forms.ModelForm):
         labels = {
             'rating': 'Note (1 à 5)',
             'comment': 'Commentaire',
+<<<<<<< HEAD
         }
 
 
@@ -130,3 +131,6 @@ class ManualPredictionFeaturesForm(forms.Form):
         super(ManualPredictionFeaturesForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
+=======
+        }
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb

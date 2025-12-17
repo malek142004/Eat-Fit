@@ -49,8 +49,11 @@
                     <tr>
                         <th>Client Name</th>
                         <th>Client Email</th>
+<<<<<<< HEAD
                         <th>Wallet Points</th>
                         <th>Coupons</th>
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
                         <th>Professional</th>
                         <th>Appointment Date</th>
                         <th>Time Remaining</th>
@@ -67,6 +70,7 @@
                     <tr>
                         <td>{{ appointment.client.nom_complet }}</td>
                         <td>{{ appointment.client.email }}</td>
+<<<<<<< HEAD
                         <td><strong>{{ appointment.wallet_points|default:0 }} pts</strong></td>
                         <td>
                             {% with coupons=appointment.client.coupons.all %}
@@ -79,6 +83,8 @@
                                 {% endif %}
                             {% endwith %}
                         </td>
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
                         <td>
                             {% if appointment.professional %}
                                 {{ appointment.professional.email }} ({{ appointment.professional.get_role_display }})
@@ -106,6 +112,7 @@
                             {% endif %}
                         </td>
                         <td>
+<<<<<<< HEAD
                             <a href="{% url 'appointments:backoffice_appointment_update' appointment.pk %}" class="btn btn-info btn-circle btn-sm" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </a>
@@ -115,11 +122,23 @@
                             <button type="button" class="btn btn-warning btn-circle btn-sm btn-predict" data-appointment-id="{{ appointment.pk }}" data-url="{% url 'appointments:backoffice_prediction_result' appointment.pk %}" title="Predict No-Show">
                                 <i class="fas fa-cogs"></i>
                             </button>
+=======
+                            <a href="{% url 'appointments:backoffice_appointment_update' appointment.pk %}" class="btn btn-info btn-circle btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'appointments:backoffice_appointment_delete' appointment.pk %}" class="btn btn-danger btn-circle btn-sm">
+                                <i class="fas fa-trash"></i>
+                            </a>
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
+<<<<<<< HEAD
                         <td colspan="13">No appointments found.</td>
+=======
+                        <td colspan="11">No appointments found.</td>
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -127,6 +146,7 @@
         </div>
     </div>
 </div>
+<<<<<<< HEAD
 
 <!-- Prediction Modal -->
 <div class="modal fade" id="predictModal" tabindex="-1" role="dialog" aria-labelledby="predictModalLabel" aria-hidden="true">
@@ -185,4 +205,6 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
 {% endblock %}

@@ -75,6 +75,7 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f"Feedback from {self.client} to {self.coach}"
+<<<<<<< HEAD
 
 
 class Wallet(models.Model):
@@ -95,3 +96,5 @@ class Coupon(models.Model):
 
     def __str__(self):
         return f"Coupon({self.code}) - {self.amount} dt - Redeemed: {self.redeemed}"
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb

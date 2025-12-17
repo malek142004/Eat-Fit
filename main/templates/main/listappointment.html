@@ -89,6 +89,7 @@
             flex: 1 1 auto; /* Allow columns to grow and shrink */
             min-width: 120px; /* Minimum width for smaller columns */
         }
+<<<<<<< HEAD
 
         /* Wallet & Quiz styles */
         .wallet-summary {
@@ -136,6 +137,8 @@
         .quiz-header-easy { background: linear-gradient(90deg,#d4edda,#c3e6cb); padding:8px; border-radius:6px; }
         .quiz-header-medium { background: linear-gradient(90deg,#fff3cd,#ffeeba); padding:8px; border-radius:6px; }
         .quiz-header-hard { background: linear-gradient(90deg,#f8d7da,#f5c6cb); padding:8px; border-radius:6px; }
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
     </style>
 {% endblock %}
 
@@ -157,6 +160,7 @@
                     
                     <div class="action-bar">
                         <div>
+<<<<<<< HEAD
                             {% if request.user.is_authenticated %}
                                 {% if request.user.role == 'client' or request.user.is_staff %}
                                     <a href="{% url 'appointments:add_appointment' %}" class="site-btn sb-line-gradient">Add New Appointment</a>
@@ -176,6 +180,10 @@
                                 </div>
                                 <button id="playQuizBtn" type="button" class="play-quiz-btn">🎮 Jouer au quiz...</button>
                             {% endif %}
+=======
+                            <a href="{% url 'appointments:add_appointment' %}" class="site-btn sb-line-gradient">Add New Appointment</a>
+                            <a href="{% url 'appointments:generate_pdf_report' %}?date={{ date_query|default:'' }}&email={{ email_query|default:'' }}&sort={{ current_sort|default:'' }}" class="site-btn sb-gradient" style="margin-left: 10px;">Generate Report</a>
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
                         </div>
                         <div class="sort-buttons">
                             <span>Sort by date:</span>
@@ -444,6 +452,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+<<<<<<< HEAD
     // Quiz Logic
     const playQuizBtn = document.getElementById('playQuizBtn');
     // Wallet click: show wallet modal with coupons and conversion
@@ -621,6 +630,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
     // Recommendation Interface Logic
     const weekPicker = document.getElementById('weekPicker');
     const showRecommendationsBtn = document.getElementById('showRecommendationsBtn');
@@ -673,6 +684,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     
                     <div class="action-bar">
                         <div>
+<<<<<<< HEAD
                             {% if request.user.is_authenticated %}
                                 {% if request.user.role == 'client' or request.user.is_staff %}
                                     <a href="{% url 'appointments:add_appointment' %}" class="site-btn sb-line-gradient">Add New Appointment</a>
@@ -692,6 +704,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 </div>
                                 <button id="playQuizBtn" type="button" class="play-quiz-btn">🎮 Jouer au quiz...</button>
                             {% endif %}
+=======
+                            <a href="{% url 'appointments:add_appointment' %}" class="site-btn sb-line-gradient">Add New Appointment</a>
+                            <a href="{% url 'appointments:generate_pdf_report' %}?date={{ date_query|default:'' }}&email={{ email_query|default:'' }}&sort={{ current_sort|default:'' }}" class="site-btn sb-gradient" style="margin-left: 10px;">Generate Report</a>
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
                         </div>
                         <div class="sort-buttons">
                             <span>Sort by date:</span>

@@ -3,10 +3,13 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from rest_framework import status
 from .models import TrainingProgram, Feedback
+<<<<<<< HEAD
 from .models import Appointment
 from django.urls import reverse
 from datetime import date, time, timedelta
 import json
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
 
 User = get_user_model()
 
@@ -70,6 +73,7 @@ class FeedbackTests(TestCase):
         response = self.client.delete(f'/feedback/{self.feedback.id}/delete/')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Feedback.objects.count(), 0)
+<<<<<<< HEAD
 
 
 class QuickPredictViewTests(TestCase):
@@ -210,3 +214,5 @@ class BackofficeWalletDisplayTests(TestCase):
         response2 = self.client.get(url)
         self.assertEqual(response2.status_code, 200)
         self.assertContains(response2, '30 pts')
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb

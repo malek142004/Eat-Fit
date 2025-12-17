@@ -16,6 +16,7 @@ urlpatterns = [
     path('backoffice/add/', views.backoffice_appointment_create, name='backoffice_appointment_create'),
     path('backoffice/modify/<int:pk>/', views.backoffice_appointment_update, name='backoffice_appointment_update'),
     path('backoffice/delete/<int:pk>/', views.backoffice_appointment_delete, name='backoffice_appointment_delete'),
+<<<<<<< HEAD
     path('backoffice/predict/manual/<int:appointment_id>/', views.predict_manual_features_view, name='backoffice_predict_manual'),
     path('backoffice/predict/result/<int:appointment_id>/', views.prediction_result_view, name='backoffice_prediction_result'),
     # Quick prediction: compute prediction with sensible defaults and show result
@@ -28,6 +29,8 @@ urlpatterns = [
     path('coupons/list/', views.coupons_list, name='coupons_list'),
     path('coupons/redeem/', views.coupon_redeem, name='coupon_redeem'),
     path('backoffice/send-email/<int:appointment_id>/', views.send_prediction_email, name='backoffice_send_email'),
+=======
+>>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
     path('initiate_payment/<int:pk>/', views.initiate_payment, name='initiate_payment'),
     path('confirm_payment/<int:pk>/', views.confirm_payment, name='confirm_payment'),
     path('api/appointments/', views.api_appointments, name='api_appointments_list'),

@@ -1,5 +1,6 @@
 # users/views.py
 # ----------------- Django imports -----------------
+import base64
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -24,7 +25,7 @@ from .forms import (
     UserForm,
     BusinessOwnerForm
 )
-from .models import CustomUser as User, Nutritionist, Coach, BusinessOwner
+from .models import CustomUser as User, FaceProfile, Nutritionist, Coach, BusinessOwner
 
 from product.models import Product
 from product.forms import ProductForm
@@ -88,6 +89,24 @@ def auth_view(request):
         signup_form = CustomUserCreationForm(request.POST, request.FILES)
         if signup_form.is_valid():
             user = signup_form.save()
+            face_image = request.POST.get("face_image")
+        if face_image:
+            try:
+                # Extraire le base64
+                image_data = face_image.split(",")[1]
+                image = Image.open(io.BytesIO(base64.b64decode(image_data)))
+
+                # Détecter le visage
+                face = mtcnn(image)
+                if face is not None:
+                    embedding = model(face.unsqueeze(0)).detach().cpu().numpy()
+                    # Enregistrer dans FaceProfile
+                    FaceProfile.objects.create(
+                        user=user,
+                        embedding=embedding.tobytes()
+                    )
+            except Exception as e:
+                print("Erreur Face ID:", e)
             login(request, user ,backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Compte créé avec succès ! Bienvenue 👋")
             
@@ -2032,3 +2051,93 @@ def generate_nutrition_pdf(request):
             return JsonResponse({'error': f'Erreur lors de la génération du PDF: {str(e)}'}, status=500)
 
     return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+import base64, io, numpy as np
+from PIL import Image
+from django.http import JsonResponse
+from .models import FaceProfile
+from facenet_pytorch import InceptionResnetV1, MTCNN
+import torch
+
+mtcnn = MTCNN(image_size=160, margin=0)
+model = InceptionResnetV1(pretrained='vggface2').eval()
+
+def register_face(request):
+    data = json.loads(request.body)
+    image_data = data['image'].split(',')[1]
+
+    image = Image.open(io.BytesIO(base64.b64decode(image_data)))
+
+    face = mtcnn(image)
+    if face is None:
+        return JsonResponse({'error': 'No face detected'})
+
+    embedding = model(face.unsqueeze(0)).detach().numpy()
+
+    FaceProfile.objects.create(
+        user=request.user,
+        embedding=embedding.tobytes()
+    )
+
+    return JsonResponse({'status': 'Face registered'})
+
+from django.contrib.auth import login
+import numpy as np
+import base64, io
+from PIL import Image
+import torch
+import numpy as np
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import FaceProfile
+from .face_recognition import mtcnn, model  # ton modèle Facenet
+
+@csrf_exempt
+def face_login(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Méthode non autorisée"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        image_data = data.get("image")
+        if not image_data:
+            return JsonResponse({"error": "Aucune image reçue"}, status=400)
+
+        # Convertir la dataURL en image PIL
+        image_bytes = base64.b64decode(image_data.split(",")[1])
+        image = Image.open(io.BytesIO(image_bytes))
+
+        # Extraire le visage
+        face = mtcnn(image)
+        if face is None:
+            return JsonResponse({"error": "Aucun visage détecté"}, status=400)
+
+        # Générer l'embedding (512d)
+        new_embedding = model(face.unsqueeze(0)).detach().cpu().numpy()  # shape (1, 512)
+
+        # Comparer avec les embeddings existants
+        profiles = FaceProfile.objects.all()
+        threshold = 0.9  # ajuster selon ton modèle
+
+        for profile in profiles:
+            saved_embedding = np.frombuffer(profile.embedding, dtype=np.float32).reshape(1, -1)
+
+            # Vérifier la dimension
+            if saved_embedding.shape != new_embedding.shape:
+                continue  # Ignorer si dimension incompatible
+
+            distance = np.linalg.norm(saved_embedding - new_embedding)
+            if distance < threshold:
+                # Connecter l'utilisateur correspondant
+                from django.contrib.auth import login
+                login(request, profile.user, backend='django.contrib.auth.backends.ModelBackend')
+                return JsonResponse({"status": True})
+
+        return JsonResponse({"error": "Aucun visage reconnu"})
+
+    except Exception as e:
+        print("Erreur face_login:", e)
+        return JsonResponse({"error": str(e)}, status=500)
+    
+    
+

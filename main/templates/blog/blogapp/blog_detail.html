@@ -73,7 +73,7 @@
                                         <span class="ms-2 fw-bold">{{ blog.total_likes }}</span>
                                     </button>
                                 {% else %}
-                                    <a href="{% url 'login' %}?next={{ request.path }}"
+                                    <a href="{% url 'users:auth' %}?next={{ request.path }}"
                                        class="btn btn-outline-danger rounded-pill px-4 py-3 shadow-sm border-2">
                                         <i class="fa fa-heart-o"></i>
                                         <span class="ms-2 fw-bold">{{ blog.total_likes }}</span>

@@ -83,5 +83,8 @@ urlpatterns = [
     path('generate-nutrition-pdf/', views.generate_nutrition_pdf, name='generate_nutrition_pdf'),
     path('nutritionists/stats/cities/', views.nutritionist_city_stats, name='backoffice_nutritionist_city_stats'),
 
+    path("register-face/", views.register_face, name="register_face"),
+    path("face-login/", views.face_login, name="face_login"),
+
 
 ]

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'product',
     'cart',
     'order',
+    'chatapp',
         # allauth
     'allauth',
     'allauth.account',
@@ -202,7 +203,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # API Keys from environment variables
-OPENAI_API_KEY = config('OPENAI_API_KEY')
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GOOGLE_APPLICATION_CREDENTIALS = config('GOOGLE_APPLICATION_CREDENTIALS', default='')
 
 # Default primary key field type

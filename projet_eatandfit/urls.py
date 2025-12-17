@@ -29,6 +29,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('cart/', include('cart.urls')),
     path('order/', include('order.urls')),
+    path('chatapp/', include('chatapp.urls')),
 ]
 
 if settings.DEBUG:

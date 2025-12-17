@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.core.validators import (
@@ -182,3 +183,11 @@ class BusinessOwner(models.Model):
         return self.business_name
 
 
+class FaceProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="face_profile"
+    )
+    embedding = models.BinaryField()
+    created_at = models.DateTimeField(auto_now_add=True)

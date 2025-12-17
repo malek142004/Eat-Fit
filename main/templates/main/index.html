@@ -43,7 +43,7 @@
     .hero-content {
         position: relative;
         z-index: 2;
-        background: linear-gradient(145deg, rgba(225, 221, 221, 0.7) 0%, rgba(253, 176, 125, 0.7) 100%);
+        background: linear-gradient(145deg, rgba(246, 93, 93, 0.7) 0%, rgba(253, 176, 125, 0.7) 100%);
         padding: 40px;
         border-radius: 15px;
     }
@@ -282,12 +282,151 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
-    
+
+.chat-btn {
+    position: fixed;       /* toujours visible sur l’écran */
+    bottom: 20px;          /* à 20px du bas */
+    left: 20px;            /* à 20px de gauche */
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: transform 0.2s, background-color 0.2s;
+    z-index: 1000;         /* au-dessus de tout */
+}
+
+.chat-btn:hover {
+    background-color: #45a049;
+    transform: scale(1.1);
+}
+
+/* Bouton flottant */
+.chat-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background:#4CAF50;
+    color:white;
+    padding:15px 20px;
+    border-radius:50px;
+    text-decoration:none;
+    font-weight:bold;
+    box-shadow:0 4px 6px rgba(0,0,0,0.2);
+    z-index:1000;
+    cursor:pointer;
+}
+.chat-btn:hover { background:#45a049; }
+
+/* Panneau chat */
+.chat-panel {
+    position: fixed;
+    bottom:0;
+    right:20px;
+    width:380px;
+    max-width:40%;
+    height:500px;
+    background:#f7f7f7;
+    border-radius:10px 10px 0 0;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    display:none;
+    flex-direction:column;
+    overflow:hidden;
+    z-index:999;
+    font-family: Arial, sans-serif;
+}
+
+/* Header */
+.chat-panel .chat-header {
+    background:#4CAF50;
+    color:white;
+    padding:15px;
+    font-weight:bold;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:1em;
+}
+.chat-panel .close-btn {
+    cursor:pointer;
+    font-size:1.2em;
+}
+
+/* Chat body */
+.chat-body {
+    flex:1;
+    padding:10px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    background:#e5ddd5;
+}
+
+/* Message utilisateur / bot */
+.chat-message {
+    display:flex;
+    align-items:flex-end;
+    max-width:80%;
+}
+.chat-message.user { justify-content:flex-end; align-self:flex-end; }
+.chat-message.bot { justify-content:flex-start; align-self:flex-start; }
+
+/* Bulles */
+.message-content {
+    padding:10px 15px;
+    border-radius:18px;
+    word-wrap: break-word;
+    font-size:0.95em;
+    line-height:1.3;
+    position: relative;
+    max-width:100%;
+}
+.chat-message.user .message-content {
+    background:#4CAF50;
+    color:white;
+    border-bottom-right-radius:2px;
+}
+.chat-message.bot .message-content {
+    background:#fff;
+    color:#333;
+    border-bottom-left-radius:2px;
+}
+
+
+
+/* Footer */
+.chat-footer {
+    display:flex;
+    padding:10px;
+    background:#f0f2f5;
+    flex-shrink:0;
+}
+.chat-footer input {
+    flex:1;
+    padding:10px 15px;
+    border-radius:25px;
+    border:1px solid #ccc;
+    outline:none;
+}
+.chat-footer button {
+    background:#4CAF50;
+    border:none;
+    color:white;
+    padding:10px 15px;
+    margin-left:10px;
+    border-radius:25px;
+    cursor:pointer;
+}
+
 </style>
 
 <!-- Hero Section -->
 <section class="hero-section-dynamic">
     <div class="scrolling-bg">
+        <img src="{% static 'home_img/home.png' %}" alt="Eat & Fit background image 1">
         <img src="{% static 'home_img/home1.png' %}" alt="Eat & Fit background image 2">
         <img src="{% static 'home_img/home2.png' %}" alt="Eat & Fit background image 3">
         <img src="{% static 'home_img/home3.png' %}" alt="Eat & Fit background image 4">
@@ -705,8 +844,91 @@
             <p>&copy; 2025 EAT & FIT. All Rights Reserved.</p>
         </div>
     </div>
+<!-- Place ceci juste avant </body> -->
+<!-- Bouton flottant -->
+        <a href="javascript:void(0);" class="chat-btn" onclick="toggleChat()">💬 Chat Healthy</a>
+
+        <!-- Panneau chat -->
+        <div id="chatPanel" class="chat-panel">
+            <div class="chat-header">
+                <span>🤖 Chatbot Eat&Fit</span>
+                <span class="close-btn" onclick="toggleChat()">×</span>
+            </div>
+            <div class="chat-body" id="chatBody"></div>
+            <div class="chat-footer">
+                <input type="text" id="userMessage" placeholder="Écris ton message...">
+                <button onclick="sendMessage()">Envoyer</button>
+            </div>
+        </div>
+
+
 </footer>
 <!-- Footer Section end -->
+<script>
+const chatEndpoint = "{% url 'chatapp:chat' %}";
+const chatPanel = document.getElementById("chatPanel");
+
+function toggleChat() {
+    if(chatPanel.style.display==="flex") chatPanel.style.display="none";
+    else chatPanel.style.display="flex";
+}
+
+// Envoyer message
+async function sendMessage(){
+    const input = document.getElementById("userMessage");
+    const message = input.value.trim();
+    if(!message) return;
+    addMessage("user", message);
+    input.value="";
+
+    try{
+        const response = await fetch(chatEndpoint, {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie('csrftoken')
+            },
+            body:`message=${encodeURIComponent(message)}`
+        });
+        const data = await response.json();
+        if(data.answer) addMessage("bot", data.answer);
+        else addMessage("bot","Erreur : "+(data.error||"Problème de connexion."));
+    }catch(e){ addMessage("bot","Erreur : "+e.message); }
+}
+
+// Ajouter message
+function addMessage(sender,text){
+    const chatBody = document.getElementById("chatBody");
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("chat-message",sender);
+    const contentDiv = document.createElement("div");
+    contentDiv.classList.add("message-content");
+    contentDiv.innerText = text;
+    msgDiv.appendChild(contentDiv);
+    chatBody.appendChild(msgDiv);
+    chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+// Récupérer CSRF
+function getCookie(name){
+    let cookieValue=null;
+    if(document.cookie && document.cookie!==''){
+        const cookies=document.cookie.split(';');
+        for(let i=0;i<cookies.length;i++){
+            const cookie=cookies[i].trim();
+            if(cookie.substring(0,name.length+1)===name+'='){
+                cookieValue=decodeURIComponent(cookie.substring(name.length+1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.getElementById("userMessage").addEventListener("keypress", function(e){
+    if(e.key==="Enter"){ sendMessage(); }
+});
+</script>
 
 <script>
     $(document).ready(function() {

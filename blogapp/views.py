@@ -19,6 +19,9 @@ from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.shortcuts import render
 from .models import Blog
+import torch
+from transformers import BertTokenizer, BertForSequenceClassification
+from torch.nn.functional import sigmoid
 
 def blog_list(request):
     blogs = Blog.objects.annotate(
@@ -448,32 +451,37 @@ def summarize_blog(request, pk):
 
 
 
-from huggingface_hub import InferenceClient
+MODEL_NAME = "MaryemOuichka/toxic-bert-custom"
 
-HF_TOKEN = ""
+tokenizer = BertTokenizer.from_pretrained(MODEL_NAME)
+model = BertForSequenceClassification.from_pretrained(MODEL_NAME)
 
-client = InferenceClient(
-    provider="hf-inference",
-    api_key=HF_TOKEN,
-)
+model.eval()  # mode inference
 
-MODEL = "unitary/toxic-bert"
+LABEL_COLS = [
+    "toxic",
+    "severe_toxic",
+    "obscene",
+    "threat",
+    "insult",
+    "identity_hate"
+]
+
 
 def analyze_toxicity(text: str) -> float:
     """
-    Retourne un score de toxicité entre 0 et 1
+    Retourne un score global de toxicité entre 0 et 1
     """
-    try:
-        result = client.text_classification(
-            text,
-            model=MODEL
-        )
+    inputs = tokenizer(
+        text,
+        return_tensors="pt",
+        truncation=True,
+        padding=True,
+        max_length=128
+    )
 
-        for label in result:
-            if label["label"].lower() == "toxic":
-                return float(label["score"])
+    with torch.no_grad():
+        outputs = model(**inputs)
+        probs = torch.sigmoid(outputs.logits)[0]
 
-        return 0.0
-
-    except Exception:
-        return 0.0
+    return probs.max().item()

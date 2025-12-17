@@ -7,34 +7,134 @@
      crossorigin=""/>
 
 <style>
+/* ===== MODERN ANIMATIONS ===== */
 @keyframes modalFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes glowPulse {
+    0% {
+        box-shadow: 0 0 20px rgba(255, 78, 80, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(255, 78, 80, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(255, 78, 80, 0.3);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
 .delete-modal {
     animation: modalFadeIn 0.3s ease-out;
 }
 
+/* ===== MODERN PAGE HEADER ===== */
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ff4e50 100%);
+    color: white;
+    padding: 60px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.page-header h1 {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    animation: slideInLeft 0.6s ease-out;
+    position: relative;
+    z-index: 1;
+}
+
+.page-header p {
+    font-size: 18px;
+    opacity: 0.95;
+    animation: slideInLeft 0.6s ease-out 0.1s both;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== CONTROLS SECTION ===== */
+.sort-controls {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
 .sort-controls .btn {
-    padding: 8px 15px;
-    border-radius: 5px;
+    padding: 10px 18px;
+    border-radius: 8px;
     font-size: 14px;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     text-decoration: none !important;
     white-space: nowrap;
+    font-weight: 600;
+    border: 2px solid transparent;
 }
 
 .sb-line-gradient {
-    background: #f8f9fa;
+    background: white;
     color: #333;
-    border: 1px solid #dee2e6;
+    border: 2px solid #e0e0e0;
+}
+
+.sb-line-gradient:hover {
+    border-color: #ff4e50;
 }
 
 .sb-gradient-active {
     background: linear-gradient(to right, #ff4e50 0%, #f9d423 100%);
     color: #fff;
     border: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(255, 78, 80, 0.3);
 }
 
 .sort-icon {
@@ -44,62 +144,77 @@
 }
 
 .custom-select-style {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 8px 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 12px;
     font-size: 14px;
-    height: 38px;
+    height: 40px;
     min-width: 150px;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 10px;
+    background-position: right 10px center;
+    background-size: 12px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+.custom-select-style:hover {
+    border-color: #ff4e50;
+}
+
+.custom-select-style:focus {
+    outline: none;
+    border-color: #ff4e50;
+    box-shadow: 0 0 0 3px rgba(255, 78, 80, 0.1);
 }
 
 .sort-toggle-btn {
-    padding: 8px 15px;
-    border-radius: 5px;
+    padding: 10px 18px;
+    border-radius: 8px;
     font-size: 14px;
     text-decoration: none !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-/* Map Styles */
+/* ===== MAP STYLES ===== */
 #nutritionist-map {
     height: 500px;
     width: 100%;
     margin-top: 50px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    animation: fadeInUp 0.6s ease-out 0.3s both;
 }
 
-/* Floating Analyze Button */
+/* ===== FLOATING ANALYZE BUTTON ===== */
 .analyze-btn-floating {
     position: fixed;
-    right: 20px;
+    right: 30px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 1000;
-    background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+    background: #000000;
     color: white;
     border: none;
     border-radius: 50px;
-    padding: 15px 20px;
-    font-size: 14px;
+    padding: 18px 25px;
+    font-size: 16px;
     font-weight: bold;
     text-decoration: none;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     animation: pulse 2s infinite;
 }
 
 .analyze-btn-floating:hover {
-    transform: translateY(-50%) scale(1.05);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
 }
 
 .analyze-btn-floating img {
@@ -109,25 +224,27 @@
 }
 
 @keyframes pulse {
-    0% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
-    50% { box-shadow: 0 4px 25px rgba(102, 126, 234, 0.4); }
-    100% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+    0% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
+    50% { box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6); }
+    100% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); }
 }
 
-/* Enhanced Nutritionist Cards */
+/* ===== ENHANCED NUTRITIONIST CARDS ===== */
 .trainer-item {
     background: #fff;
     border-radius: 15px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     margin-bottom: 30px;
     position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    animation: fadeInUp 0.6s ease-out;
 }
 
 .trainer-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 .ti-img {
@@ -140,11 +257,11 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .trainer-item:hover .ti-img img {
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
 .ti-img::after {
@@ -154,9 +271,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 78, 80, 0.1) 0%, rgba(249, 212, 35, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(255, 78, 80, 0.15) 0%, rgba(249, 212, 35, 0.15) 100%);
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s ease;
 }
 
 .trainer-item:hover .ti-img::after {
@@ -543,6 +660,230 @@
 
 .notification-card.fade-out {
     animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* Menu Generation Notification Block */
+.menu-generation-notification {
+    background: linear-gradient(135deg, #f65d5d 0%, #fdb07d 100%);
+    color: white;
+    width: 6cm;
+    height: 3cm;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(246, 93, 93, 0.3);
+    animation: slideInRight 0.6s ease-out;
+    transition: all 0.3s ease;
+    position: fixed;
+    right: 20px;
+    top: 30%;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-generation-notification:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(246, 93, 93, 0.4);
+}
+
+.menu-generation-notification .notification-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.menu-generation-notification .notification-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    color: white;
+}
+
+.menu-generation-notification .notification-text h5 {
+    margin: 0 0 2px 0;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: white;
+}
+
+.menu-generation-notification .notification-text p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.2;
+    opacity: 0.95;
+    color: white;
+}
+
+.menu-generate-btn {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    color: #f65d5d;
+    border: 1px solid white;
+    padding: 16px 32px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.4);
+}
+
+.menu-generate-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+    color: #ff4e50;
+}
+
+.menu-generate-btn i {
+    margin-right: 3px;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ===== STICKY CTA NOTIFICATION ===== */
+.cta-sticky-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 50%, #ffd93d 100%);
+    padding: 20px 20px;
+    box-shadow: 0 -5px 30px rgba(255, 107, 107, 0.4);
+    z-index: 1000;
+    animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border-top: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.cta-banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.cta-banner-text {
+    color: white;
+    flex: 1;
+}
+
+.cta-banner-text h3 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cta-banner-text p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.95;
+    font-weight: 500;
+}
+
+.cta-banner-btn {
+    background: white;
+    color: #ff6b6b;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.cta-banner-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+    background: #f0f0f0;
+}
+
+.cta-banner-btn i {
+    font-size: 15px;
+}
+
+@media (max-width: 768px) {
+    .cta-sticky-banner {
+        padding: 15px 15px;
+    }
+
+    .cta-banner-content {
+        gap: 15px;
+    }
+
+    .cta-banner-text h3 {
+        font-size: 14px;
+    }
+
+    .cta-banner-text p {
+        font-size: 11px;
+    }
+
+    .cta-banner-btn {
+        padding: 9px 20px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cta-sticky-banner {
+        padding: 12px 10px;
+    }
+
+    .cta-banner-content {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .cta-banner-text {
+        text-align: center;
+    }
+
+    .cta-banner-text h3 {
+        font-size: 13px;
+    }
+
+    .cta-banner-text p {
+        font-size: 10px;
+    }
+
+    .cta-banner-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 10px 15px;
+    }
 }
 </style>
 {% endblock %}
@@ -951,6 +1292,7 @@ function initNotificationClose() {
                 </div>
             </div>
 
+
             {% for nutritionist in nutritionists %}
             <div class="col-lg-6">
                 <div class="trainer-item">
@@ -1025,6 +1367,8 @@ function initNotificationClose() {
                             </button>
                             {% endif %}
                         </div>
+
+
                     </div>
                 </div>
             </div>
@@ -1085,9 +1429,27 @@ function initNotificationClose() {
     </div>
 </div>
 
+
+
 <!-- Floating Analyze Button -->
 <a href="{% url 'users:analyze_food_image' %}" class="analyze-btn-floating">
-    🍎 Analyser Image
+    <i class="fa fa-camera"></i> Analyser Image
 </a>
-{% endblock %}
 
+<!-- AI Assistant Widget -->
+{% include 'main/assistant_doctor.html' %}
+
+<!-- CTA Sticky Banner -->
+<div class="cta-sticky-banner">
+    <div class="cta-banner-content">
+        <div class="cta-banner-text">
+            <h3><i class="fa fa-leaf"></i> Générez votre menu</h3>
+            <p>Créez un menu personnalisé adapté à vos besoins</p>
+        </div>
+        <a href="{% url 'users:generate_menu' %}" class="cta-banner-btn">
+            <i class="fa fa-magic"></i> Générer
+        </a>
+    </div>
+</div>
+
+{% endblock %}

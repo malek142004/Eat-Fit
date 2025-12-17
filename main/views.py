@@ -10,8 +10,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Avg
 from django.db.models.functions import TruncMonth
+from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse
+from django.conf import settings
+from decouple import config
 import json
 from datetime import datetime
+from openai import OpenAI
 
 def about(request):
     return render(request, 'main/about.html')
@@ -297,3 +302,69 @@ def coach_detail(request, coach_id):
         'can_leave_feedback': can_leave_feedback,
         'feedback_form': feedback_form,
     })
+
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect
+from django.contrib import messages
+
+@require_http_methods(["POST"])
+def nutrition_assistant(request):
+    """
+    AI Assistant for nutrition questions using OpenAI API
+    """
+    try:
+        data = json.loads(request.body)
+        question = data.get('question', '').strip()
+
+        if not question:
+            return JsonResponse({'success': False, 'error': 'Question vide'})
+
+        # System prompt to ensure nutrition-focused responses
+        system_prompt = """Tu es un assistant nutritionnel expert et bienveillant. 
+Tu réponds UNIQUEMENT aux questions concernant:
+- La nutrition et l'alimentation saine
+- Les régimes et les plans alimentaires
+- Les vitamines, minéraux et nutriments
+- Les calories et la nutrition sportive
+- Les allergies alimentaires et intoléances
+- L'équilibre nutritionnel
+
+Si une question n'a pas de rapport avec la nutrition, réponds poliment: 
+"Je suis spécialisé en nutrition. Votre question ne concerne pas ce domaine. Pouvez-vous poser une question sur la nutrition?"
+
+Garde les réponses concises, utiles et faciles à comprendre."""
+
+        # Initialize OpenAI client
+        api_key = config('OPENAI_API_KEY', default=None)
+        if not api_key:
+            return JsonResponse({'success': False, 'error': 'Clé API non configurée'})
+        
+        client = OpenAI(api_key=api_key)
+        
+        # Call OpenAI API with new client syntax
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": question}
+            ],
+            max_tokens=500,
+            temperature=0.7,
+        )
+
+        answer = response.choices[0].message.content.strip()
+
+        return JsonResponse({
+            'success': True,
+            'answer': answer
+        })
+
+    except Exception as e:
+        print(f"Assistant error: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+

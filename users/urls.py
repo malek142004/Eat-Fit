@@ -4,6 +4,8 @@ from django.contrib.auth import views as auth_views
 app_name = "users"
 
 urlpatterns = [
+    path('nutrition-assistant/', views.nutrition_assistant, name='nutrition_assistant'),
+
     # Auth / Account
     path('auth/', views.auth_view, name='auth'),
     path('logout/', views.logout_view, name='logout'),
@@ -85,6 +87,12 @@ urlpatterns = [
 
     path("register-face/", views.register_face, name="register_face"),
     path("face-login/", views.face_login, name="face_login"),
+
+    # AI Menu Generation
+    path('generate-menu/', views.generate_patient_menu, name='generate_patient_menu'),
+    path('generate-menu/', views.generate_patient_menu, name='generate_menu'),
+    path('patient-menu/', views.patient_menu_form, name='patient_menu_form'),
+    path('patient-menu/result/', views.patient_menu_result, name='patient_menu_result'),
 
 
 ]

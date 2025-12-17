@@ -2,3 +2,6 @@ xhtml2pdf
 python-decouple
 django-allauth
 PyJWT
+pandas
+pulp
+transformers

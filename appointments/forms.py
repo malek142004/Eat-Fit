@@ -38,17 +38,17 @@ class AppointmentCreateForm(forms.ModelForm):
         user = kwargs.pop('user', None)
         professional = kwargs.pop('professional', None)
         super(AppointmentCreateForm, self).__init__(*args, **kwargs)
-        
+
         if user and user.role == 'client':
             self.fields['client'].widget = forms.HiddenInput()
             self.fields['client'].required = False
             self.fields['client'].initial = user
-        
+
         if professional:
             self.fields['professional'].widget = forms.HiddenInput()
             self.fields['professional'].required = False
             self.fields['professional'].initial = professional
-        
+
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control-custom'
             if isinstance(field.widget, forms.Textarea):
@@ -77,7 +77,7 @@ class AppointmentUpdateForm(forms.ModelForm):
             field.widget.attrs['class'] = 'form-control-custom'
             if isinstance(field.widget, forms.Textarea):
                  field.widget.attrs['rows'] = 4
-                 
+
 class ClientUpdateForm(forms.ModelForm):
     class Meta:
         model = Client
@@ -118,7 +118,6 @@ class FeedbackForm(forms.ModelForm):
         labels = {
             'rating': 'Note (1 à 5)',
             'comment': 'Commentaire',
-<<<<<<< HEAD
         }
 
 
@@ -131,6 +130,3 @@ class ManualPredictionFeaturesForm(forms.Form):
         super(ManualPredictionFeaturesForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
-=======
-        }
->>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb

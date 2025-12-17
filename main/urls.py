@@ -37,4 +37,7 @@ urlpatterns = [
     path('backoffice/appointments/add/', views.backoffice_appointment_create, name='backoffice_appointment_create'),
     path('backoffice/appointments/modify/<int:pk>/', views.backoffice_appointment_update, name='backoffice_appointment_update'),
     path('backoffice/appointments/delete/<int:pk>/', views.backoffice_appointment_delete, name='backoffice_appointment_delete'),
+
+    # Nutrition Assistant
+    path('nutrition-assistant/', views.nutrition_assistant, name='nutrition_assistant'),
 ]

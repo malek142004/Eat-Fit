@@ -1,0 +1,471 @@
+j{% extends "main/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<style>
+/* ===== MODERN ANIMATIONS ===== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+/* ===== PAGE CONTAINER ===== */
+.patient-form-section {
+    min-height: 100vh;
+    background: #f8f9fa;
+    position: relative;
+    overflow: hidden;
+    padding: 60px 20px;
+}
+
+.patient-form-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+.patient-form-section::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -5%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite 1s;
+}
+
+.container {
+    position: relative;
+    z-index: 1;
+}
+
+.patient-form-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+/* ===== HEADER ===== */
+.patient-form-header {
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 50%, #ffd93d 100%);
+    color: white;
+    padding: 50px 40px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.patient-form-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.patient-form-header h2 {
+    margin: 0 0 15px 0;
+    font-size: 36px;
+    font-weight: 800;
+    position: relative;
+    z-index: 1;
+    animation: slideInLeft 0.6s ease-out;
+}
+
+.patient-form-header p {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 16px;
+    position: relative;
+    z-index: 1;
+    animation: slideInRight 0.6s ease-out 0.1s both;
+}
+
+/* ===== FORM BODY ===== */
+.patient-form-body {
+    padding: 50px;
+    background: #fff;
+}
+
+.form-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 35px;
+    animation: slideInLeft 0.6s ease-out 0.1s both;
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.form-section::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+    border-radius: 15px 0 0 15px;
+}
+
+.form-section h3 {
+    color: #2c3e50;
+    margin: 0 0 25px 0;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-section h3::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group select,
+.form-group input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #e1e8ed;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+    font-family: inherit;
+    color: #2c3e50;
+}
+
+.form-group select:hover,
+.form-group input:hover {
+    border-color: #ff6b6b;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.1);
+}
+
+.form-group select:focus,
+.form-group input:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.15);
+    transform: translateY(-2px);
+}
+
+.form-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23ff6b6b' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.form-actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 40px;
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+    flex-wrap: wrap;
+}
+
+.generate-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+    color: white;
+    border: none;
+    padding: 16px 45px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.generate-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.6s;
+}
+
+.generate-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+}
+
+.generate-btn:hover::before {
+    left: 100%;
+}
+
+.generate-btn:active {
+    transform: translateY(-2px);
+}
+
+.back-btn {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    color: #2c3e50;
+    border: none;
+    padding: 16px 45px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 8px 25px rgba(160, 237, 234, 0.2);
+}
+
+.back-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 35px rgba(160, 237, 234, 0.35);
+    color: #2c3e50;
+}
+
+.back-btn i {
+    transition: transform 0.3s ease;
+}
+
+.back-btn:hover i {
+    transform: translateX(-3px);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .patient-form-body {
+        padding: 30px 20px;
+    }
+
+    .patient-form-header {
+        padding: 40px 25px;
+    }
+
+    .patient-form-header h2 {
+        font-size: 28px;
+    }
+
+    .form-section {
+        padding: 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .generate-btn,
+    .back-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .patient-form-section {
+        padding: 30px 15px;
+    }
+
+    .patient-form-container {
+        border-radius: 15px;
+    }
+
+    .patient-form-header h2 {
+        font-size: 24px;
+    }
+
+    .patient-form-header p {
+        font-size: 14px;
+    }
+
+    .patient-form-body {
+        padding: 20px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="patient-form-section">
+    <div class="container">
+        <div class="patient-form-container">
+            <div class="patient-form-header">
+                <h2> Générateur de Menu Personnalisé</h2>
+                <p>Renseignez les informations du patient pour générer un menu adapté avec l&apos;IA</p>
+            </div>
+            
+            <form method="post" action="{% url 'users:generate_menu' %}" class="patient-form-body">
+                {% csrf_token %}
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.age.id_for_label }}">Âge</label>
+                        {{ form.age }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.sexe.id_for_label }}">Sexe</label>
+                        {{ form.sexe }}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.poids.id_for_label }}">Poids (kg)</label>
+                        {{ form.poids }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.taille.id_for_label }}">Taille (cm)</label>
+                        {{ form.taille }}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.activite.id_for_label }}">Niveau d&apos;activité</label>
+                        {{ form.activite }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.regime_souhaite.id_for_label }}">Régime souhaité</label>
+                        {{ form.regime_souhaite }}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.objectif.id_for_label }}">Objectif</label>
+                        {{ form.objectif }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.allergies.id_for_label }}">Allergies</label>
+                        {{ form.allergies }}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.pathologies.id_for_label }}">Pathologies</label>
+                        {{ form.pathologies }}
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="generate-btn">
+                        <i class="fa fa-magic"></i> Générer le Menu
+                    </button>
+                    <a href="{% url "users:nutritionist_list" %}" class="back-btn">
+                        <i class="fa fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

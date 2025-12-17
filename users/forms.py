@@ -207,6 +207,62 @@ class BusinessOwnerForm(forms.ModelForm):
             'social_media_account',
             'business_logo'
         ]
+class PatientMenuForm(forms.Form):
+    AGE_CHOICES = [(i, str(i)) for i in range(10, 100)]
+    SEX_CHOICES = [
+        ('homme', 'Homme'),
+        ('femme', 'Femme'),
+    ]
+    ACTIVITY_CHOICES = [
+        ('sedentaire', 'Sédentaire (peu ou pas d\'exercice)'),
+        ('leger', 'Léger (exercice léger 1-3 jours/semaine)'),
+        ('modere', 'Modéré (exercice modéré 3-5 jours/semaine)'),
+        ('actif', 'Actif (exercice intense 6-7 jours/semaine)'),
+        ('tres_actif', 'Très actif (exercice très intense + travail physique)'),
+    ]
+    DIET_CHOICES = [
+        ('vegetarien', 'Végétarien'),
+        ('vegan', 'Végan'),
+        ('sans_gluten', 'Sans gluten'),
+        ('cetogene', 'Cétogène'),
+        ('mediterraneen', 'Méditerranéen'),
+        ('general', 'Général'),
+    ]
+    GOAL_CHOICES = [
+        ('perte_poids', 'Perte de poids'),
+        ('prise_poids', 'Prise de poids'),
+        ('maintien', 'Maintien du poids'),
+        ('muscle', 'Développement musculaire'),
+        ('sante', 'Amélioration de la santé'),
+    ]
+    ALLERGY_CHOICES = [
+        ('aucune', 'Aucune'),
+        ('lait', 'Lait'),
+        ('gluten', 'Gluten'),
+        ('arachides', 'Arachides'),
+        ('fruits_coque', 'Fruits à coque'),
+        ('oeufs', 'Oeufs'),
+        ('poisson', 'Poisson'),
+        ('crustaces', 'Crustacés'),
+    ]
+    PATHOLOGY_CHOICES = [
+        ('aucune', 'Aucune'),
+        ('diabete', 'Diabète'),
+        ('hypertension', 'Hypertension'),
+        ('cholesterolemie', 'Hypercholestérolémie'),
+        ('insuffisance_renale', 'Insuffisance rénale'),
+        ('autre', 'Autre'),
+    ]
+
+    age = forms.ChoiceField(choices=AGE_CHOICES, label="Âge")
+    sexe = forms.ChoiceField(choices=SEX_CHOICES, label="Sexe")
+    poids = forms.FloatField(min_value=30, max_value=300, label="Poids (kg)")
+    taille = forms.FloatField(min_value=100, max_value=250, label="Taille (cm)")
+    activite = forms.ChoiceField(choices=ACTIVITY_CHOICES, label="Niveau d'activité")
+    allergies = forms.ChoiceField(choices=ALLERGY_CHOICES, label="Allergies")
+    regime_souhaite = forms.ChoiceField(choices=DIET_CHOICES, label="Régime souhaité")
+    objectif = forms.ChoiceField(choices=GOAL_CHOICES, label="Objectif")
+    pathologies = forms.ChoiceField(choices=PATHOLOGY_CHOICES, label="Pathologies")
 
 class ForgotPasswordForm(forms.Form):
     email = forms.EmailField()

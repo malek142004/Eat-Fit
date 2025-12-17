@@ -1,0 +1,301 @@
+Age,Sexe,Poids(kg),Taille(cm),IMC,Activité physique,Allergies,Régime souhaité,Pathologies,Objectif,Calories_journalières,max_sugar,max_sodium,max_saturated_fat,min_iron
+56,Femme,60,199,15.15,Modérée,Aucune,Keto,Aucune,Perdre du poids,2174.26,25,2300,50,0
+69,Femme,57,183,17.02,Élevée,Aucune,Keto,Aucune,Améliorer endurance,2294.72,25,2300,50,0
+46,Homme,74,167,26.53,Élevée,Lait,Vegan,Cardiaque,Prendre du muscle,2961.62,25,2300,20,0
+32,Femme,63,179,19.66,Faible,Fruits à coque,Vegan,Cardiaque,Prendre du muscle,1713.3,25,2300,20,0
+60,Homme,61,164,22.68,Modérée,Aucune,Keto,Cardiaque,Améliorer endurance,2077.0,25,2300,20,0
+25,Homme,107,176,34.54,Faible,Aucune,Aucun,Aucune,Améliorer endurance,2460.0,25,2300,50,0
+78,Femme,63,183,18.81,Faible,Fruits à coque,Végétarien,Aucune,Prendre du muscle,1467.3,25,2300,50,0
+38,Homme,102,187,29.17,Faible,Aucune,Vegan,Cardiaque,Prendre du muscle,2404.5,25,2300,20,0
+56,Homme,99,182,29.89,Faible,Gluten,Vegan,Anémie,Prendre du muscle,2223.0,25,2300,50,18
+75,Homme,106,173,35.42,Élevée,Fruits à coque,Keto,Anémie,Prendre du muscle,3365.38,25,2300,50,18
+36,Femme,67,164,24.91,Élevée,Fruits à coque,Végétarien,Diabète,Prendre du muscle,2572.6,10,2300,50,0
+40,Femme,53,179,16.54,Faible,Fruits à coque,Keto,Hypertension,Perdre du poids,1545.3,25,1500,50,0
+28,Homme,56,191,15.35,Modérée,Gluten,Végétarien,Anémie,Améliorer endurance,2509.06,25,2300,50,18
+28,Femme,45,166,16.33,Modérée,Fruits à coque,Végétarien,Aucune,Perdre du poids,1839.08,25,2300,50,0
+41,Femme,102,154,43.01,Modérée,Gluten,Végétarien,Anémie,Prendre du muscle,2505.58,25,2300,50,18
+70,Femme,45,178,14.2,Modérée,Fruits à coque,Vegan,Diabète,Prendre du muscle,1629.83,10,2300,50,0
+53,Femme,78,153,33.32,Faible,Lait,Aucun,Diabète,Prendre du muscle,1572.3,10,2300,50,0
+57,Homme,92,159,36.39,Élevée,Aucune,Keto,Hypertension,Perdre du poids,3104.12,25,1500,50,0
+41,Homme,45,166,16.33,Modérée,Lait,Aucun,Anémie,Perdre du poids,1995.62,25,2300,50,18
+20,Femme,60,159,23.73,Faible,Aucune,Keto,Aucune,Prendre du muscle,1599.3,25,2300,50,0
+39,Femme,105,166,38.1,Modérée,Gluten,Végétarien,Aucune,Perdre du poids,2683.83,25,2300,50,0
+70,Homme,108,169,37.81,Modérée,Lait,Vegan,Cardiaque,Perdre du poids,2776.44,25,2300,20,0
+19,Homme,107,173,35.75,Faible,Fruits à coque,Aucun,Aucune,Prendre du muscle,2473.5,25,2300,50,0
+41,Femme,113,154,47.65,Élevée,Aucune,Vegan,Hypertension,Perdre du poids,3280.35,25,1500,50,0
+61,Homme,66,183,19.71,Élevée,Aucune,Keto,Hypertension,Améliorer endurance,2857.12,25,1500,50,0
+47,Femme,111,155,46.2,Faible,Lait,Vegan,Aucune,Améliorer endurance,2019.3,25,2300,50,0
+55,Femme,70,151,30.7,Élevée,Gluten,Vegan,Aucune,Améliorer endurance,2294.72,25,2300,50,0
+19,Homme,60,162,22.86,Faible,Lait,Aucun,Cardiaque,Améliorer endurance,1827.0,25,2300,20,0
+77,Homme,95,192,25.77,Faible,Gluten,Végétarien,Aucune,Prendre du muscle,2124.0,25,2300,50,0
+38,Femme,101,192,27.4,Faible,Gluten,Vegan,Cardiaque,Prendre du muscle,2230.8,25,2300,20,0
+50,Femme,73,197,18.81,Élevée,Aucune,Végétarien,Cardiaque,Prendre du muscle,2945.47,25,2300,20,0
+29,Homme,113,160,44.14,Faible,Lait,Keto,Aucune,Améliorer endurance,2388.0,25,2300,50,0
+75,Femme,91,196,23.69,Modérée,Lait,Vegan,Diabète,Améliorer endurance,2478.45,10,2300,50,0
+39,Homme,106,172,35.83,Élevée,Gluten,Aucun,Diabète,Perdre du poids,3695.5,10,2300,50,0
+78,Femme,113,165,41.51,Élevée,Lait,Keto,Cardiaque,Perdre du poids,3059.47,25,2300,20,0
+61,Homme,60,180,18.52,Élevée,Fruits à coque,Keto,Aucune,Améliorer endurance,2707.5,25,2300,50,0
+42,Homme,92,160,35.94,Élevée,Fruits à coque,Aucun,Diabète,Améliorer endurance,3258.5,10,2300,50,0
+66,Homme,83,165,30.49,Modérée,Lait,Vegan,Aucune,Améliorer endurance,2381.19,25,2300,50,0
+44,Femme,77,157,31.24,Élevée,Lait,Vegan,Aucune,Améliorer endurance,2603.47,25,2300,50,0
+76,Femme,67,153,28.62,Élevée,Gluten,Keto,Aucune,Perdre du poids,2061.97,25,2300,50,0
+59,Homme,54,189,15.12,Faible,Fruits à coque,Vegan,Anémie,Améliorer endurance,1717.5,25,2300,50,18
+45,Femme,113,153,48.27,Élevée,Fruits à coque,Végétarien,Aucune,Perdre du poids,3230.47,25,2300,50,0
+77,Homme,78,174,25.76,Modérée,Aucune,Aucun,Anémie,Améliorer endurance,2305.62,25,2300,50,18
+33,Homme,96,152,41.55,Modérée,Gluten,Végétarien,Cardiaque,Améliorer endurance,2712.5,25,2300,20,0
+32,Femme,54,181,16.48,Modérée,Aucune,Vegan,Diabète,Améliorer endurance,2092.89,10,2300,50,0
+79,Femme,63,152,27.27,Modérée,Fruits à coque,Keto,Diabète,Perdre du poids,1587.2,10,2300,50,0
+79,Homme,102,176,32.93,Élevée,Gluten,Aucun,Diabète,Perdre du poids,3287.0,10,2300,50,0
+64,Femme,45,178,14.2,Élevée,Lait,Vegan,Diabète,Prendre du muscle,2054.85,10,2300,50,0
+79,Femme,113,181,34.49,Modérée,Gluten,Vegan,Diabète,Améliorer endurance,2643.14,10,2300,50,0
+68,Homme,48,199,12.12,Modérée,Lait,Keto,Diabète,Prendre du muscle,2152.56,10,2300,50,0
+61,Homme,60,168,21.26,Élevée,Lait,Keto,Diabète,Prendre du muscle,2565.0,10,2300,50,0
+72,Femme,68,170,23.53,Modérée,Gluten,Végétarien,Cardiaque,Perdre du poids,1893.33,25,2300,20,0
+69,Homme,46,154,19.4,Faible,Lait,Aucun,Aucune,Perdre du poids,1299.0,25,2300,50,0
+74,Homme,76,167,27.25,Modérée,Aucune,Aucun,Hypertension,Prendre du muscle,2230.06,25,1500,50,0
+20,Femme,68,177,21.71,Modérée,Fruits à coque,Keto,Anémie,Améliorer endurance,2364.14,25,2300,50,18
+54,Homme,56,191,15.35,Faible,Lait,Végétarien,Hypertension,Perdre du poids,1786.5,25,1500,50,0
+68,Homme,94,171,32.15,Faible,Aucune,Aucun,Hypertension,Améliorer endurance,2008.5,25,1500,50,0
+24,Femme,79,170,27.34,Élevée,Lait,Keto,Aucune,Améliorer endurance,2985.85,25,2300,50,0
+38,Femme,77,155,32.05,Élevée,Fruits à coque,Vegan,Aucune,Prendre du muscle,2636.72,25,2300,50,0
+26,Homme,77,150,34.22,Faible,Aucune,Aucun,Aucune,Prendre du muscle,1899.0,25,2300,50,0
+56,Homme,105,154,44.27,Faible,Fruits à coque,Végétarien,Diabète,Prendre du muscle,2085.0,10,2300,50,0
+35,Femme,95,190,26.32,Élevée,Fruits à coque,Végétarien,Cardiaque,Prendre du muscle,3422.85,25,2300,20,0
+21,Femme,87,161,33.56,Modérée,Aucune,Végétarien,Diabète,Perdre du poids,2495.89,10,2300,50,0
+42,Femme,56,175,18.29,Faible,Aucune,Vegan,Cardiaque,Perdre du poids,1539.3,25,2300,20,0
+77,Femme,111,195,29.19,Élevée,Aucune,Aucun,Cardiaque,Prendre du muscle,3387.22,25,2300,20,0
+31,Homme,109,183,32.55,Modérée,Gluten,Aucun,Hypertension,Perdre du poids,3229.81,25,1500,50,0
+67,Femme,77,198,19.64,Faible,Aucune,Vegan,Hypertension,Prendre du muscle,1813.8,25,1500,50,0
+75,Femme,84,163,31.62,Modérée,Aucune,Aucun,Cardiaque,Améliorer endurance,2050.26,25,2300,20,0
+26,Homme,118,175,38.53,Élevée,Aucune,Vegan,Cardiaque,Améliorer endurance,4082.62,25,2300,20,0
+43,Femme,87,194,23.12,Faible,Aucune,Vegan,Diabète,Améliorer endurance,2047.8,10,2300,50,0
+70,Homme,88,176,28.41,Modérée,Lait,Vegan,Diabète,Prendre du muscle,2534.25,10,2300,50,0
+19,Femme,73,158,29.24,Faible,Gluten,Végétarien,Hypertension,Améliorer endurance,1753.8,25,1500,50,0
+37,Femme,57,175,18.61,Modérée,Fruits à coque,Aucun,Aucune,Perdre du poids,2042.51,25,2300,50,0
+45,Femme,56,196,14.58,Élevée,Aucune,Vegan,Cardiaque,Améliorer endurance,2658.1,25,2300,20,0
+64,Homme,90,171,30.78,Élevée,Lait,Aucun,Diabète,Améliorer endurance,3142.12,10,2300,50,0
+77,Homme,46,196,11.97,Faible,Lait,Végétarien,Hypertension,Améliorer endurance,1566.0,25,1500,50,0
+24,Femme,79,179,24.66,Modérée,Lait,Vegan,Diabète,Perdre du poids,2523.01,10,2300,50,0
+61,Homme,52,192,14.11,Faible,Fruits à coque,Keto,Cardiaque,Prendre du muscle,1704.0,25,2300,20,0
+78,Homme,70,197,18.04,Faible,Aucune,Végétarien,Cardiaque,Perdre du poids,1855.5,25,2300,20,0
+25,Homme,118,166,42.82,Modérée,Gluten,Keto,Anémie,Prendre du muscle,3251.12,25,2300,50,18
+64,Homme,78,175,25.47,Modérée,Gluten,Aucun,Aucune,Prendre du muscle,2416.06,25,2300,50,0
+52,Homme,51,185,14.9,Modérée,Lait,Aucun,Anémie,Améliorer endurance,2187.44,25,2300,50,18
+31,Homme,112,150,49.78,Élevée,Fruits à coque,Végétarien,Hypertension,Prendre du muscle,3624.25,25,1500,50,0
+34,Femme,102,157,41.38,Faible,Fruits à coque,Aucun,Diabète,Perdre du poids,2004.3,10,2300,50,0
+53,Femme,119,198,30.35,Faible,Fruits à coque,Keto,Hypertension,Perdre du poids,2401.8,25,1500,50,0
+67,Homme,73,184,21.56,Élevée,Gluten,Vegan,Cardiaque,Prendre du muscle,2945.0,25,2300,20,0
+57,Femme,80,164,29.74,Modérée,Lait,Vegan,Anémie,Améliorer endurance,2137.45,25,2300,50,18
+21,Femme,65,196,16.92,Élevée,Aucune,Vegan,Anémie,Améliorer endurance,3057.1,25,2300,50,18
+19,Femme,80,171,27.36,Élevée,Gluten,Végétarien,Anémie,Perdre du poids,3064.22,25,2300,50,18
+79,Femme,54,163,20.32,Élevée,Lait,Aucun,Hypertension,Améliorer endurance,1905.22,25,1500,50,0
+23,Homme,117,175,38.2,Faible,Lait,Keto,Cardiaque,Prendre du muscle,2584.5,25,2300,20,0
+71,Femme,68,177,21.71,Élevée,Aucune,Aucun,Diabète,Prendre du muscle,2413.47,10,2300,50,0
+59,Femme,108,172,36.51,Faible,Aucune,Aucun,Diabète,Perdre du poids,2038.8,10,2300,50,0
+21,Homme,93,163,35.0,Faible,Aucune,Aucun,Hypertension,Prendre du muscle,2218.5,25,1500,50,0
+71,Homme,80,173,26.73,Faible,Fruits à coque,Vegan,Anémie,Perdre du poids,1837.5,25,2300,50,18
+46,Femme,68,151,29.82,Modérée,Aucune,Keto,Aucune,Prendre du muscle,1910.76,25,2300,50,0
+35,Femme,67,194,17.8,Faible,Lait,Keto,Hypertension,Perdre du poids,1855.8,25,1500,50,0
+43,Femme,106,175,34.61,Faible,Aucune,Aucun,Hypertension,Améliorer endurance,2133.3,25,1500,50,0
+61,Femme,81,163,30.49,Modérée,Lait,Vegan,Cardiaque,Prendre du muscle,2112.26,25,2300,20,0
+51,Femme,56,156,23.01,Faible,Gluten,Vegan,Diabète,Prendre du muscle,1342.8,10,2300,50,0
+27,Femme,99,152,42.85,Élevée,Fruits à coque,Keto,Hypertension,Perdre du poids,3123.6,25,1500,50,0
+79,Homme,57,196,14.84,Élevée,Gluten,Vegan,Hypertension,Perdre du poids,2669.5,25,1500,50,0
+53,Femme,67,172,22.65,Faible,Gluten,Vegan,Anémie,Prendre du muscle,1582.8,25,2300,50,18
+31,Femme,74,195,19.46,Modérée,Lait,Vegan,Anémie,Perdre du poids,2546.26,25,2300,50,18
+48,Homme,61,192,16.55,Élevée,Gluten,Végétarien,Aucune,Prendre du muscle,2992.5,25,2300,50,0
+65,Homme,106,196,27.59,Modérée,Lait,Aucun,Cardiaque,Améliorer endurance,3045.75,25,2300,20,0
+32,Homme,57,194,15.15,Modérée,Aucune,Keto,Aucune,Perdre du poids,2522.62,25,2300,50,0
+25,Homme,103,167,36.93,Élevée,Aucune,Keto,Anémie,Prendre du muscle,3712.12,25,2300,50,18
+31,Femme,63,187,18.02,Modérée,Lait,Végétarien,Diabète,Améliorer endurance,2298.26,10,2300,50,0
+40,Femme,93,184,27.47,Élevée,Aucune,Aucun,Anémie,Améliorer endurance,3266.1,25,2300,50,18
+77,Femme,56,164,20.82,Modérée,Fruits à coque,Keto,Cardiaque,Prendre du muscle,1610.45,25,2300,20,0
+74,Femme,105,174,34.68,Élevée,Gluten,Vegan,Anémie,Perdre du poids,3052.35,25,2300,50,18
+79,Femme,63,186,18.21,Faible,Fruits à coque,Keto,Cardiaque,Prendre du muscle,1483.8,25,2300,20,0
+57,Femme,53,177,16.92,Élevée,Gluten,Vegan,Cardiaque,Améliorer endurance,2261.47,25,2300,20,0
+38,Homme,115,159,45.49,Élevée,Aucune,Végétarien,Cardiaque,Prendre du muscle,3721.62,25,2300,20,0
+33,Femme,72,188,20.37,Élevée,Fruits à coque,Vegan,Cardiaque,Perdre du poids,2981.1,25,2300,20,0
+62,Homme,96,166,34.84,Élevée,Aucune,Keto,Cardiaque,Améliorer endurance,3215.75,25,2300,20,0
+35,Homme,60,188,16.98,Modérée,Gluten,Keto,Diabète,Prendre du muscle,2487.75,10,2300,50,0
+64,Femme,113,171,38.64,Faible,Lait,Keto,Aucune,Perdre du poids,2061.3,25,2300,50,0
+70,Homme,56,175,18.29,Élevée,Lait,Végétarien,Hypertension,Améliorer endurance,2486.62,25,1500,50,0
+41,Femme,69,193,18.52,Modérée,Fruits à coque,Végétarien,Aucune,Perdre du poids,2371.89,25,2300,50,0
+43,Homme,96,174,31.71,Faible,Aucune,Aucun,Cardiaque,Améliorer endurance,2205.0,25,2300,20,0
+42,Femme,97,166,35.2,Faible,Aucune,Keto,Diabète,Prendre du muscle,1963.8,10,2300,50,0
+77,Homme,67,162,25.53,Faible,Fruits à coque,Vegan,Anémie,Perdre du poids,1563.0,25,2300,50,18
+77,Femme,60,169,21.01,Faible,Lait,Végétarien,Diabète,Améliorer endurance,1332.3,10,2300,50,0
+77,Femme,101,174,33.36,Élevée,Gluten,Keto,Cardiaque,Perdre du poids,2947.85,25,2300,20,0
+62,Femme,83,153,35.46,Élevée,Fruits à coque,Keto,Diabète,Perdre du poids,2498.97,10,2300,50,0
+58,Femme,97,159,38.37,Modérée,Gluten,Végétarien,Diabète,Prendre du muscle,2344.76,10,2300,50,0
+46,Femme,86,152,37.22,Modérée,Lait,Aucun,Cardiaque,Perdre du poids,2199.45,25,2300,20,0
+32,Homme,102,190,28.25,Modérée,Aucune,Végétarien,Diabète,Améliorer endurance,3181.38,10,2300,50,0
+62,Homme,83,194,22.05,Faible,Lait,Végétarien,Hypertension,Améliorer endurance,2085.0,25,1500,50,0
+18,Homme,58,167,20.8,Faible,Fruits à coque,Vegan,Hypertension,Améliorer endurance,1846.5,25,1500,50,0
+42,Femme,49,196,12.76,Élevée,Aucune,Vegan,Diabète,Améliorer endurance,2553.6,10,2300,50,0
+24,Homme,79,185,23.08,Faible,Fruits à coque,Aucun,Anémie,Prendre du muscle,2197.5,25,2300,50,18
+26,Femme,119,196,30.98,Faible,Fruits à coque,Keto,Cardiaque,Perdre du poids,2548.8,25,2300,20,0
+41,Femme,62,171,21.2,Faible,Lait,Végétarien,Hypertension,Prendre du muscle,1587.3,25,1500,50,0
+18,Homme,53,183,15.83,Modérée,Fruits à coque,Aucun,Anémie,Perdre du poids,2462.56,25,2300,50,18
+61,Homme,118,196,30.72,Modérée,Lait,Vegan,Diabète,Perdre du poids,3262.75,10,2300,50,0
+25,Femme,102,157,41.38,Élevée,Aucune,Végétarien,Anémie,Perdre du poids,3258.97,25,2300,50,18
+41,Homme,61,189,17.08,Faible,Lait,Keto,Aucune,Prendre du muscle,1909.5,25,2300,50,0
+28,Femme,51,198,13.01,Faible,Aucune,Vegan,Hypertension,Perdre du poids,1735.8,25,1500,50,0
+68,Femme,90,193,24.16,Élevée,Lait,Vegan,Diabète,Prendre du muscle,3049.97,10,2300,50,0
+34,Femme,57,168,20.2,Faible,Gluten,Vegan,Cardiaque,Améliorer endurance,1546.8,25,2300,20,0
+25,Femme,84,191,23.03,Faible,Gluten,Aucun,Diabète,Améliorer endurance,2097.3,10,2300,50,0
+52,Femme,86,190,23.82,Modérée,Fruits à coque,Keto,Cardiaque,Perdre du poids,2521.08,25,2300,20,0
+52,Homme,53,186,15.32,Élevée,Lait,Végétarien,Diabète,Prendre du muscle,2731.25,10,2300,50,0
+50,Homme,94,155,39.13,Élevée,Lait,Aucun,Anémie,Améliorer endurance,3161.12,25,2300,50,18
+76,Femme,71,175,23.18,Élevée,Aucune,Aucun,Anémie,Prendre du muscle,2399.22,25,2300,50,18
+22,Femme,110,183,32.85,Élevée,Fruits à coque,Aucun,Anémie,Prendre du muscle,3748.22,25,2300,50,18
+59,Homme,49,194,13.02,Modérée,Lait,Vegan,Aucune,Perdre du poids,2189.38,25,2300,50,0
+56,Homme,73,155,30.39,Modérée,Fruits à coque,Keto,Cardiaque,Améliorer endurance,2206.81,25,2300,20,0
+75,Femme,81,186,23.41,Faible,Gluten,Aucun,Anémie,Perdre du poids,1723.8,25,2300,50,18
+58,Homme,82,182,24.76,Faible,Lait,Végétarien,Aucune,Perdre du poids,2007.0,25,2300,50,0
+45,Femme,52,171,17.78,Faible,Lait,Keto,Cardiaque,Améliorer endurance,1443.3,25,2300,20,0
+24,Homme,109,170,37.72,Faible,Fruits à coque,Végétarien,Diabète,Améliorer endurance,2445.0,10,2300,50,0
+26,Femme,61,155,25.39,Modérée,Lait,Keto,Aucune,Prendre du muscle,1996.01,25,2300,50,0
+25,Homme,115,155,47.87,Élevée,Fruits à coque,Végétarien,Hypertension,Améliorer endurance,3797.62,25,1500,50,0
+29,Femme,89,197,22.93,Modérée,Lait,Vegan,Aucune,Prendre du muscle,2813.64,25,2300,50,0
+51,Homme,48,153,20.5,Faible,Aucune,Aucun,Aucune,Prendre du muscle,1423.5,25,2300,50,0
+50,Homme,80,179,24.97,Modérée,Fruits à coque,Végétarien,Cardiaque,Prendre du muscle,2594.31,25,2300,20,0
+65,Femme,114,160,44.53,Élevée,Lait,Keto,Diabète,Améliorer endurance,3142.6,10,2300,50,0
+72,Homme,75,179,23.41,Élevée,Gluten,Aucun,Hypertension,Perdre du poids,2876.12,25,1500,50,0
+40,Femme,63,180,19.44,Modérée,Lait,Aucun,Anémie,Prendre du muscle,2160.7,25,2300,50,18
+79,Homme,105,173,35.08,Modérée,Gluten,Keto,Anémie,Perdre du poids,2698.94,25,2300,50,18
+41,Femme,98,158,39.26,Modérée,Gluten,Végétarien,Aucune,Perdre du poids,2482.33,25,2300,50,0
+54,Homme,83,152,35.92,Faible,Aucune,Vegan,Cardiaque,Améliorer endurance,1818.0,25,2300,20,0
+52,Femme,118,180,36.42,Modérée,Fruits à coque,Vegan,Cardiaque,Perdre du poids,2920.2,25,2300,20,0
+61,Homme,63,189,17.64,Modérée,Lait,Végétarien,Anémie,Perdre du poids,2342.44,25,2300,50,18
+57,Femme,83,186,23.99,Modérée,Aucune,Aucun,Hypertension,Améliorer endurance,2397.08,25,1500,50,0
+39,Homme,111,185,32.43,Élevée,Lait,Aucun,Diabète,Prendre du muscle,3944.88,10,2300,50,0
+44,Femme,89,173,29.74,Élevée,Gluten,Aucun,Hypertension,Perdre du poids,3021.47,25,1500,50,0
+52,Femme,57,180,17.59,Faible,Fruits à coque,Aucun,Diabète,Améliorer endurance,1528.8,10,2300,50,0
+18,Femme,102,155,42.46,Faible,Lait,Végétarien,Anémie,Perdre du poids,2085.3,25,2300,50,18
+52,Homme,64,151,28.07,Élevée,Lait,Aucun,Diabète,Perdre du poids,2524.62,10,2300,50,0
+54,Femme,116,169,40.61,Élevée,Gluten,Keto,Cardiaque,Prendre du muscle,3391.97,25,2300,20,0
+64,Homme,105,177,33.52,Élevée,Lait,Aucun,Aucune,Perdre du poids,3498.38,25,2300,50,0
+31,Femme,83,160,32.42,Modérée,Lait,Vegan,Aucune,Améliorer endurance,2346.7,25,2300,50,0
+20,Homme,45,153,19.22,Modérée,Gluten,Aucun,Anémie,Perdre du poids,2032.44,25,2300,50,18
+18,Femme,47,164,17.47,Élevée,Aucune,Végétarien,Cardiaque,Prendre du muscle,2363.6,25,2300,20,0
+22,Homme,106,155,44.12,Modérée,Gluten,Vegan,Hypertension,Prendre du muscle,2981.81,25,1500,50,0
+43,Homme,107,198,27.29,Modérée,Aucune,Végétarien,Cardiaque,Améliorer endurance,3251.12,25,2300,20,0
+72,Femme,69,179,21.53,Faible,Fruits à coque,Végétarien,Aucune,Prendre du muscle,1545.3,25,2300,50,0
+31,Homme,100,187,28.6,Élevée,Aucune,Vegan,Aucune,Perdre du poids,3835.62,25,2300,50,0
+56,Homme,77,151,33.77,Élevée,Aucune,Végétarien,Cardiaque,Prendre du muscle,2733.62,25,2300,20,0
+44,Femme,82,164,30.49,Modérée,Fruits à coque,Végétarien,Cardiaque,Améliorer endurance,2269.2,25,2300,20,0
+26,Homme,50,160,19.53,Élevée,Aucune,Aucun,Aucune,Prendre du muscle,2612.5,25,2300,50,0
+32,Homme,102,157,41.38,Faible,Gluten,Keto,Hypertension,Prendre du muscle,2215.5,25,1500,50,0
+32,Homme,88,175,28.73,Faible,Aucune,Végétarien,Anémie,Prendre du muscle,2182.5,25,2300,50,18
+43,Femme,89,194,23.65,Faible,Fruits à coque,Végétarien,Anémie,Améliorer endurance,2071.8,25,2300,50,18
+59,Homme,76,193,20.4,Élevée,Gluten,Végétarien,Cardiaque,Prendre du muscle,3184.88,25,2300,20,0
+77,Femme,89,154,37.53,Élevée,Fruits à coque,Aucun,Anémie,Prendre du muscle,2482.35,25,2300,50,18
+30,Homme,105,155,43.7,Élevée,Fruits à coque,Keto,Aucune,Perdre du poids,3560.12,25,2300,50,0
+68,Homme,91,175,29.71,Élevée,Lait,Vegan,Aucune,Améliorer endurance,3170.62,25,2300,50,0
+49,Homme,65,153,27.77,Élevée,Lait,Aucun,Cardiaque,Prendre du muscle,2595.88,25,2300,20,0
+56,Femme,119,168,42.16,Faible,Fruits à coque,Aucun,Cardiaque,Améliorer endurance,2158.8,25,2300,20,0
+66,Homme,80,169,28.01,Modérée,Fruits à coque,Keto,Cardiaque,Prendre du muscle,2373.44,25,2300,20,0
+69,Homme,63,182,19.02,Faible,Fruits à coque,Keto,Hypertension,Prendre du muscle,1713.0,25,1500,50,0
+78,Femme,64,169,22.41,Élevée,Lait,Aucun,Anémie,Prendre du muscle,2175.97,25,2300,50,18
+49,Homme,101,198,25.76,Faible,Lait,Vegan,Cardiaque,Perdre du poids,2409.0,25,2300,20,0
+21,Femme,62,161,23.92,Élevée,Aucune,Aucun,Diabète,Perdre du poids,2584.47,10,2300,50,0
+47,Femme,91,196,23.69,Élevée,Aucune,Keto,Diabète,Perdre du poids,3304.1,10,2300,50,0
+54,Homme,93,150,41.33,Faible,Fruits à coque,Vegan,Aucune,Améliorer endurance,1923.0,25,2300,50,0
+40,Femme,58,175,18.94,Élevée,Gluten,Keto,Anémie,Améliorer endurance,2494.22,25,2300,50,18
+56,Homme,59,163,22.21,Modérée,Gluten,Vegan,Cardiaque,Perdre du poids,2067.31,25,2300,20,0
+62,Femme,75,187,21.45,Élevée,Lait,Végétarien,Diabète,Améliorer endurance,2750.72,10,2300,50,0
+32,Femme,45,186,13.01,Modérée,Lait,Keto,Anémie,Prendre du muscle,2001.83,25,2300,50,18
+60,Homme,98,160,38.28,Modérée,Lait,Keto,Aucune,Prendre du muscle,2611.75,25,2300,50,0
+46,Femme,47,185,13.73,Élevée,Fruits à coque,Aucun,Hypertension,Prendre du muscle,2346.97,25,1500,50,0
+53,Femme,60,162,22.86,Faible,Gluten,Keto,Anémie,Perdre du poids,1423.8,25,2300,50,18
+30,Femme,101,192,27.4,Modérée,Aucune,Keto,Anémie,Améliorer endurance,2943.45,25,2300,50,18
+49,Femme,119,152,51.51,Faible,Fruits à coque,Végétarien,Hypertension,Perdre du poids,2080.8,25,1500,50,0
+24,Femme,56,182,16.91,Modérée,Aucune,Keto,Anémie,Améliorer endurance,2195.58,25,2300,50,18
+76,Homme,118,155,49.12,Élevée,Aucune,Végétarien,Aucune,Prendre du muscle,3370.12,25,2300,50,0
+68,Femme,60,199,15.15,Élevée,Fruits à coque,Végétarien,Aucune,Perdre du poids,2551.22,25,2300,50,0
+39,Homme,116,159,45.88,Modérée,Aucune,Végétarien,Hypertension,Améliorer endurance,3043.81,25,1500,50,0
+45,Femme,68,154,28.67,Élevée,Gluten,Végétarien,Cardiaque,Améliorer endurance,2387.35,25,2300,20,0
+19,Homme,72,172,24.34,Modérée,Aucune,Vegan,Diabète,Prendre du muscle,2642.75,10,2300,50,0
+59,Homme,52,159,20.57,Élevée,Gluten,Aucun,Cardiaque,Perdre du poids,2325.12,25,2300,20,0
+62,Femme,80,193,21.48,Faible,Gluten,Vegan,Anémie,Perdre du poids,1842.3,25,2300,50,18
+79,Femme,52,151,22.81,Élevée,Gluten,Keto,Diabète,Perdre du poids,1724.72,10,2300,50,0
+74,Femme,102,162,38.87,Faible,Lait,Vegan,Hypertension,Prendre du muscle,1801.8,25,1500,50,0
+70,Homme,104,189,29.11,Élevée,Aucune,Vegan,Hypertension,Perdre du poids,3564.88,25,1500,50,0
+23,Femme,94,151,41.23,Faible,Fruits à coque,Keto,Diabète,Prendre du muscle,1929.3,10,2300,50,0
+45,Homme,72,169,25.21,Élevée,Fruits à coque,Keto,Aucune,Prendre du muscle,2956.88,25,2300,50,0
+45,Homme,85,150,37.78,Faible,Aucune,Keto,Diabète,Prendre du muscle,1881.0,10,2300,50,0
+61,Homme,108,186,31.22,Modérée,Lait,Vegan,Anémie,Améliorer endurance,3010.88,25,2300,50,18
+61,Femme,71,158,28.44,Modérée,Lait,Vegan,Aucune,Perdre du poids,1908.83,25,2300,50,0
+37,Femme,107,166,38.83,Faible,Gluten,Keto,Hypertension,Perdre du poids,2113.8,25,1500,50,0
+47,Homme,61,158,24.44,Élevée,Aucune,Aucun,Diabète,Prendre du muscle,2598.25,10,2300,50,0
+79,Homme,117,160,45.7,Faible,Aucune,Aucun,Cardiaque,Prendre du muscle,2136.0,25,2300,20,0
+28,Femme,77,164,28.63,Élevée,Fruits à coque,Végétarien,Cardiaque,Perdre du poids,2838.6,25,2300,20,0
+75,Homme,73,173,24.39,Modérée,Aucune,Keto,Anémie,Prendre du muscle,2233.94,25,2300,50,18
+72,Femme,57,187,16.3,Élevée,Lait,Végétarien,Cardiaque,Perdre du poids,2313.72,25,2300,20,0
+45,Homme,90,184,26.58,Modérée,Aucune,Aucun,Diabète,Améliorer endurance,2836.5,10,2300,50,0
+42,Femme,79,179,24.66,Élevée,Fruits à coque,Végétarien,Diabète,Prendre du muscle,2921.72,10,2300,50,0
+56,Homme,50,180,15.43,Élevée,Gluten,Keto,Cardiaque,Perdre du poids,2565.0,25,2300,20,0
+79,Femme,113,198,28.82,Élevée,Fruits à coque,Keto,Diabète,Prendre du muscle,3441.85,10,2300,50,0
+50,Homme,91,154,38.37,Faible,Fruits à coque,Keto,Anémie,Perdre du poids,1953.0,25,2300,50,18
+18,Femme,69,193,18.52,Faible,Gluten,Vegan,Aucune,Perdre du poids,1974.3,25,2300,50,0
+74,Femme,110,199,27.78,Modérée,Fruits à coque,Végétarien,Anémie,Prendre du muscle,2809.76,25,2300,50,18
+44,Homme,54,163,20.32,Modérée,Fruits à coque,Aucun,Anémie,Améliorer endurance,2082.81,25,2300,50,18
+79,Homme,100,160,39.06,Faible,Aucune,Aucun,Diabète,Perdre du poids,1932.0,10,2300,50,0
+74,Femme,74,158,29.64,Modérée,Aucune,Aucun,Aucune,Perdre du poids,1854.58,25,2300,50,0
+69,Homme,49,183,14.63,Faible,Gluten,Vegan,Diabète,Perdre du poids,1552.5,10,2300,50,0
+30,Femme,77,161,29.71,Élevée,Aucune,Vegan,Hypertension,Améliorer endurance,2783.97,25,1500,50,0
+58,Homme,109,184,32.2,Modérée,Aucune,Keto,Diabète,Améliorer endurance,3030.25,10,2300,50,0
+20,Femme,62,184,18.31,Modérée,Fruits à coque,Aucun,Diabète,Prendre du muscle,2338.95,10,2300,50,0
+56,Femme,93,150,41.33,Faible,Lait,Vegan,Diabète,Améliorer endurance,1711.8,10,2300,50,0
+23,Femme,55,189,15.4,Modérée,Aucune,Keto,Aucune,Prendre du muscle,2255.64,25,2300,50,0
+25,Femme,70,171,23.94,Modérée,Lait,Aucun,Diabète,Prendre du muscle,2298.26,10,2300,50,0
+44,Femme,107,178,33.77,Élevée,Aucune,Végétarien,Aucune,Améliorer endurance,3422.85,25,2300,50,0
+26,Femme,103,157,41.79,Modérée,Aucune,Keto,Cardiaque,Prendre du muscle,2666.39,25,2300,20,0
+79,Homme,71,160,27.73,Élevée,Gluten,Vegan,Hypertension,Améliorer endurance,2508.0,25,1500,50,0
+54,Homme,93,190,25.76,Faible,Gluten,Vegan,Aucune,Prendre du muscle,2223.0,25,2300,50,0
+50,Homme,77,186,22.26,Modérée,Gluten,Keto,Cardiaque,Améliorer endurance,2615.62,25,2300,20,0
+68,Femme,45,163,16.94,Élevée,Lait,Keto,Aucune,Améliorer endurance,1838.72,25,2300,50,0
+59,Femme,65,179,20.29,Faible,Fruits à coque,Vegan,Aucune,Prendre du muscle,1575.3,25,2300,50,0
+61,Femme,99,184,29.24,Modérée,Aucune,Végétarien,Hypertension,Perdre du poids,2594.7,25,1500,50,0
+41,Femme,50,170,17.3,Faible,Aucune,Aucun,Anémie,Prendre du muscle,1435.8,25,2300,50,18
+32,Homme,113,186,32.66,Modérée,Aucune,Végétarien,Anémie,Améliorer endurance,3313.12,25,2300,50,18
+76,Homme,49,154,20.66,Faible,Lait,Keto,Aucune,Perdre du poids,1293.0,25,2300,50,0
+71,Femme,47,168,16.65,Faible,Gluten,Végétarien,Diabète,Prendre du muscle,1204.8,10,2300,50,0
+49,Homme,97,163,36.51,Élevée,Fruits à coque,Vegan,Cardiaque,Prendre du muscle,3322.62,25,2300,20,0
+49,Homme,67,175,21.88,Faible,Lait,Keto,Diabète,Prendre du muscle,1828.5,10,2300,50,0
+41,Femme,97,153,41.44,Modérée,Gluten,Aucun,Diabète,Perdre du poids,2418.39,10,2300,50,0
+58,Homme,81,174,26.75,Modérée,Lait,Vegan,Aucune,Améliorer endurance,2499.38,25,2300,50,0
+69,Femme,118,194,31.35,Élevée,Fruits à coque,Vegan,Aucune,Prendre du muscle,3584.35,25,2300,50,0
+66,Homme,118,191,32.35,Modérée,Gluten,Aucun,Aucune,Prendre du muscle,3175.56,25,2300,50,0
+79,Femme,61,174,20.15,Modérée,Lait,Aucun,Aucune,Prendre du muscle,1769.33,25,2300,50,0
+66,Femme,117,167,41.95,Modérée,Fruits à coque,Végétarien,Anémie,Prendre du muscle,2670.26,25,2300,50,18
+75,Femme,45,189,12.6,Faible,Aucune,Keto,Aucune,Prendre du muscle,1314.3,25,2300,50,0
+69,Femme,95,157,38.54,Faible,Fruits à coque,Aucun,Anémie,Améliorer endurance,1710.3,25,2300,50,18
+29,Homme,89,188,25.18,Modérée,Aucune,Aucun,Anémie,Améliorer endurance,2983.75,25,2300,50,18
+79,Femme,48,189,13.44,Élevée,Lait,Keto,Aucune,Prendre du muscle,2099.97,25,2300,50,0
+56,Femme,106,163,39.9,Faible,Gluten,Aucun,Hypertension,Perdre du poids,1965.3,25,1500,50,0
+19,Femme,109,181,33.27,Élevée,Gluten,Aucun,Cardiaque,Améliorer endurance,3733.97,25,2300,20,0
+20,Homme,76,187,21.73,Modérée,Lait,Végétarien,Diabète,Perdre du poids,2842.31,10,2300,50,0
+66,Femme,78,182,23.55,Modérée,Gluten,Vegan,Anémie,Améliorer endurance,2211.08,25,2300,50,18
+54,Homme,116,172,39.21,Faible,Gluten,Vegan,Cardiaque,Prendre du muscle,2364.0,25,2300,20,0
+66,Femme,83,164,30.86,Modérée,Aucune,Vegan,Hypertension,Améliorer endurance,2114.2,25,1500,50,0
+73,Homme,70,182,21.13,Faible,Lait,Vegan,Diabète,Prendre du muscle,1773.0,10,2300,50,0
+34,Homme,78,174,25.76,Modérée,Fruits à coque,Aucun,Diabète,Améliorer endurance,2638.88,10,2300,50,0
+76,Femme,98,166,35.56,Modérée,Aucune,Keto,Anémie,Prendre du muscle,2288.58,25,2300,50,18
+66,Homme,47,182,14.19,Faible,Lait,Keto,Aucune,Prendre du muscle,1539.0,25,2300,50,0
+19,Femme,94,196,24.47,Faible,Aucune,Végétarien,Hypertension,Prendre du muscle,2290.8,25,1500,50,0
+19,Femme,56,151,24.56,Faible,Fruits à coque,Végétarien,Anémie,Prendre du muscle,1497.3,25,2300,50,18
+45,Femme,109,163,41.03,Modérée,Fruits à coque,Aucun,Hypertension,Perdre du poids,2670.26,25,1500,50,0
+71,Homme,98,189,27.43,Modérée,Lait,Keto,Aucune,Prendre du muscle,2807.44,25,2300,50,0
+40,Homme,49,189,13.72,Élevée,Fruits à coque,Keto,Aucune,Perdre du poids,2804.88,25,2300,50,0
+54,Femme,101,188,28.58,Faible,Aucune,Vegan,Anémie,Perdre du poids,2104.8,25,2300,50,18
+49,Femme,61,155,25.39,Modérée,Fruits à coque,Aucun,Aucune,Prendre du muscle,1817.76,25,2300,50,0
+50,Homme,91,155,37.88,Modérée,Aucune,Aucun,Cardiaque,Perdre du poids,2532.31,25,2300,20,0
+18,Femme,67,152,29.0,Faible,Aucune,Vegan,Diabète,Améliorer endurance,1642.8,10,2300,50,0
+36,Femme,58,156,23.83,Élevée,Fruits à coque,Aucun,Anémie,Prendre du muscle,2306.6,25,2300,50,18
+79,Femme,110,157,44.63,Faible,Lait,Aucun,Hypertension,Perdre du poids,1830.3,25,1500,50,0
+19,Homme,119,191,32.62,Élevée,Gluten,Végétarien,Cardiaque,Prendre du muscle,4358.12,25,2300,20,0
+70,Homme,95,164,35.32,Modérée,Fruits à coque,Keto,Anémie,Prendre du muscle,2526.5,25,2300,50,18
+61,Homme,82,196,21.35,Élevée,Aucune,Aucun,Aucune,Prendre du muscle,3315.5,25,2300,50,0
+43,Femme,108,178,34.09,Modérée,Aucune,Végétarien,Aucune,Perdre du poids,2815.58,25,2300,50,0
+49,Femme,82,182,24.76,Faible,Fruits à coque,Keto,Aucune,Améliorer endurance,1861.8,25,2300,50,0

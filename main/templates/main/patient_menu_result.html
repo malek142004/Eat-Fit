@@ -1,0 +1,1667 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<!-- Font Awesome 6 CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Chart.js for visualizations -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- html2pdf library for PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+/* ===== MODERN ANIMATIONS ===== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ===== PAGE WRAPPER ===== */
+.menu-result-wrapper {
+    background: #f8f9fa;
+    min-height: 100vh;
+    padding: 20px 10px;
+}
+
+/* ===== MAIN CONTAINER ===== */
+.menu-result-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    margin-bottom: 30px;
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 107, 107, 0.1);
+}
+
+/* ===== HEADER ===== */
+.menu-result-header {
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 50%, #ffd93d 100%);
+    padding: 35px 25px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.menu-result-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.menu-result-header h2 {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: 800;
+    position: relative;
+    z-index: 1;
+    animation: slideInLeft 0.6s ease-out;
+    color: white;
+}
+
+.menu-result-header p {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 18px;
+    position: relative;
+    z-index: 1;
+    animation: slideInRight 0.6s ease-out 0.1s both;
+    color: white;
+}
+
+/* ===== BODY ===== */
+.menu-result-body {
+    padding: 30px 20px;
+    background: white;
+}
+
+/* ===== PATIENT INFO SECTION ===== */
+.patient-info-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    animation: slideInLeft 0.6s ease-out 0.1s both;
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.patient-info-section::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+    border-radius: 15px 0 0 15px;
+}
+
+.patient-info-section h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.patient-info-section h3::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+    border-radius: 50%;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.info-item {
+    background: white;
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.info-item:hover {
+    transform: translateY(-5px);
+    border-color: #ff6b6b;
+    box-shadow: 0 12px 30px rgba(255, 107, 107, 0.2);
+}
+
+.info-item strong {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-item span {
+    color: #ff6b6b;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* ===== RATING & LIKE SECTION ===== */
+.rating-like-section {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+    border-radius: 15px;
+    padding: 22px;
+    margin-top: 30px;
+    border: 2px solid rgba(255, 107, 107, 0.2);
+    animation: fadeInUp 0.8s ease-out both;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.rating-like-section h3 {
+    margin: 0;
+    width: 100%;
+    color: #2c3e50;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.star-rating {
+    display: flex;
+    gap: 8px;
+    font-size: 32px;
+    align-items: center;
+}
+
+.star {
+    cursor: pointer;
+    color: #ddd;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    filter: drop-shadow(0 2px 3px rgba(255, 107, 107, 0.2));
+}
+
+.star:hover {
+    transform: scale(1.2) rotate(10deg);
+    color: #ff6b6b;
+}
+
+.star.active {
+    color: #ffa06b;
+    transform: scale(1.1);
+}
+
+.rating-label {
+    color: #2c3e50;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 12px;
+    padding: 6px 12px;
+    background: white;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+#like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: white;
+    border: 2px solid #ff6b6b;
+    border-radius: 25px;
+    color: #bbb;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#like-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.2);
+}
+
+#like-btn.liked {
+    background: #ff6b6b;
+    color: white;
+    border-color: #ff6b6b;
+}
+
+#like-btn i {
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.rating-comment-section {
+    width: 100%;
+    background: linear-gradient(135deg, #fff9f7 0%, #fffbf9 100%);
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid rgba(255, 107, 107, 0.15);
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.08);
+}
+
+    /* ===== MODAL/POPUP STYLES ===== */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        max-width: 400px;
+        width: 90%;
+        position: relative;
+    }
+
+    .modal-close-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: none;
+        border: none;
+        font-size: 32px;
+        color: #bdc3c7;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        line-height: 1;
+    }
+
+    .modal-close-btn:hover {
+        color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.1);
+        transform: rotate(90deg);
+    }
+
+    /* ===== REVIEW SUMMARY SECTION ===== */
+    .review-summary-section {
+        background: linear-gradient(135deg, #f0f8ff 0%, #e8f4f8 100%);
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 30px;
+        border: 2px solid rgba(78, 205, 196, 0.3);
+        display: none;
+        animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .review-summary-section.show {
+        display: block;
+    }
+
+    .review-summary-section h3 {
+        color: #2c3e50;
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .review-summary-content {
+        background: white;
+        border-radius: 12px;
+        padding: 18px;
+        border-left: 5px solid #4ecdc4;
+    }
+
+    .review-rating-display {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .review-stars-display {
+        font-size: 24px;
+        color: #ffa06b;
+        letter-spacing: 4px;
+    }
+
+    .review-rating-text {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .review-comment-display {
+        background: linear-gradient(135deg, #fff9f7 0%, #fffbf9 100%);
+        padding: 14px;
+        border-radius: 10px;
+        border-left: 4px solid #ff6b6b;
+        font-size: 13px;
+        color: #2c3e50;
+        line-height: 1.6;
+        font-style: italic;
+        margin-top: 12px;
+    }
+
+    .review-comment-label {
+        color: #7f8c8d;
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modal-icon {
+        font-size: 60px;
+        color: #ff6b6b;
+        margin-bottom: 20px;
+        animation: bounce 0.6s ease;
+    }
+
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .modal-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+
+    .modal-text {
+        font-size: 16px;
+        color: #7f8c8d;
+        margin-bottom: 30px;
+        line-height: 1.5;
+    }
+
+    .modal-btn {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+        color: white;
+        border: none;
+        padding: 12px 40px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    .modal-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    }
+
+.rating-comment-section textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e1e8ed;
+    border-radius: 12px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    resize: vertical;
+    min-height: 110px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #2c3e50;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    line-height: 1.6;
+}
+
+.rating-comment-section textarea::placeholder {
+    color: #bdc3c7;
+    font-style: italic;
+}
+
+.rating-comment-section textarea:focus {
+    outline: none;
+    border-color: #ff6b6b;
+    box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.15), 0 4px 12px rgba(255, 107, 107, 0.2);
+    transform: translateY(-2px);
+}
+
+.submit-rating-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.submit-rating-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+}
+
+/* ===== MENU SECTIONS ===== */
+.menu-section {
+    margin-bottom: 50px;
+    animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.menu-section h3 {
+    color: #2c3e50;
+    margin-bottom: 18px;
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    padding-bottom: 8px;
+}
+
+.menu-section h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 4px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+    border-radius: 2px;
+}
+
+/* ===== DAY MENU CARDS ===== */
+.day-menu {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 5px solid #ff6b6b;
+    animation: slideInRight 0.6s ease-out;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.day-menu::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 107, 107, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.day-menu:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(255, 107, 107, 0.15);
+}
+
+.day-menu h4 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== NUTRITION SUMMARY ===== */
+.nutrition-summary {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 22px;
+    margin-top: 30px;
+    animation: fadeInUp 0.8s ease-out 0.3s both;
+    box-shadow: 0 12px 35px rgba(255, 107, 107, 0.3);
+}
+
+.nutrition-summary h3 {
+    margin-bottom: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+    border: none;
+    padding: 0;
+}
+
+.nutrition-summary h3::after {
+    display: none;
+}
+
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+}
+
+.nutrition-item {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 10px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.nutrition-item:hover {
+    transform: translateY(-5px) scale(1.05);
+    background: rgba(255, 255, 255, 0.25);
+    border-color: white;
+}
+
+.nutrition-item .value {
+    font-size: 16px;
+    font-weight: 800;
+    display: block;
+    margin-bottom: 3px;
+    animation: scaleIn 0.6s ease-out;
+}
+
+.nutrition-item .label {
+    font-size: 10px;
+    opacity: 0.95;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+/* ===== MENU TABLE ===== */
+.menu-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    margin-top: 25px;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.menu-table thead {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+    color: white;
+}
+
+.menu-table th {
+    padding: 8px 6px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.menu-table th i {
+    margin-right: 8px;
+    opacity: 0.9;
+}
+
+.menu-table tbody tr {
+    border-bottom: 1px solid #e1e8ed;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-table tbody tr:hover {
+    background: #f8f9fa;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.1);
+}
+
+.menu-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.menu-table td {
+    padding: 8px 6px;
+    color: #2c3e50;
+    font-size: 12px;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.action-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 40px;
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+    flex-wrap: wrap;
+}
+
+.btn-primary-custom,
+.btn-secondary-custom {
+    border: none;
+    padding: 9px 20px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary-custom {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+    color: white;
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+}
+
+.btn-primary-custom::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.6s;
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+}
+
+.btn-primary-custom:hover::before {
+    left: 100%;
+}
+
+.btn-primary-custom:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-export-pdf {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa06b 100%);
+    color: white;
+    border: none;
+    padding: 9px 16px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.btn-export-pdf:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+}
+
+.btn-export-pdf:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-secondary-custom {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    color: #2c3e50;
+    box-shadow: 0 8px 25px rgba(160, 237, 234, 0.2);
+}
+
+.btn-secondary-custom:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 35px rgba(160, 237, 234, 0.35);
+    color: #2c3e50;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .menu-result-body {
+        padding: 20px 15px;
+    }
+
+    .menu-result-header {
+        padding: 25px 15px;
+    }
+
+    .menu-result-header h2 {
+        font-size: 22px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .nutrition-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .btn-primary-custom,
+    .btn-secondary-custom {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .menu-result-container {
+        border-radius: 15px;
+    }
+
+    .menu-result-header {
+        padding: 20px 12px;
+    }
+
+    .menu-result-header h2 {
+        font-size: 18px;
+    }
+
+    .menu-result-body {
+        padding: 15px 10px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .nutrition-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .nutrition-item {
+        padding: 8px;
+    }
+
+    .nutrition-item .value {
+        font-size: 13px;
+    }
+
+    .nutrition-item .label {
+        font-size: 8px;
+    }
+
+    /* Responsive Rating Section */
+    .rating-like-section {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .rating-like-section h3 {
+        margin-bottom: 10px;
+    }
+
+    .star-rating {
+        font-size: 28px;
+    }
+
+    #like-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="menu-result-wrapper">
+    <div class="menu-result-container">
+        <div class="menu-result-header">
+            <h2><i class="fa fa-leaf"></i> Menu Personnalisé Généré</h2>
+            <p>Voici le menu adapté à votre patient basé sur ses informations</p>
+        </div>
+
+        <div class="menu-result-body">
+            <!-- Patient Information Summary -->
+            <div class="patient-info-section">
+                <h3><i class="fa fa-user-circle"></i> Informations du Patient</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Âge</strong>
+                        <span>{{ patient_data.Age }} ans</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Sexe</strong>
+                        <span>{{ patient_data.Sexe|title }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Poids</strong>
+                        <span>{{ patient_data.Poids }} kg</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Taille</strong>
+                        <span>{{ patient_data.Taille }} cm</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Activité</strong>
+                        <span>{{ patient_data.Activité|title }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Objectif</strong>
+                        <span>{{ patient_data.Objectif|title }}</span>
+                    </div>
+                    {% if patient_data.Allergies %}
+                    <div class="info-item">
+                        <strong><i class="fa fa-exclamation-circle"></i> Allergies</strong>
+                        <span>{{ patient_data.Allergies }}</span>
+                    </div>
+                    {% endif %}
+                    {% if patient_data.Pathologies %}
+                    <div class="info-item">
+                        <strong><i class="fa fa-hospital"></i> Pathologies</strong>
+                        <span>{{ patient_data.Pathologies|title }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Nutritional Information -->
+            <div class="patient-info-section">
+                <h3><i class="fa fa-heart"></i> Informations Nutritionnelles Clés</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong><i class="fa fa-flame"></i> BMR</strong>
+                        <span>{{ bmr }} kcal/jour</span>
+                    </div>
+                    <div class="info-item">
+                        <strong><i class="fa fa-bolt"></i> TDEE</strong>
+                        <span>{{ tdee }} kcal/jour</span>
+                    </div>
+                    <div class="info-item">
+                        <strong><i class="fa fa-target"></i> Calories Cible</strong>
+                        <span>{{ calories_target }} kcal/jour</span>
+                    </div>
+                    {% if patient_data.Régime %}
+                    <div class="info-item">
+                        <strong><i class="fa fa-leaf"></i> Régime</strong>
+                        <span>{{ patient_data.Régime|title }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Generated Menu -->
+            <div class="menu-section">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 20px;">
+                    <h3><i class="fa fa-utensils"></i> Menu Généré</h3>
+                    <button onclick="exportMenuToPDF()" class="btn-export-pdf" title="Télécharger le menu en PDF">
+                        <i class="fas fa-file-pdf"></i> Exporter en PDF
+                    </button>
+                </div>
+
+                {% for day, meals in menu.items %}
+                <div class="day-menu">
+                    <h4><i class="fa fa-calendar-check"></i> {{ day }}</h4>
+
+                    <table class="menu-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fa fa-clock"></i> Repas</th>
+                                <th><i class="fa fa-utensils"></i> Description</th>
+                                <th><i class="fa fa-fire"></i> Calories (kcal)</th>
+                                <th><i class="fa fa-egg"></i> Protéines (g)</th>
+                                <th><i class="fa fa-bread-slice"></i> Glucides (g)</th>
+                                <th><i class="fa fa-droplet"></i> Lipides (g)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for meal_type, meal_data in meals.items %}
+                            <tr class="meal-row {{ meal_type }}">
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; {% if meal_type == 'breakfast' %}background: linear-gradient(135deg, #ff9a56, #ff6b35);{% elif meal_type == 'lunch' %}background: linear-gradient(135deg, #4ecdc4, #44a08d);{% else %}background: linear-gradient(135deg, #f65d5d, #fdb07d);{% endif %}">
+                                            {% if meal_type == 'breakfast' %}<i class="fa fa-sun-o"></i>{% elif meal_type == 'lunch' %}<i class="fa fa-utensils"></i>{% elif meal_type == 'dinner' %}<i class="fa fa-moon-o"></i>{% else %}<i class="fa fa-apple"></i>{% endif %}
+                                        </div>
+                                        <strong style="text-transform: capitalize;">{{ meal_type|title }}</strong>
+                                    </div>
+                                </td>
+                                <td>{{ meal_data.description|default:'-' }}</td>
+                                <td><span style="color: #e74c3c; font-weight: 700; font-size: 16px;">{{ meal_data.calories|floatformat:0|default:'-' }}</span></td>
+                                <td><span style="color: #3498db; font-weight: 700; font-size: 16px;">{{ meal_data.protein|floatformat:1|default:'-' }}</span></td>
+                                <td><span style="color: #f39c12; font-weight: 700; font-size: 16px;">{{ meal_data.carbs|floatformat:1|default:'-' }}</span></td>
+                                <td><span style="color: #fdb07d; font-weight: 700; font-size: 16px;">{{ meal_data.fat|floatformat:1|default:'-' }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Nutrition Summary -->
+            <div class="nutrition-summary">
+                <h3><i class="fa fa-chart-pie"></i> Résumé Nutritionnel Journalier</h3>
+                <div class="nutrition-grid">
+                    <div class="nutrition-item">
+                        <span class="value">{{ calories_target }}</span>
+                        <span class="label"><i class="fa fa-fire"></i> Calories</span>
+                    </div>
+                    <div class="nutrition-item">
+                        <span class="value">~150g</span>
+                        <span class="label"><i class="fa fa-egg"></i> Protéines</span>
+                    </div>
+                    <div class="nutrition-item">
+                        <span class="value">~200g</span>
+                        <span class="label"><i class="fa fa-bread-slice"></i> Glucides</span>
+                    </div>
+                    <div class="nutrition-item">
+                        <span class="value">~70g</span>
+                        <span class="label"><i class="fa fa-droplet"></i> Lipides</span>
+                    </div>
+                    <div class="nutrition-item">
+                        <span class="value">~25g</span>
+                        <span class="label"><i class="fa fa-leaf"></i> Fibres</span>
+                    </div>
+                    <div class="nutrition-item">
+                        <span class="value">~2.5L</span>
+                        <span class="label"><i class="fa fa-cup"></i> Eau</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; margin: 50px 0; animation: fadeInUp 0.8s ease-out 0.3s both;">
+                <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #e1e8ed;">
+                    <h4 style="color: #2c3e50; margin-bottom: 20px; font-size: 18px; font-weight: 700; text-align: center;">
+                        <i class="fa fa-chart-pie"></i> Répartition par Repas
+                    </h4>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="mealCaloriesChart"></canvas>
+                    </div>
+                </div>
+                <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #e1e8ed;">
+                    <h4 style="color: #2c3e50; margin-bottom: 20px; font-size: 18px; font-weight: 700; text-align: center;">
+                        <i class="fa fa-chart-bar"></i> Macronutriments
+                    </h4>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="nutritionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rating & Like Section -->
+            <div class="rating-like-section">
+                <h3>
+                    <i class="fa fa-heart"></i> Qu'avez-vous pensé de ce menu ?
+                </h3>
+
+                <!-- Like Button -->
+                <div style="flex: 1; min-width: 150px;">
+                    <button id="like-btn" title="J'aime ce menu">
+                        <i class="far fa-heart"></i>
+                        <span>J'aime ce menu</span>
+                    </button>
+                </div>
+
+                <!-- Star Rating -->
+                <div style="flex: 1; min-width: 200px; display: flex; align-items: center;">
+                    <div class="star-rating">
+                        <span class="star" data-rating="1">★</span>
+                        <span class="star" data-rating="2">★</span>
+                        <span class="star" data-rating="3">★</span>
+                        <span class="star" data-rating="4">★</span>
+                        <span class="star" data-rating="5">★</span>
+                    </div>
+                    <input type="hidden" id="rating-input" value="0">
+                    <span class="rating-label">Évaluez ce menu</span>
+                </div>
+
+                <!-- Comment Section -->
+                <div class="rating-comment-section">
+                    <p style="margin: 0 0 10px 0; color: #2c3e50; font-weight: 600; font-size: 13px;">
+                        <i class="fa fa-comment"></i> Partagez votre avis (Optionnel)
+                    </p>
+                    <textarea id="rating-comment" placeholder="Dites-nous ce que vous pensez de ce menu... Est-il équilibré ? Les portions vous conviennent-elles ? Avez-vous des suggestions ?"></textarea>
+                    <button class="submit-rating-btn">
+                        <i class="fa fa-paper-plane"></i> Soumettre Mon Avis
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review Summary Section (shown after submission) -->
+            <div class="review-summary-section" id="reviewSummary">
+                <h3>
+                    <i class="fas fa-thumbs-up"></i> Votre Avis Enregistré
+                </h3>
+                <div class="review-summary-content">
+                    <div class="review-rating-display">
+                        <div class="review-stars-display" id="summaryStars"></div>
+                        <div class="review-rating-text" id="summaryRatingText"></div>
+                    </div>
+                    <div id="summaryCommentContainer"></div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'users:generate_menu' %}" class="btn-primary-custom">
+                    <i class="fa fa-refresh"></i> Générer un Nouveau Menu
+                </a>
+                <a href="{% url 'users:nutritionist_list' %}" class="btn-secondary-custom">
+                    <i class="fa fa-list"></i> Voir les Nutritionnistes
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Popup for Thank You -->
+    <div id="thankYouModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeThankYouModal()" title="Fermer">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="modal-title">Merci pour votre avis !</h2>
+            <p class="modal-text">
+                Votre retour nous aide à améliorer nos services et à vous proposer des menus encore meilleur.
+            </p>
+            <button class="modal-btn" onclick="closeThankYouModal()">Parfait !</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== Export to PDF Function =====
+function exportMenuToPDF() {
+    const btn = event.target.closest('button');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+
+    try {
+        // Créer un élément temporaire VISIBLE
+        const tempDiv = document.createElement('div');
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px';
+        tempDiv.style.top = '-9999px';
+        tempDiv.style.width = '800px';
+        tempDiv.style.backgroundColor = 'white';
+        tempDiv.style.padding = '30px';
+        tempDiv.style.fontFamily = 'Arial, sans-serif';
+        tempDiv.style.fontSize = '12px';
+        tempDiv.style.color = '#333';
+        
+        // TITRE
+        let html = '<h1 style="text-align: center; color: #2c3e50; margin: 0 0 10px 0; font-size: 24px;">📋 Menu Généré Personnalisé</h1>';
+        html += '<p style="text-align: center; color: #666; margin: 0 0 20px 0; font-size: 11px;">Date: ' + new Date().toLocaleDateString('fr-FR') + '</p>';
+        
+        // INFOS PATIENT
+        const patientSection = document.querySelector('.patient-info-section');
+        if (patientSection) {
+            html += '<h3 style="color: #2c3e50; border-bottom: 2px solid #ff6b6b; padding-bottom: 8px; margin: 20px 0 10px 0;">Informations du Patient</h3>';
+            const infoItems = patientSection.querySelectorAll('.info-item');
+            html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">';
+            infoItems.forEach(item => {
+                const strong = item.querySelector('strong')?.textContent || '';
+                const span = item.querySelector('span')?.textContent || '';
+                html += '<div style="background: #f5f5f5; padding: 8px; border-radius: 5px;"><strong>' + strong + '</strong><br/>' + span + '</div>';
+            });
+            html += '</div>';
+        }
+        
+        // MENU GÉNÉRÉ - TABLEAUX
+        const allDayMenus = document.querySelectorAll('.day-menu');
+        if (allDayMenus.length > 0) {
+            html += '<h3 style="color: #2c3e50; border-bottom: 2px solid #ff6b6b; padding-bottom: 8px; margin: 20px 0 10px 0;">Menu Généré</h3>';
+            
+            allDayMenus.forEach((dayMenu) => {
+                const dayTitle = dayMenu.querySelector('h4')?.textContent || 'Jour';
+                html += '<h4 style="color: #2c3e50; margin: 15px 0 8px 0; font-size: 13px;">' + dayTitle + '</h4>';
+                
+                const table = dayMenu.querySelector('.menu-table');
+                if (table) {
+                    html += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10px;">';
+                    
+                    // Headers
+                    html += '<thead>';
+                    const headers = table.querySelectorAll('th');
+                    html += '<tr style="background: #ff6b6b; color: white;">';
+                    headers.forEach(h => {
+                        html += '<th style="padding: 8px; border: 1px solid #ddd; text-align: left;">' + (h.textContent || '') + '</th>';
+                    });
+                    html += '</tr>';
+                    html += '</thead>';
+                    
+                    // Body
+                    html += '<tbody>';
+                    const rows = table.querySelectorAll('tbody tr');
+                    rows.forEach(row => {
+                        html += '<tr>';
+                        const cells = row.querySelectorAll('td');
+                        cells.forEach(cell => {
+                            html += '<td style="padding: 6px; border: 1px solid #ddd;">' + (cell.textContent || '') + '</td>';
+                        });
+                        html += '</tr>';
+                    });
+                    html += '</tbody>';
+                    html += '</table>';
+                }
+            });
+        }
+        
+        // RÉSUMÉ NUTRITIONNEL
+        const nutritionSection = document.querySelector('.nutrition-summary');
+        if (nutritionSection) {
+            html += '<h3 style="color: #2c3e50; border-bottom: 2px solid #ff6b6b; padding-bottom: 8px; margin: 20px 0 10px 0;">Résumé Nutritionnel</h3>';
+            const items = nutritionSection.querySelectorAll('.nutrition-item');
+            html += '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">';
+            items.forEach(item => {
+                const value = item.querySelector('.value')?.textContent || '';
+                const label = item.querySelector('.label')?.textContent || '';
+                html += '<div style="background: #f5f5f5; padding: 10px; border-radius: 5px; text-align: center;"><div style="font-weight: bold; font-size: 14px;">' + value + '</div><div style="font-size: 9px; color: #666;">' + label + '</div></div>';
+            });
+            html += '</div>';
+        }
+        
+        tempDiv.innerHTML = html;
+        document.body.appendChild(tempDiv);
+        
+        console.log('Contenu généré:', tempDiv.innerHTML.length, 'caractères');
+        
+        const opt = {
+            margin: 5,
+            filename: 'Menu-' + new Date().toLocaleDateString('fr-FR').replace(/\//g, '-') + '.pdf',
+            image: { type: 'jpeg', quality: 0.95 },
+            html2canvas: { scale: 2, logging: false, allowTaint: true, useCORS: true, backgroundColor: '#ffffff' },
+            jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' },
+            pagebreak: { mode: 'css', before: '.page-break' }
+        };
+
+        html2pdf().set(opt).from(tempDiv).save().then(() => {
+            document.body.removeChild(tempDiv);
+            btn.innerHTML = '<i class="fas fa-check"></i> Téléchargé !';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 2000);
+        }).catch(err => {
+            console.error('Erreur PDF:', err);
+            document.body.removeChild(tempDiv);
+            btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Erreur';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 3000);
+        });
+    } catch (err) {
+        console.error('Erreur:', err);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        alert('Erreur: ' + err.message);
+    }
+}
+
+// ===== Modal Functions (OUTSIDE DOMContentLoaded for onclick access) =====
+function showThankYouModal() {
+    const modal = document.getElementById('thankYouModal');
+    modal.classList.add('show');
+}
+
+function closeThankYouModal() {
+    const modal = document.getElementById('thankYouModal');
+    modal.classList.remove('show');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // ===== Meal Calories Chart =====
+    const mealCaloriesCtx = document.getElementById('mealCaloriesChart')?.getContext('2d');
+    if (mealCaloriesCtx) {
+        const mealCaloriesData = {
+            labels: ['Petit-déjeuner', 'Déjeuner', 'Dîner', 'Collation'],
+            datasets: [{
+                data: [
+                    {% for day, meals in menu.items %}
+                        {% if forloop.first %}
+                            {% for meal_type, meal_data in meals.items %}
+                                {% if meal_data.calories %}{{ meal_data.calories }}{% else %}0{% endif %}{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    'rgba(255, 154, 86, 0.8)',
+                    'rgba(78, 205, 196, 0.8)',
+                    'rgba(246, 93, 93, 0.8)',
+                    'rgba(240, 147, 251, 0.8)'
+                ],
+                borderColor: [
+                    '#ff9a56',
+                    '#4ecdc4',
+                    '#f65d5d',
+                    '#f093fb'
+                ],
+                borderWidth: 3,
+                borderRadius: 8
+            }]
+        };
+
+        new Chart(mealCaloriesCtx, {
+            type: 'doughnut',
+            data: mealCaloriesData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed + ' kcal (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ===== Nutrition Chart =====
+    const nutritionCtx = document.getElementById('nutritionChart')?.getContext('2d');
+    if (nutritionCtx) {
+        const nutritionData = {
+            labels: ['Protéines', 'Glucides', 'Lipides'],
+            datasets: [{
+                label: 'Quantité (g)',
+                data: [150, 200, 70],
+                backgroundColor: [
+                    'rgba(52, 152, 219, 0.8)',
+                    'rgba(243, 156, 18, 0.8)',
+                    'rgba(231, 76, 60, 0.8)'
+                ],
+                borderColor: [
+                    '#3498db',
+                    '#f39c12',
+                    '#e74c3c'
+                ],
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        };
+
+        new Chart(nutritionCtx, {
+            type: 'bar',
+            data: nutritionData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + 'g';
+                            },
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return 'Quantité: ' + context.parsed.x + 'g';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ===== Smooth Scroll Animation =====
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    });
+
+    document.querySelectorAll('.menu-section, .nutrition-summary').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        observer.observe(el);
+    });
+
+    // ===== Meal Row Interactivity =====
+    document.querySelectorAll('.meal-row').forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(5px)';
+        });
+        row.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+        });
+    });
+
+    // ===== Star Rating System =====
+    const stars = document.querySelectorAll('.star-rating .star');
+    const ratingInput = document.getElementById('rating-input');
+    
+    stars.forEach((star, index) => {
+        star.addEventListener('click', function() {
+            const rating = index + 1;
+            ratingInput.value = rating;
+            
+            // Mettre à jour l'apparence des étoiles
+            stars.forEach((s, i) => {
+                if (i < rating) {
+                    s.classList.add('active');
+                    s.style.color = '#ffa06b';
+                } else {
+                    s.classList.remove('active');
+                    s.style.color = '#ddd';
+                }
+            });
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            const hoverRating = index + 1;
+            stars.forEach((s, i) => {
+                if (i < hoverRating) {
+                    s.style.color = '#ff6b6b';
+                } else {
+                    s.style.color = '#ddd';
+                }
+            });
+        });
+    });
+    
+    document.querySelector('.star-rating').addEventListener('mouseleave', function() {
+        const currentRating = ratingInput.value;
+        stars.forEach((s, i) => {
+            if (currentRating && i < currentRating) {
+                s.style.color = '#ffa06b';
+            } else {
+                s.style.color = '#ddd';
+            }
+        });
+    });
+
+    // ===== Like Button =====
+    const likeBtn = document.getElementById('like-btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function() {
+            this.classList.toggle('liked');
+            const icon = this.querySelector('i');
+            if (this.classList.contains('liked')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                this.style.color = '#ff6b6b';
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                this.style.color = '#bbb';
+            }
+        });
+    }
+
+    // ===== Submit Rating & Comment =====
+    const submitRatingBtn = document.querySelector('.submit-rating-btn');
+    if (submitRatingBtn) {
+        submitRatingBtn.addEventListener('click', function() {
+            const rating = document.getElementById('rating-input').value;
+            const comment = document.getElementById('rating-comment').value;
+            
+            // Vérifier si au moins une étoile est sélectionnée ou un commentaire existe
+            if (rating > 0 || comment.trim() !== '') {
+                // Afficher le modal de remerciement
+                showThankYouModal();
+                
+                // Afficher le résumé de l'avis
+                displayReviewSummary(rating, comment);
+                
+                // Réinitialiser le formulaire
+                document.getElementById('rating-input').value = 0;
+                document.getElementById('rating-comment').value = '';
+                
+                // Réinitialiser les étoiles
+                document.querySelectorAll('.star-rating .star').forEach(s => {
+                    s.classList.remove('active');
+                    s.style.color = '#ddd';
+                });
+                
+                // Changer le texte du bouton brièvement
+                const originalText = submitRatingBtn.innerHTML;
+                submitRatingBtn.innerHTML = '<i class="fas fa-check"></i> Avis envoyé !';
+                setTimeout(() => {
+                    submitRatingBtn.innerHTML = originalText;
+                }, 2000);
+            } else {
+                alert('Veuillez donner une étoile ou laisser un commentaire !');
+            }
+        });
+    }
+
+    // ===== Display Review Summary =====
+    function displayReviewSummary(rating, comment) {
+        const reviewSummary = document.getElementById('reviewSummary');
+        const summaryStars = document.getElementById('summaryStars');
+        const summaryRatingText = document.getElementById('summaryRatingText');
+        const summaryCommentContainer = document.getElementById('summaryCommentContainer');
+        
+        // Afficher les étoiles
+        if (rating > 0) {
+            let starsHTML = '';
+            for (let i = 0; i < rating; i++) {
+                starsHTML += '★';
+            }
+            summaryStars.textContent = starsHTML;
+            
+            // Ajouter le texte du rating
+            const ratingTexts = ['', 'Très mauvais', 'Mauvais', 'Moyen', 'Bon', 'Excellent'];
+            summaryRatingText.textContent = ratingTexts[rating] + ' (' + rating + '/5)';
+        } else {
+            summaryStars.textContent = '';
+            summaryRatingText.textContent = 'Pas de note';
+        }
+        
+        // Afficher le commentaire
+        if (comment.trim() !== '') {
+            summaryCommentContainer.innerHTML = `
+                <div class="review-comment-display">
+                    <div class="review-comment-label"><i class="fas fa-quote-left"></i> Votre commentaire</div>
+                    <div>${comment}</div>
+                </div>
+            `;
+        } else {
+            summaryCommentContainer.innerHTML = '';
+        }
+        
+        // Afficher la section de résumé
+        reviewSummary.classList.add('show');
+        
+        // Smooth scroll vers le résumé après fermeture du modal
+        setTimeout(() => {
+            reviewSummary.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 800);
+    }
+
+    // Fermer le modal en cliquant en dehors du contenu
+    document.getElementById('thankYouModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeThankYouModal();
+        }
+    });
+});
+</script>
+{% endblock %}

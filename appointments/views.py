@@ -1,6 +1,3 @@
-def training_program_detail_view(request, pk):
-    training_program = get_object_or_404(TrainingProgram, pk=pk)
-    return render(request, 'main/training_program_detail.html', {'training_program': training_program})
 import logging
 logger = logging.getLogger(__name__)
 from django.shortcuts import render, redirect, get_object_or_404
@@ -20,22 +17,17 @@ from django.conf import settings
 import random
 import string
 
-from .forms import AppointmentCreateForm, AppointmentUpdateForm
-from .models import Appointment
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.forms import ValidationError
-<<<<<<< HEAD
 from .forms import AppointmentCreateForm, AppointmentUpdateForm, ClientUpdateForm, TrainingProgramForm, ManualPredictionFeaturesForm
 from .models import Appointment, Client, TrainingProgram
 from .models import Appointment, Client, TrainingProgram, Wallet, Coupon
 import joblib
 import numpy as np
 import os
-=======
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.forms import ValidationError
 from .forms import AppointmentCreateForm, AppointmentUpdateForm, ClientUpdateForm, TrainingProgramForm
 from .models import Appointment, Client, TrainingProgram
->>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -47,15 +39,12 @@ from .models import Feedback
 from .serializers import FeedbackSerializer
 import io
 from reportlab.pdfgen import canvas
-<<<<<<< HEAD
 import uuid
 import openai
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.db import transaction
 from django.views.decorators.http import require_http_methods
-=======
->>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
 
 User = get_user_model()
 
@@ -65,14 +54,9 @@ def is_admin(user):
 @login_required
 def create_appointment_request(request, professional_id=None):
     user = request.user
-<<<<<<< HEAD
     # Allow only clients or admins (staff) to create appointments
     if not (user.role == 'client' or user.is_staff):
         messages.error(request, "Only clients or admins can create appointments.")
-=======
-    if user.role != 'client':
-        messages.error(request, "Only clients can create appointments.")
->>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
         return redirect("main:index")
 
     professional = None
@@ -100,7 +84,7 @@ def create_appointment_request(request, professional_id=None):
 
 def appointment_list(request):
     appointments = Appointment.objects.filter(client=request.user)
-    
+
     date_query = request.GET.get('date')
     sort_order = request.GET.get('sort')
 
@@ -112,7 +96,6 @@ def appointment_list(request):
     else:
         appointments = appointments.order_by('-appointment_date', '-start_time')
 
-<<<<<<< HEAD
     # Wallet points (for current user)
     wallet_points = 0
     if request.user.is_authenticated:
@@ -126,12 +109,6 @@ def appointment_list(request):
         'date_query': date_query,
         'current_sort': sort_order,
         'wallet_points': wallet_points,
-=======
-    return render(request, 'main/listappointment.html', {
-        'appointments': appointments,
-        'date_query': date_query,
-        'current_sort': sort_order
->>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
     })
 
 
@@ -146,7 +123,7 @@ def appointment_update(request, pk):
             return redirect('appointments:appointment_list')
     else:
         form = AppointmentUpdateForm(instance=appointment)
-    
+
     return render(request, 'main/modifyappointment.html', {
         'form': form,
         'appointment': appointment,
@@ -165,13 +142,13 @@ def appointment_delete(request, pk):
 def initiate_payment(request, pk):
     if request.method == 'POST':
         appointment = get_object_or_404(Appointment, pk=pk)
-        
+
         # Generate a 4-digit confirmation code
         confirmation_code = ''.join(random.choices(string.digits, k=4))
-        
+
         # Store the code in the session
         request.session[f'payment_code_{pk}'] = confirmation_code
-        
+
         # Simulate sending email (requires email backend configuration in settings.py)
         subject = 'Eat&Fit - Votre code de confirmation de paiement'
         plain_message = f"""Bonjour {appointment.client.nom_complet},
@@ -222,7 +199,7 @@ L'équipe Eat&Fit"""
         """
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = [appointment.client.email]
-        
+
         try:
             send_mail(subject, plain_message, from_email, recipient_list, fail_silently=False, html_message=html_message)
             return JsonResponse({'status': 'success', 'message': 'Code sent to email.'})
@@ -238,9 +215,8 @@ def confirm_payment(request, pk):
         appointment = get_object_or_404(Appointment, pk=pk)
         data = json.loads(request.body)
         entered_code = data.get('code')
-        
         stored_code = request.session.get(f'payment_code_{pk}')
-        
+
         if stored_code and entered_code == stored_code:
             appointment.is_paid = True
             appointment.save()
@@ -252,7 +228,6 @@ def confirm_payment(request, pk):
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
-<<<<<<< HEAD
 @require_POST
 def quiz_generate(request):
     """Generate a quiz (uses OpenAI if key provided); returns questions and stores answers in session.
@@ -376,14 +351,10 @@ def quiz_submit(request):
     try:
         payload = json.loads(request.body)
     except Exception:
-        return JsonResponse({'error': 'Invalid payload'}, status=400)
-
-    quiz_session = request.session.get('quiz')
-    if not quiz_session or quiz_session.get('id') != payload.get('quiz_id'):
-        return JsonResponse({'error': 'No active quiz found'}, status=400)
+        payload = {}
 
     answers = payload.get('answers', [])
-    correct_map = quiz_session.get('questions', {})
+    correct_map = request.session.get('quiz', {}).get('questions', {})
     correct_count = 0
     total = len(correct_map)
     for ans in answers:
@@ -392,7 +363,7 @@ def quiz_submit(request):
         if qid in correct_map and int(correct_map[qid]) == sel:
             correct_count += 1
 
-    difficulty = quiz_session.get('difficulty', 'easy')
+    difficulty = request.session.get('quiz', {}).get('difficulty', 'easy')
     per = {'easy': 10, 'medium': 20, 'hard': 30}.get(difficulty, 10)
     points_awarded = correct_count * per
 
@@ -409,80 +380,16 @@ def quiz_submit(request):
     return JsonResponse({'correct': correct_count, 'total': total, 'points_awarded': points_awarded, 'new_balance': wallet.points})
 
 
-=======
->>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
 def generate_pdf_report(request):
     appointments = Appointment.objects.all()
-    
+
     date_query = request.GET.get('date')
     email_query = request.GET.get('email')
     sort_order = request.GET.get('sort')
 
-<<<<<<< HEAD
-
-@require_POST
-def coupon_generate(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Authentication required'}, status=401)
-
-    try:
-        payload = json.loads(request.body)
-    except Exception:
-        payload = {}
-
-    blocks = int(payload.get('blocks', 1))
-    if blocks < 1:
-        return JsonResponse({'error': 'Invalid blocks value'}, status=400)
-
-    wallet, _ = Wallet.objects.get_or_create(user=request.user)
-    available_blocks = wallet.points // 50
-    if available_blocks < blocks:
-        return JsonResponse({'error': 'Not enough points', 'available_blocks': available_blocks}, status=400)
-
-    # Deduct points atomically
-    with transaction.atomic():
-        wallet.points -= blocks * 50
-        wallet.save()
-        amount = blocks * 10  # 10 TND per 50 points
-        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-        coupon = Coupon.objects.create(user=request.user, code=code, amount=amount)
-
-    return JsonResponse({'status': 'success', 'coupon_code': coupon.code, 'amount': float(coupon.amount), 'new_balance': wallet.points})
-
-
-@require_http_methods(["GET"])
-def coupons_list(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Authentication required'}, status=401)
-    coupons = list(request.user.coupons.filter(redeemed=False).values('code', 'amount', 'created_at'))
-    return JsonResponse({'status': 'success', 'coupons': coupons})
-
-
-@require_POST
-def coupon_redeem(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'Authentication required'}, status=401)
-    try:
-        payload = json.loads(request.body)
-    except Exception:
-        payload = {}
-    code = payload.get('code')
-    if not code:
-        return JsonResponse({'error': 'Missing code'}, status=400)
-    try:
-        coupon = Coupon.objects.get(code=code, user=request.user, redeemed=False)
-    except Coupon.DoesNotExist:
-        return JsonResponse({'error': 'Coupon not found or already redeemed'}, status=404)
-    coupon.redeemed = True
-    coupon.redeemed_at = timezone.now()
-    coupon.save()
-    return JsonResponse({'status': 'success', 'code': coupon.code, 'amount': float(coupon.amount)})
-
-=======
->>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
     if date_query:
         appointments = appointments.filter(appointment_date=date_query)
-    
+
     if email_query:
         appointments = appointments.filter(client__email__icontains=email_query)
 
@@ -500,10 +407,9 @@ def coupon_redeem(request):
         response = HttpResponse(result.getvalue(), content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="appointments_report.pdf"'
         return response
-    
+
     return HttpResponse("Error Generating PDF", status=500)
 
-<<<<<<< HEAD
 @login_required
 def backoffice_appointments_list(request):
     # Accessible to any logged-in user (no automatic redirect to login for already-authenticated users)
@@ -522,18 +428,14 @@ def backoffice_appointments_list(request):
         .prefetch_related('client__coupons', 'client__wallet')
         .annotate(wallet_points=Coalesce(Subquery(wallet_points_subq, output_field=IntegerField()), Value(0), output_field=IntegerField()))
     )
-=======
-def backoffice_appointments_list(request):
-    appointments = Appointment.objects.all()
->>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
-    
+
     date_query = request.GET.get('date')
     email_query = request.GET.get('email')
     sort_order = request.GET.get('sort')
 
     if date_query:
         appointments = appointments.filter(appointment_date=date_query)
-    
+
     if email_query:
         appointments = appointments.filter(client__email__icontains=email_query)
 
@@ -542,7 +444,6 @@ def backoffice_appointments_list(request):
     else:
         appointments = appointments.order_by('-appointment_date')
 
-<<<<<<< HEAD
     # wallet_points is now guaranteed to be an integer (0 when no Wallet exists)
 
     context = {
@@ -552,14 +453,6 @@ def backoffice_appointments_list(request):
         'current_sort': sort_order,
     }
     return render(request, 'backoffice/tables.html', context)
-=======
-    return render(request, 'backoffice/tables.html', {
-        'appointments': appointments,
-        'date_query': date_query,
-        'email_query': email_query,
-        'current_sort': sort_order
-    })
->>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
 
 def backoffice_appointment_create(request):
     if request.method == 'POST':
@@ -583,7 +476,7 @@ def backoffice_appointment_update(request, pk):
             return redirect('appointments:backoffice_appointment_list')
     else:
         form = AppointmentUpdateForm(instance=appointment)
-    
+
     return render(request, 'backoffice/appointment_form.html', {
         'form': form,
         'appointment': appointment,
@@ -598,7 +491,6 @@ def backoffice_appointment_delete(request, pk):
         return redirect('appointments:backoffice_appointment_list')
     return render(request, 'backoffice/appointment_confirm_delete.html', {'appointment': appointment})
 
-<<<<<<< HEAD
 
 def predict_manual_features_view(request, appointment_id):
     # Accessible without login requirement for prediction flow
@@ -615,7 +507,7 @@ def prediction_result_view(request, appointment_id):
     # Accessible without login requirement for prediction flow
     appointment = get_object_or_404(Appointment, pk=appointment_id)
     client = appointment.client
-    
+
     if request.method != 'POST':
         return redirect('appointments:backoffice_predict_manual', appointment_id=appointment.id)
 
@@ -624,7 +516,7 @@ def prediction_result_view(request, appointment_id):
         manual_data = form.cleaned_data
         age = manual_data['age']
         gender = int(manual_data['gender'])
-        
+
         # --- Calculate/Define Features ---
         sms_received = 1  # Assume SMS was sent
         date_diff = (appointment.appointment_date - appointment.created_at.date()).days
@@ -644,7 +536,7 @@ def prediction_result_view(request, appointment_id):
 
         prediction_result = None
         prediction_action = "Aucune action."
-        
+
         try:
             scaler_path = os.path.join(settings.BASE_DIR, 'appointments', 'scaler.pkl')
             model_path = os.path.join(settings.BASE_DIR, 'appointments', 'no_show_model.pkl')
@@ -717,7 +609,7 @@ def send_prediction_email(request, appointment_id):
             messages.error(request, f"Erreur lors de l'envoi de l'email : {e}")
 
         return redirect('appointments:backoffice_appointment_list')
-    
+
     # Redirect if not a POST request
     return redirect('appointments:backoffice_prediction_result', appointment_id=appointment.id)
 
@@ -800,9 +692,65 @@ def quick_predict_view(request, appointment_id):
     return render(request, 'backoffice/prediction_result.html', context)
 
 
-=======
->>>>>>> 1a8f9733996aab58de030e31a9be7f3d02d657cb
-@csrf_exempt
+@require_POST
+def coupon_generate(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required'}, status=401)
+
+    try:
+        payload = json.loads(request.body)
+    except Exception:
+        payload = {}
+
+    blocks = int(payload.get('blocks', 1))
+    if blocks < 1:
+        return JsonResponse({'error': 'Invalid blocks value'}, status=400)
+
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+    available_blocks = wallet.points // 50
+    if available_blocks < blocks:
+        return JsonResponse({'error': 'Not enough points', 'available_blocks': available_blocks}, status=400)
+
+    # Deduct points atomically
+    with transaction.atomic():
+        wallet.points -= blocks * 50
+        wallet.save()
+        amount = blocks * 10  # 10 TND per 50 points
+        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        coupon = Coupon.objects.create(user=request.user, code=code, amount=amount)
+
+    return JsonResponse({'status': 'success', 'coupon_code': coupon.code, 'amount': float(coupon.amount), 'new_balance': wallet.points})
+
+
+@require_http_methods(["GET"])
+def coupons_list(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required'}, status=401)
+    coupons = list(request.user.coupons.filter(redeemed=False).values('code', 'amount', 'created_at'))
+    return JsonResponse({'status': 'success', 'coupons': coupons})
+
+
+@require_POST
+def coupon_redeem(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required'}, status=401)
+    try:
+        payload = json.loads(request.body)
+    except Exception:
+        payload = {}
+    code = payload.get('code')
+    if not code:
+        return JsonResponse({'error': 'Missing code'}, status=400)
+    try:
+        coupon = Coupon.objects.get(code=code, user=request.user, redeemed=False)
+    except Coupon.DoesNotExist:
+        return JsonResponse({'error': 'Coupon not found or already redeemed'}, status=404)
+    coupon.redeemed = True
+    coupon.redeemed_at = timezone.now()
+    coupon.save()
+    return JsonResponse({'status': 'success', 'code': coupon.code, 'amount': float(coupon.amount)})
+
+
 @csrf_exempt
 def api_available_slots(request):
     start_date_str = request.GET.get('start_date')
@@ -845,14 +793,14 @@ def api_available_slots(request):
         current_slot_dt = datetime.combine(current_day, working_start_time)
         while current_slot_dt.time() < working_end_time:
             current_slot_end_dt = current_slot_dt + slot_duration
-            
+
             is_available = True
             for occupied in occupied_slots:
                 # Check for overlap
                 if not (current_slot_end_dt <= occupied['start'] or current_slot_dt >= occupied['end']):
                     is_available = False
                     break
-            
+
             if is_available:
                 available_slots.append({
                     'start': current_slot_dt.isoformat(),
@@ -860,7 +808,7 @@ def api_available_slots(request):
                     'date': current_day.strftime('%Y-%m-%d'),
                     'time': current_slot_dt.strftime('%H:%M')
                 })
-            
+
             current_slot_dt += slot_duration # Increment the datetime object
         current_day += timedelta(days=1)
 
@@ -1130,4 +1078,10 @@ def coach_training_programs_view(request, coach_id):
     return render(request, 'main/coach_training_programs.html', {
         'training_programs': training_programs,
         'coach': coach
+    })
+
+def training_program_detail_view(request, pk):
+    training_program = get_object_or_404(TrainingProgram, pk=pk)
+    return render(request, 'main/training_program_detail.html', {
+        'training_program': training_program
     })

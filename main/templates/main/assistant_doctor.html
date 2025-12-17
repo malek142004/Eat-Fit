@@ -1,0 +1,481 @@
+<!-- AI Nutrition Assistant - Modern Widget -->
+<style>
+    .assistant-container {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 9999;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .assistant-toggle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #ff6b6b, #ff8e53);
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        transition: all 0.3s ease;
+        color: white;
+    }
+
+    .assistant-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+    }
+
+    .assistant-toggle.active {
+        background: linear-gradient(145deg, #ff4757, #ff6348);
+    }
+
+    .assistant-window {
+        position: absolute;
+        bottom: 80px;
+        left: 0;
+        width: 380px;
+        height: 600px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 35px rgba(0, 0, 0, 0.15);
+        display: none;
+        flex-direction: column;
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .assistant-window.show {
+        display: flex;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    .assistant-header {
+        background: linear-gradient(145deg, #ff6b6b, #ff8e53);
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .assistant-header-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .assistant-header-title i {
+        font-size: 20px;
+    }
+
+    .assistant-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .assistant-header p {
+        margin: 0;
+        font-size: 12px;
+        opacity: 0.9;
+    }
+
+    .assistant-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 0;
+        transition: transform 0.2s;
+    }
+
+    .assistant-close:hover {
+        transform: rotate(90deg);
+    }
+
+    .assistant-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .message {
+        display: flex;
+        gap: 10px;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .message.user {
+        justify-content: flex-end;
+    }
+
+    .message-content {
+        max-width: 80%;
+        padding: 10px 15px;
+        border-radius: 12px;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .message.assistant .message-content {
+        background: white;
+        color: #333;
+        border: 1px solid #e0e0e0;
+    }
+
+    .message.user .message-content {
+        background: linear-gradient(145deg, #ff6b6b, #ff8e53);
+        color: white;
+        border-radius: 12px 4px 12px 12px;
+    }
+
+    .message-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .message.assistant .message-icon {
+        background: linear-gradient(145deg, #ff6b6b, #ff8e53);
+        color: white;
+    }
+
+    .message.user .message-icon {
+        background: #e0e0e0;
+        color: #333;
+    }
+
+    .loading-dots {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+    }
+
+    .loading-dots span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #ff6b6b;
+        animation: bounce 1.4s infinite;
+    }
+
+    .loading-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .loading-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes bounce {
+        0%, 80%, 100% {
+            opacity: 0.5;
+            transform: translateY(0);
+        }
+        40% {
+            opacity: 1;
+            transform: translateY(-8px);
+        }
+    }
+
+    .assistant-input-area {
+        padding: 15px;
+        background: white;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        gap: 8px;
+    }
+
+    .assistant-input {
+        flex: 1;
+        border: 1px solid #ddd;
+        border-radius: 25px;
+        padding: 10px 15px;
+        font-size: 13px;
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .assistant-input:focus {
+        border-color: #ff6b6b;
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+    }
+
+    .assistant-send {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #ff6b6b, #ff8e53);
+        border: none;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: all 0.2s;
+    }
+
+    .assistant-send:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+    }
+
+    .assistant-send:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .assistant-welcome {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
+
+    .assistant-welcome i {
+        font-size: 32px;
+        color: #ff6b6b;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .assistant-welcome h4 {
+        margin: 10px 0 5px 0;
+        color: #333;
+    }
+
+    .assistant-welcome p {
+        margin: 0;
+        font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+        .assistant-window {
+            width: calc(100vw - 20px);
+            height: 70vh;
+            bottom: 70px;
+            right: 10px;
+        }
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+
+    .assistant-messages {
+        scrollbar-width: none;
+    }
+
+    .assistant-label {
+        position: absolute;
+        bottom: 75px;
+        left: 0;
+        background: linear-gradient(145deg, #ff6b6b, #ff8e53);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 16px;
+        font-weight: 600;
+        white-space: nowrap;
+        animation: labelPulse 2s infinite;
+        box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    }
+
+    .assistant-label::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 15px;
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 0px solid transparent;
+        border-top: 8px solid #ff6b6b;
+    }
+
+    @keyframes labelPulse {
+        0%, 100% {
+            transform: translateY(0px);
+            opacity: 1;
+        }
+        50% {
+            transform: translateY(-5px);
+            opacity: 0.8;
+        }
+    }</style>
+
+<div class="assistant-container">
+    <div class="assistant-label">
+        <i class="fa fa-arrow-down"></i> Posez vos questions!
+    </div>
+    <button class="assistant-toggle" id="assistantToggle" title="Assistant Nutritionist">
+        <i class="fa fa-stethoscope"></i>
+    </button>
+
+    <div class="assistant-window" id="assistantWindow">
+        <div class="assistant-header">
+            <div class="assistant-header-title">
+                <i class="fa fa-stethoscope"></i>
+                <div>
+                    <h3>Assistant Nutritionist</h3>
+                    <p>Vos questions de nutrition</p>
+                </div>
+            </div>
+            <button class="assistant-close" id="assistantClose">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+
+        <div class="assistant-messages scrollbar-hide" id="assistantMessages">
+            <div class="message assistant">
+                <div class="message-icon">
+                    <i class="fa fa-stethoscope"></i>
+                </div>
+                <div class="message-content">
+                    <div class="assistant-welcome">
+                        <i class="fa fa-utensils"></i>
+                        <h4>Bienvenue!</h4>
+                        <p>Je suis votre assistant nutritionnel. Posez-moi vos questions sur la nutrition et l'alimentation saine.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="assistant-input-area">
+            <input 
+                type="text" 
+                class="assistant-input" 
+                id="assistantInput" 
+                placeholder="Posez votre question..."
+                maxlength="500"
+            >
+            <button class="assistant-send" id="assistantSend">
+                <i class="fa fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('assistantToggle');
+    const window = document.getElementById('assistantWindow');
+    const closeBtn = document.getElementById('assistantClose');
+    const input = document.getElementById('assistantInput');
+    const sendBtn = document.getElementById('assistantSend');
+    const messagesContainer = document.getElementById('assistantMessages');
+
+    // Toggle window
+    toggle.addEventListener('click', function() {
+        window.classList.toggle('show');
+        toggle.classList.toggle('active');
+        if (window.classList.contains('show')) {
+            input.focus();
+        }
+    });
+
+    // Close window
+    closeBtn.addEventListener('click', function() {
+        window.classList.remove('show');
+        toggle.classList.remove('active');
+    });
+
+    // Send message on Enter
+    input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // Send button click
+    sendBtn.addEventListener('click', sendMessage);
+
+    function sendMessage() {
+        const message = input.value.trim();
+        if (!message) return;
+
+        // Add user message
+        addMessage(message, 'user');
+        input.value = '';
+
+        // Send to server
+        sendBtn.disabled = true;
+        input.disabled = true;
+
+        fetch('{% url "main:nutrition_assistant" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ question: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                addMessage(data.answer, 'assistant');
+            } else {
+                addMessage('Désolé, une erreur est survenue. Essayez une autre question.', 'assistant');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            addMessage('Désolé, je n\'ai pas pu traiter votre question.', 'assistant');
+        })
+        .finally(() => {
+            sendBtn.disabled = false;
+            input.disabled = false;
+            input.focus();
+        });
+    }
+
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'message-icon';
+        iconDiv.innerHTML = sender === 'user' ? '<i class="fa fa-user"></i>' : '<i class="fa fa-stethoscope"></i>';
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.textContent = text;
+
+        messageDiv.appendChild(iconDiv);
+        messageDiv.appendChild(contentDiv);
+        messagesContainer.appendChild(messageDiv);
+
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+});
+</script>

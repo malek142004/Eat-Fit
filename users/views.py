@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.db.models import Q, Avg, Count
@@ -90,26 +90,26 @@ def auth_view(request):
         if signup_form.is_valid():
             user = signup_form.save()
             face_image = request.POST.get("face_image")
-        if face_image:
-            try:
-                # Extraire le base64
-                image_data = face_image.split(",")[1]
-                image = Image.open(io.BytesIO(base64.b64decode(image_data)))
+            if face_image:
+                try:
+                    # Extraire le base64
+                    image_data = face_image.split(",")[1]
+                    image = Image.open(io.BytesIO(base64.b64decode(image_data)))
 
-                # Détecter le visage
-                face = mtcnn(image)
-                if face is not None:
-                    embedding = model(face.unsqueeze(0)).detach().cpu().numpy()
-                    # Enregistrer dans FaceProfile
-                    FaceProfile.objects.create(
-                        user=user,
-                        embedding=embedding.tobytes()
-                    )
-            except Exception as e:
-                print("Erreur Face ID:", e)
+                    # Détecter le visage
+                    face = mtcnn(image)
+                    if face is not None:
+                        embedding = model(face.unsqueeze(0)).detach().cpu().numpy()
+                        # Enregistrer dans FaceProfile
+                        FaceProfile.objects.create(
+                            user=user,
+                            embedding=embedding.tobytes()
+                        )
+                except Exception as e:
+                    print("Erreur Face ID:", e)
             login(request, user ,backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, "Compte créé avec succès ! Bienvenue 👋")
-            
+
             # Redirection selon rôle
             if user.role == "admin":
                 # Admin → page principale du backoffice (liste des utilisateurs)
@@ -2091,6 +2091,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import FaceProfile
 from .face_recognition import mtcnn, model  # ton modèle Facenet
+from openai import OpenAI
+from decouple import config
 
 @csrf_exempt
 def face_login(request):
@@ -2139,5 +2141,193 @@ def face_login(request):
         print("Erreur face_login:", e)
         return JsonResponse({"error": str(e)}, status=500)
     
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect
+from django.contrib import messages
     
+@require_http_methods(["POST"])
+def nutrition_assistant(request):
+    """
+    AI Assistant for nutrition questions using OpenAI API
+    """
+    try:
+        data = json.loads(request.body)
+        question = data.get('question', '').strip()
 
+        if not question:
+            return JsonResponse({'success': False, 'error': 'Question vide'})
+
+        # System prompt to ensure nutrition-focused responses
+        system_prompt = """Tu es un assistant nutritionnel expert et bienveillant. 
+Tu réponds UNIQUEMENT aux questions concernant:
+- La nutrition et l'alimentation saine
+- Les régimes et les plans alimentaires
+- Les vitamines, minéraux et nutriments
+- Les calories et la nutrition sportive
+- Les allergies alimentaires et intoléances
+- L'équilibre nutritionnel
+
+Si une question n'a pas de rapport avec la nutrition, réponds poliment: 
+"Je suis spécialisé en nutrition. Votre question ne concerne pas ce domaine. Pouvez-vous poser une question sur la nutrition?"
+
+Garde les réponses concises, utiles et faciles à comprendre."""
+
+        # Initialize OpenAI client
+        api_key = config('OPENAI_API_KEY', default=None)
+        if not api_key:
+            return JsonResponse({'success': False, 'error': 'Clé API non configurée'})
+        
+        client = OpenAI(api_key=api_key)
+        
+        # Call OpenAI API with new client syntax
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": question}
+            ],
+            max_tokens=500,
+            temperature=0.7,
+        )
+
+        answer = response.choices[0].message.content.strip()
+
+        return JsonResponse({
+            'success': True,
+            'answer': answer
+        })
+
+    except Exception as e:
+        print(f"Assistant error: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+def patient_menu_form(request):
+    """
+    Display the patient menu generation form
+    """
+    from .forms import PatientMenuForm
+    form = PatientMenuForm()
+    return render(request, 'main/patient_menu_form.html', {'form': form})
+
+def patient_menu_result(request):
+    """
+    Display the generated patient menu results
+    """
+    menu_data = request.session.get('generated_menu')
+    patient_data = request.session.get('patient_data')
+    bmr = request.session.get('bmr')
+    tdee = request.session.get('tdee')
+    calories_target = request.session.get('calories_target')
+
+    if not menu_data:
+        messages.error(request, 'Aucune donnée de menu trouvée. Veuillez générer un menu d\'abord.')
+        return redirect('users:patient_menu_form')
+
+    return render(request, 'main/patient_menu_result.html', {
+        'menu': menu_data,
+        'patient_data': patient_data,
+        'bmr': bmr,
+        'tdee': tdee,
+        'calories_target': calories_target
+    })
+
+def generate_patient_menu(request):
+    """
+    Generate a personalized menu for a patient using menu_engine.py
+    """
+    if request.method == 'POST':
+        try:
+            # Extract form data
+            age = request.POST.get('age', '')
+            sexe = request.POST.get('sexe', '')
+            poids = request.POST.get('poids', '')
+            taille = request.POST.get('taille', '')
+            activite = request.POST.get('activite', '')
+            regime_souhaite = request.POST.get('regime_souhaite', '')
+            objectif = request.POST.get('objectif', '')
+            allergies = request.POST.get('allergies', '')
+            pathologies = request.POST.get('pathologies', '')
+
+            # Calculate nutritional values
+            poids_float = float(poids)
+            taille_float = float(taille)
+            age_int = int(age)
+
+            # BMR calculation (Harris-Benedict)
+            if sexe.lower() == 'homme':
+                bmr = 88.362 + (13.397 * poids_float) + (4.799 * taille_float) - (5.677 * age_int)
+            else:
+                bmr = 447.593 + (9.247 * poids_float) + (3.098 * taille_float) - (4.330 * age_int)
+
+            # TDEE calculation based on activity level
+            activity_multipliers = {
+                'sédentaire': 1.2,
+                'léger': 1.375,
+                'modéré': 1.55,
+                'actif': 1.725,
+                'très actif': 1.9
+            }
+            tdee = bmr * activity_multipliers.get(activite.lower(), 1.2)
+
+            # Calories target based on objective
+            if objectif.lower() in ['perte de poids', 'perdre du poids']:
+                calories_target = int(tdee - 500)
+            elif objectif.lower() in ['prise de poids', 'prendre du poids']:
+                calories_target = int(tdee + 500)
+            else:
+                calories_target = int(tdee)
+
+            # Prepare patient data for menu_engine.py
+            patient_data = {
+                'Age': age,
+                'Sexe': sexe,
+                'Poids(kg)': poids_float,
+                'Taille(cm)': taille_float,
+                'Activité': activite,
+                'Régime souhaité': regime_souhaite,
+                'Objectif': objectif,
+                'Allergies': allergies,
+                'Pathologies': pathologies,
+                'Calories_journalières': calories_target,
+                'max_sugar': 50,  # Default max sugar in grams
+                'max_sodium': 2300  # Default max sodium in mg
+            }
+
+            # Import and use menu_engine.py
+            from .model_ia_menu.menu_engine import generate_menu_for_patient
+
+            # Generate menu using menu_engine.py
+            menu_data = generate_menu_for_patient(patient_data)
+
+            # Store menu data and patient data in session for the results page
+            request.session['generated_menu'] = menu_data
+            request.session['patient_data'] = {
+                'Age': age,
+                'Sexe': sexe,
+                'Poids': poids,
+                'Taille': taille,
+                'Activité': activite,
+                'Objectif': objectif,
+                'Régime': regime_souhaite,
+                'Allergies': allergies,
+                'Pathologies': pathologies
+            }
+
+            request.session['bmr'] = round(bmr, 1)
+            request.session['tdee'] = round(tdee, 1)
+            request.session['calories_target'] = calories_target
+
+            # Redirect to results page
+            return redirect('users:patient_menu_result')
+
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la génération du menu: {str(e)}')
+            return redirect('users:patient_menu_form')
+
+    # For GET requests, redirect to form
+    return redirect('users:patient_menu_form')

@@ -1,0 +1,25 @@
+diet_type,meal_type,meal_name,calories,protein_g,carbs_g,fat_g,sugar_g,sodium_mg,fiber_g
+vegan,petit-déjeuner,oatmeal with fruits,250,8,45,5,15,50,6
+vegan,petit-déjeuner,protein smoothie,200,20,25,3,10,30,4
+vegan,déjeuner,quinoa salad,350,15,50,10,5,200,8
+vegan,déjeuner,vegan wrap,400,18,55,12,8,250,7
+vegan,dîner,stir fry vegetables,300,12,40,8,6,150,9
+vegan,dîner,baked tofu,280,22,20,15,2,100,3
+vegan,collation,fruit salad,150,3,30,2,20,10,5
+vegan,collation,nuts mix,200,10,10,15,2,5,3
+vegetarian,petit-déjeuner,yogurt with granola,300,15,40,8,20,80,5
+vegetarian,petit-déjeuner,protein pancakes,350,25,45,10,15,120,4
+vegetarian,déjeuner,chicken salad,400,30,35,15,5,300,6
+vegetarian,déjeuner,turkey wrap,450,35,50,12,8,350,7
+vegetarian,dîner,grilled salmon,500,40,20,25,2,400,2
+vegetarian,dîner,baked chicken,480,38,25,20,3,380,3
+vegetarian,collation,cheese sticks,200,15,5,12,2,250,1
+vegetarian,collation,yogurt parfait,250,18,35,6,25,90,4
+omnivore,petit-déjeuner,eggs and toast,350,20,30,15,5,300,3
+omnivore,petit-déjeuner,bacon and eggs,450,25,10,30,2,600,2
+omnivore,déjeuner,beef burger,550,35,40,25,8,700,4
+omnivore,déjeuner,chicken sandwich,500,32,45,18,7,650,5
+omnivore,dîner,steak dinner,600,45,15,35,3,800,2
+omnivore,dîner,pork chops,550,40,20,28,4,750,3
+omnivore,collation,protein bar,250,20,25,8,15,150,3
+omnivore,collation,milkshake,300,12,40,10,30,200,2

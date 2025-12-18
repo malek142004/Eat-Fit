@@ -1,3 +1,48 @@
+import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from google import genai
+from django.conf import settings
+def ai_coach(request):
+    """
+    Renders the AI Coach chat interface page.
+    """
+    return render(request, 'main/ai_coach.html')
+
+
+@csrf_exempt
+def ai_coach_chat(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        user_message = data.get("message", "").strip()
+        if not user_message:
+            return JsonResponse({"error": "Empty message"}, status=400)
+
+        # The client gets the API key from the environment variable `GEMINI_API_KEY`
+        client = genai.Client()
+
+
+        prompt = (
+            "You are an AI fitness coach. Generate a personalized training program in a clear, structured, and uniform format. "
+            "Always use the following sections in your answer (even if some are brief):\n"
+            "1. Title\n2. Introduction\n3. Goals\n4. Weekly Schedule\n5. Daily Routine\n6. Exercises (with sets, reps, rest)\n7. Equipment Needed\n8. Nutrition Tips\n9. Motivation\n10. Safety Notes\n11. Conclusion\n"
+            "Use bullet points, tables, or formatting for clarity.\n"
+            "Respond in a way that is easy to copy or export as a PDF.\n\nUser input:\n" + user_message
+        )
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash", contents=prompt
+        )
+
+        ai_reply = getattr(response, "text", None) or "Sorry, I could not generate a response."
+
+        return JsonResponse({"reply": ai_reply})
+
+    except Exception as e:
+        return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
 from django.shortcuts import render, redirect, get_object_or_404
 from appointments.models import Appointment, Client, Feedback
 from users.models import Coach

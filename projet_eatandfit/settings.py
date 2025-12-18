@@ -204,6 +204,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # API Keys from environment variables
 load_dotenv()
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GOOGLE_APPLICATION_CREDENTIALS = config('GOOGLE_APPLICATION_CREDENTIALS', default='')
 

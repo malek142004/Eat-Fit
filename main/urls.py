@@ -40,4 +40,8 @@ urlpatterns = [
 
     # Nutrition Assistant
     path('nutrition-assistant/', views.nutrition_assistant, name='nutrition_assistant'),
+    
+    # AI Coach Chat
+    path('ai-coach/', views.ai_coach, name='ai_coach'),
+    path("ai-coach/chat/", views.ai_coach_chat, name="ai_coach_chat"),
 ]

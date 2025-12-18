@@ -1,0 +1,173 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}AI Coach Chat | Eat and Fit{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg" style="border-radius: 24px; background: linear-gradient(120deg,#fff6f0 0%,#ffe0c3 100%);">
+                <div class="card-body p-4">
+                    <h2 class="mb-4" style="color:#ff6b35; font-weight:700;">Chat with AI Coach</h2>
+                    <div id="chat-area" style="height:340px; overflow-y:auto; background:#fff6f0; border-radius:18px; padding:18px; box-shadow:0 2px 8px rgba(255,107,53,0.08); margin-bottom:18px;">
+                        <!-- Chat messages will appear here -->
+                    </div>
+                    <div class="d-flex flex-row gap-3 align-items-center justify-content-end mt-2" id="ai-coach-actions" style="width:100%;">
+                        <form id="chat-form" class="d-flex gap-2 align-items-center mb-0" style="flex:1;">
+                            {% csrf_token %}
+                            <input id="user-input" type="text" class="form-control" placeholder="Type your goals, level, equipment, schedule..." style="border-radius:16px; border:1.5px solid #ffb347; font-size:1.15rem;" autocomplete="off" required>
+                            <button type="submit" class="btn fw-bold" style="background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%); color:#fff; border-radius:18px; padding:10px 28px; font-size:1.15rem; border:none; box-shadow:0 2px 8px rgba(255,107,53,0.08);">Send</button>
+                        </form>
+                        <button id="download-pdf" class="btn fw-bold" style="background: linear-gradient(90deg,#ffb347 0%,#ff6b35 100%); color:#fff; border-radius:18px; padding:10px 28px; font-size:1.1rem; border:none; box-shadow:0 2px 8px rgba(255,107,53,0.08); margin-left:12px; display:none; white-space:nowrap;">Download as PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+#chat-area {
+    min-height: 200px;
+    max-height: 340px;
+    overflow-y: auto;
+    background: #fff6f0;
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(255,107,53,0.08);
+    padding: 18px;
+}
+.ai-message {
+    background: linear-gradient(90deg,#ffe0c3 0%,#fff6f0 100%);
+    color: #444;
+    border-radius: 18px 18px 18px 4px;
+    padding: 12px 18px;
+    margin-bottom: 10px;
+    max-width: 75%;
+    box-shadow: 0 2px 8px rgba(255,179,71,0.08);
+    text-align: left;
+    float: left;
+    clear: both;
+}
+.user-message {
+    background: linear-gradient(90deg,#ffb347 0%,#ff6b35 100%);
+    color: #fff;
+    border-radius: 18px 18px 4px 18px;
+    padding: 12px 18px;
+    margin-bottom: 10px;
+    max-width: 75%;
+    box-shadow: 0 2px 8px rgba(255,107,53,0.08);
+    text-align: right;
+    float: right;
+    clear: both;
+}
+</style>
+
+<script>
+const chatArea = document.getElementById('chat-area');
+const chatForm = document.getElementById('chat-form');
+const userInput = document.getElementById('user-input');
+
+// Scroll chat to bottom
+function scrollChatToBottom() {
+    chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+// Add message to chat area
+let lastAIMessage = '';
+function addMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = sender === 'user' ? 'user-message' : 'ai-message';
+    msgDiv.innerText = text;
+    chatArea.appendChild(msgDiv);
+    if (sender === 'ai') {
+        lastAIMessage = text;
+        document.getElementById('download-pdf').style.display = 'inline-block';
+    }
+    scrollChatToBottom();
+}
+// Download as PDF feature (multi-page support)
+document.getElementById('download-pdf').addEventListener('click', function() {
+    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 15;
+    const lineHeight = 8;
+    const maxLineWidth = 180;
+    let y = margin;
+    doc.setFont('helvetica');
+    doc.setFontSize(12);
+    const lines = doc.splitTextToSize(lastAIMessage, maxLineWidth);
+    lines.forEach(line => {
+        if (y + lineHeight > pageHeight - margin) {
+            doc.addPage();
+            y = margin;
+        }
+        doc.text(line, margin, y);
+        y += lineHeight;
+    });
+    doc.save('AI_Coach_Training_Program.pdf');
+});
+</script>
+<style>
+#ai-coach-actions {
+    margin-top: 8px;
+    gap: 18px !important;
+}
+#ai-coach-actions form {
+    flex: 1 1 auto;
+    margin-bottom: 0;
+}
+#download-pdf {
+    min-width: 170px;
+    margin-left: 12px;
+    transition: box-shadow 0.2s, background 0.2s;
+}
+#download-pdf:hover {
+    background: linear-gradient(90deg,#ff6b35 0%,#ffb347 100%);
+    box-shadow: 0 4px 16px rgba(255,107,53,0.18);
+}
+</style>
+
+<script>
+// Ensure DOM is loaded before attaching event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    chatForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const message = userInput.value.trim();
+        if (!message) return;
+
+        addMessage(message, 'user');
+        userInput.value = '';
+
+        const loading = document.createElement('div');
+        loading.className = 'ai-message';
+        loading.innerText = 'AI Coach is typing...';
+        chatArea.appendChild(loading);
+        scrollChatToBottom();
+
+        try {
+            const response = await fetch("{% url 'main:ai_coach_chat' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await response.json();
+            chatArea.removeChild(loading);
+
+            addMessage(data.reply || "Sorry, I couldn't generate a response.", 'ai');
+
+        } catch (error) {
+            chatArea.removeChild(loading);
+            addMessage("There was an error contacting the AI Coach.", 'ai');
+        }
+    });
+});
+</script>
+<!-- jsPDF library for PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+{% endblock %}
